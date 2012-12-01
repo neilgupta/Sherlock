@@ -4,7 +4,7 @@ Sherlock
 **Sherlock parses events written in plain English, and returns an object defining a basic event.
 [Try demo](http://tabule.github.com/Sherlock/).**
 
-It was designed to allow event creation using natural language. For example, *"The party is tomorrow from 3pm - 5pm."* will return:
+It was designed to allow event creation using natural language. For example, *"The party is tomorrow from 3pm to 5pm."* will return:
 
 ```javascript
 {
@@ -15,7 +15,7 @@ It was designed to allow event creation using natural language. For example, *"T
 }
 ```
 
-Sherlock supports a wide variety of input formats that are common in US English. [Try the demo](http://tabule.github.com/Sherlock/), and [let us know](https://github.com/Tabule/Sherlock/issues) if you find an input that does not work.
+Sherlock can handle times, days, date ranges, event titles, and more. It supports a wide variety of input formats that are common in US English. [Try the demo](http://tabule.github.com/Sherlock/), and [let us know](https://github.com/Tabule/Sherlock/issues) if you find an input that does not work.
 
 # Watson
 
@@ -60,6 +60,8 @@ Sherlock was built for [Tabule](https://tabuleapp.com), meaning it is designed f
 * Dates must be in the future.
 
 These two limitations together mean that Sherlock always finds the nearest future date that meets the input. For example, if today is November 25th, 2012 and the user enters 'Oct 27th,' then Sherlock will return October 27, 2013. If the user just enters 'the 15th', then December 15th, 2012 will be returned.
+
+Also, since Sherlock was designed for parsing text entered into a quick add field, it is not bloated with support for things reasonable people would not type out, like "three o'clock." It does however support phrases like "fourth of august" or "in three days." Sherlock does not attempt to be able to parse all of the obscure ways one could convey a date, but it does tackle most of the reasonable ways.
 
 # How does this compare to alternatives like Datejs?
 
