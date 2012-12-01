@@ -5,7 +5,7 @@
  */
 
 var Sherlock = (function() {
-	
+
 	var patterns = {
 		rangeSplitters: /(\bto\b|\-|\b(?:un)?til\b|\bthrough\b)/g,
 		digit: /\b(one|first|two|second|three|third|four|five|fifth|six|seven|eight|eighth|nine|ninth|ten)(?:th)?\b/g,
@@ -22,15 +22,15 @@ var Sherlock = (function() {
 
 		// tue, tues, tuesday
 		weekdays: /(?:next )?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
-		relativeDate: /\b(next (?:week|month)|tom(?:orrow)?|today|day after tomorrow)\b/,
+		relativeDate: /\b(next (?:week|month)|tom(?:orrow)?|tod(?:ay)?|day after tom(?:orrow)?)\b/,
 		inRelativeDate: /\b(\d{1,2}|a) (day|week|month)s?\b/,
 
 		inRelativeTime: /\b(\d{1,2}|a|an) (hour|min(?:ute)?)s?\b/,
 		midtime: /\b(noon|midnight)\b/,
 		// 0700, 1900, 23:50
 		militaryTime: /\b([0-2]\d):?([0-5]\d)\b/,
-		// 5, 12pm, 5:00, 5:00pm
-		explicitTime: /\b(?:at |from )?([0-1]?\d)(?::([0-5]\d))? ?([ap]\.?m?\.?)?\b/,
+		// 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
+		explicitTime: /(?:@ ?)?\b(?:at |from )?([0-1]?\d)(?::([0-5]\d))? ?([ap]\.?m?\.?)?\b/,
 		hoursOnly: /^[0-1]?\d$/,
 
 		fillerWords: /\b(from|is|at|on|for|in)\b/
@@ -49,8 +49,12 @@ var Sherlock = (function() {
 			str = str.replace(new RegExp(helpers.numToStr(dateMatch)), '');
 
 		// parse time
-		if (timeMatch = helpers.hour.matcher(strNummed, time))
+		if (timeMatch = helpers.hour.matcher(strNummed, time)) {
+			if (time < new Date())
+				// the time has already passed today, go to tomorrow
+				time.setDate(time.getDate() + 1);
 			str = str.replace(new RegExp(helpers.numToStr(timeMatch)), '');
+		}
 
 		ret.eventTitle = str.split(patterns.fillerWords)[0].trim();
 
@@ -157,7 +161,12 @@ var Sherlock = (function() {
 						case "day after tomorrow":
 							time.setDate(time.getDate() + 2);
 							return match[0];
+						case "day after tom":
+							time.setDate(time.getDate() + 2);
+							return match[0];
 						case "today":
+							return match[0];
+						case "tod":
 							return match[0];
 						default:
 							break;
