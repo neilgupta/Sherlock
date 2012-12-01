@@ -21,13 +21,13 @@ var Sherlock = (function() {
 
 		// tue, tues, tuesday
 		weekdays: /(?:next )?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
-		relativeDate: /\b(next (?:week|month)|tom(?:orrow)?|today)\b/,
+		relativeDate: /\b(next (?:week|month)|tom(?:orrow)?|today|day after tomorrow)\b/,
 		inRelativeDate: /\b(\d{1,2}) (day|week|month)s?\b/,
 
 		inRelativeTime: /\b(\d{1,2}) (hour|min(?:ute)?)s?\b/,
 		midtime: /\b(noon|midnight)\b/,
 		// 5, 12pm, 5:00, 5:00pm
-		explicitTime: /\b(?:at )?([0-1]?\d)(?::([0-5]\d))? ?([ap]\.?m?\.?)?\b/,
+		explicitTime: /\b(?:at |from )?([0-1]?\d)(?::([0-5]\d))? ?([ap]\.?m?\.?)?\b/,
 		hoursOnly: /^[0-1]?\d$/,
 
 		fillerWords: /\b(from|is|at|on|for|in)\b/
@@ -139,6 +139,9 @@ var Sherlock = (function() {
 							return match[0];
 						case "tomorrow":
 							time.setDate(time.getDate() + 1);
+							return match[0];
+						case "day after tomorrow":
+							time.setDate(time.getDate() + 2);
 							return match[0];
 						case "today":
 							return match[0];
