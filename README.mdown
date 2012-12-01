@@ -1,10 +1,8 @@
 Sherlock
 ========
 
-**Sherlock parses events written in natural-language, and returns the various attributes needed to define a basic event.
-[Try demo](https://tabule.github.com/sherlock/)**
-
-It was designed to allow event creation using natural language. For example, *"The party is tomorrow from 3pm - 5pm."* will return
+**Sherlock parses events written in natural-language, and returns an object defining a basic event.
+[Try demo](https://tabule.github.com/sherlock/)** It was designed to allow event creation using natural language. For example, *"The party is tomorrow from 3pm - 5pm."* will return
 
 ```
 {
