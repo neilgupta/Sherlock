@@ -2,7 +2,7 @@ Sherlock
 ========
 
 **Sherlock parses events written in plain English, and returns an object defining a basic event.
-[Try demo](https://tabule.github.com/sherlock/).**
+[Try demo](http://tabule.github.com/Sherlock/).**
 
 It was designed to allow event creation using natural language. For example, *"The party is tomorrow from 3pm - 5pm."* will return:
 
@@ -15,7 +15,7 @@ It was designed to allow event creation using natural language. For example, *"T
 }
 ```
 
-Sherlock supports a wide variety of input formats that are common in US English. [Try the demo](https://tabule.github.com/sherlock/), and [let us know](https://github.com/Tabule/sherlock/issues) if you find an input that does not work.
+Sherlock supports a wide variety of input formats that are common in US English. [Try the demo](http://tabule.github.com/Sherlock/), and [let us know](https://github.com/Tabule/Sherlock/issues) if you find an input that does not work.
 
 # Watson
 
@@ -23,7 +23,7 @@ Sherlock is great for parsing of sentences into basic events, but what if you ne
 
 Watson provides a preprocessor and postprocessor layer on Sherlock that allows you to customize Sherlock's input and output. With the preprocessor, you can manipulate the input string before it is parsed by Sherlock. The postprocessor allows you to modify the data returned by Sherlock, or add any additional properties.
 
-For example, [Tabule](https://tabuleapp.com) uses Watson's preprocessor to predict which calendar the user wants to add their event to. We use the postprocessor to sanity check the returned values, such as making sure the user-provided end date is after the start date. [View an example watson.js processor](https://tabule.github.com/sherlock/watson.js).
+For example, [Tabule](https://tabuleapp.com) uses Watson's preprocessor to predict which calendar the user wants to add their event to. We use the postprocessor to sanity check the returned values, such as making sure the user-provided end date is after the start date. [View an example watson.js processor](https://github.com/Tabule/Sherlock/blob/gh-pages/watson.js).
 
 # Usage
 
