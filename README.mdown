@@ -6,7 +6,7 @@ Sherlock
 
 It was designed to allow event creation using natural language. For example, *"The party is tomorrow from 3pm - 5pm."* will return:
 
-```json
+```javascript
 {
 	eventTitle: 'The party',
 	startDate: Sat Dec 01 2012 15:00:00 GMT-0600 (CST),
@@ -30,9 +30,9 @@ For example, [Tabule](https://tabuleapp.com) uses Watson's preprocessor to predi
 Include sherlock.js and watson.js in your code.
 
 ```javascript
-<script type="text/javascript" src="sherlock.js"></script>
+<script type="text/javascript" src="sherlock.js" />
 <!-- optional - include if you want Watson to help Sherlock -->
-<script type="text/javascript" src="watson.js"></script>
+<script type="text/javascript" src="watson.js" />
 ```
 
 To parse a string, simple use
