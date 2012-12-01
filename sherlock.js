@@ -318,6 +318,9 @@ var Sherlock = (function() {
 				// token the string to start and stop times
 				tokens = str.toLowerCase().split(patterns.rangeSplitters);
 
+			// normalize all dates to 0 milliseconds
+			date.setMilliseconds(0);
+
 			// parse the start date
 			if ((result = parser(tokens[0], date, null)) !== null) {
 				if (result.isAllDay)
