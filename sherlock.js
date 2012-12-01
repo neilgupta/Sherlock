@@ -26,7 +26,7 @@ var Sherlock = (function() {
 		inRelativeDate: /\b(\d{1,2}|a) (day|week|month)s?\b/,
 
 		inRelativeTime: /\b(\d{1,2}|a|an) (hour|min(?:ute)?)s?\b/,
-		midtime: /\b(noon|midnight)\b/,
+		midtime: /(?:@ ?)?\b(?:at )?(noon|midnight)\b/,
 		// 0700, 1900, 23:50
 		militaryTime: /\b([0-2]\d):?([0-5]\d)\b/,
 		// 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
@@ -390,12 +390,13 @@ var Sherlock = (function() {
 	patterns.daysOnly = new RegExp(patterns.days);
 
 	return {
-		// parses a string and returns an array of up to 4 elements
-		// 0: first date object
-		// 1: is first date an all-day event?
-		// 2: second date object
-		// 3: is second date an all-day event?
+		// parses a string and returns an object defining the basic event 
+		// with properties: eventTitle, startDate, endDate, isAllDay
+		// plus anything Watson adds on...
 		parse: function(str) {
+			// check for null input
+			if (str === null) str = '';
+
 			var date = new Date(),
 				// Check if Watson is around. If not, pretend like he is to keep Sherlock company.
 				result = (typeof Watson !== 'undefined') ? Watson.preprocess(str) : [str, {}],
