@@ -1,0 +1,259 @@
+<!-- 
+	Sherlock Demo Page.
+	Copyright (c) 2012 Tabule, Inc. 
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Sherlock.js - Unit Tests</title>
+		<script type="text/javascript" src="sherlock.js"></script>
+
+		<script type="text/javascript">
+			var debug = true;
+
+			var testCases = [
+				(function() {
+					return test("February 24 at 3pm - 2pm March 3", null, createDate(1, 24, 15, 0), createDate(2, 3, 14, 0), false);
+				})(),
+
+				(function() {
+					return test("February 24 at 3pm-2pm March 3", null, createDate(1, 24, 15, 0), createDate(2, 3, 14, 0), false);
+				})(),
+
+				(function() {
+					return test("Vacation is in 4 weeks...", "Vacation", createDate(null, new Date().getDate() + 7*4, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("Christmas is on December 25th.", "Christmas", createDate(11, 25, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("Homework 5 due next monday at 3pm", "Homework 5 due", createDate(null, changeDay(1), 15, 0), null, false);
+				})(),
+
+				(function() {
+					return test("Homework 5 due next monday@3pm", "Homework 5 due", createDate(null, changeDay(1), 15, 0), null, false);
+				})(),
+
+				(function() {
+					return test("Let's have lunch on the 3rd.", "Let's have lunch", createDate(null, 3, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("The retreat is from Jan 12 - 29.", "The retreat", createDate(0, 12, 0, 0), createDate(0, 29, 0, 0), true);
+				})(),
+
+				(function() {
+					return test("Bake a cake tomorrow.", "Bake a cake", createDate(null, new Date().getDate() + 1, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("Bake a cake tom.", "Bake a cake", createDate(null, new Date().getDate() + 1, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("Use Tabule today!", "Use Tabule", createDate(null, null, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("fourth of jul", null, createDate(6, 4, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("fourth of july @ 2", null, createDate(6, 4, 14, 0), null, false);
+				})(),
+
+				(function() {
+					return test("The koala will be set free on the fourth of july @noon", "The koala will be set free", createDate(6, 4, 12, 0), null, false);
+				})(),
+
+				(function() {
+					return test("fourth of july at midnight", null, createDate(6, 4, 0, 0), null, false);
+				})(),
+
+				(function() {
+					return test("first of july through 5th of aug", null, createDate(6, 1, 0, 0), createDate(7, 5, 0, 0), true);
+				})(),
+
+				(function() {
+					return test("-", "-", null, null, false);
+				})(),
+
+				(function() {
+					return test("", null, null, null, false);
+				})(),
+
+				(function() {
+					return test(" ", null, null, null, false);
+				})(),
+
+				(function() {
+					return test(null, null, null, null, false);
+				})()
+			];
+
+			function changeDay(newDay) {
+				var time = new Date(),
+					diff = 7 - time.getDay() + newDay;
+				if (diff > 7)
+					diff -= 7;
+				return time.getDate() + diff;
+			}
+
+			function createDate(month, day, hour, min) {
+				var date = new Date();
+				// day
+				if (day !== null)
+					date.setDate(day);
+
+				// month
+				if (month !== null)
+					date.setMonth(month);
+				else if (date < new Date())
+					date.setMonth(date.getMonth() + 1);
+
+				// hour
+				if (hour !== null)
+					date.setHours(hour);
+
+				// min
+				if (min !== null)
+					date.setMinutes(min);
+
+				// seconds
+				if (hour !== null || min !== null)
+					date.setSeconds(0);
+				date.setMilliseconds(0);
+
+				// year
+				if (month !== null && date < new Date())
+						date.setFullYear(date.getFullYear() + 1);
+
+				return date;
+			}
+
+			function useSherlock(e, str) {
+				var key = e.keyCode || e.which;
+				if (key == 13) {
+					var sherlocked = Sherlock.parse(str);
+					document.getElementById('response').innerHTML = objToString(sherlocked);
+				}
+			}
+
+			function objToString(Sherlocked) {
+				var out = "<ul>";
+				out += "<li><b>Title:</b> " + Sherlocked.eventTitle + "</li>";
+				out += "<li><b>Starts:</b> " + Sherlocked.startDate + "</li>";
+				out += "<li><b>Ends:</b> " + Sherlocked.endDate + "</li>";
+				out += "<li><b>All day:</b> " + Sherlocked.isAllDay + "</li>";
+				out += "</ul>";
+				return out;
+			}
+
+			function onLoad(Sherlocked) {
+				var tests = document.getElementById('tests'),
+					fails = 0;
+
+				for (var i = 0; i < testCases.length; i++) {
+					var t = testCases[i],
+						p = document.createElement('p'),
+						status = document.createElement('span');
+
+					if (t[0] === null || t[0].trim() == "")
+						t[0] = "<code>Blank input</code>";
+					p.innerHTML = t[0];
+
+					if (t[1]) {
+						status.innerHTML = 'success';
+						status.className = 'pass';
+					} else {
+						fails++;
+						status.innerHTML = 'fail';
+						status.className = 'fail';
+					}
+					p.appendChild(status);
+					tests.appendChild(p);
+				}
+
+				document.getElementById('results').innerHTML = fails + '/' + testCases.length + ' failed';
+			}
+
+			function test(str, title, startDate, endDate, isAllDay) {
+				var Sherlocked = Sherlock.parse(str);
+
+				if (debug) {
+					console.log("parsing... " + str);
+					console.log(Sherlocked);
+					console.log({
+						eventTitle: title,
+						startDate: startDate,
+						endDate: endDate,
+						isAllDay: isAllDay
+					});
+				}
+
+				if (startDate)
+					startDate = startDate.getTime();
+				if (endDate)
+					endDate = endDate.getTime();
+				if (Sherlocked.startDate !== null)
+					Sherlocked.startDate = Sherlocked.startDate.getTime();
+				if (Sherlocked.endDate !== null)
+					Sherlocked.endDate = Sherlocked.endDate.getTime();
+				
+				return [str, (Sherlocked.eventTitle === title && 
+					Sherlocked.startDate === startDate && 
+					Sherlocked.endDate === endDate && 
+					Sherlocked.isAllDay == isAllDay)];
+			}
+		</script>
+
+		<style type="text/css">
+			ul {
+				text-align: left;
+			}
+			li {
+				list-style-type: none;
+				padding-bottom: 5px;
+			}
+			#response {
+				padding: 20px;
+			}
+			#results {
+				text-align: right;
+				width: 500px;
+			}
+			#tests {
+				width: 500px;
+			}
+			.pass {
+				color: green;
+				float: right;
+			}
+			.fail {
+				color: red;
+				float: right;
+			}
+		</style>
+	</head>
+
+	<body style="font-family: 'Helvetica', sans-serif;" onload="onLoad();">
+<p style="color: #454545; font-weight: bold; padding: 20px 0 0 0;">It's quite elementary, my dear Watson.</p>
+<p style="padding-bottom: 10px; font-size: 14px; color: #878787"><a href="https://github.com/Tabule/Sherlock/">See GitHub</a> for documentation and source code.</p>
+
+<input type="text" style="width: 500px;" placeholder="Create an event... e.g. My mom's birthday is on the 27th." id="quickadd" onkeypress="useSherlock(event,this.value)" />
+<input type="submit" value="Create" onClick="useSherlock({keyCode: 13}, document.getElementById('quickadd').value)" />
+
+<div id="response">
+
+</div>
+
+<p id="results"></p>
+<div id="tests">
+
+</div>
+
+<p id='footer' style="color: #878787; font-size:12px; padding: 50px 0;">Built with love by <a href='https://tabuleapp.com'>Tabule</a></p>
+	</body>
+</html>
