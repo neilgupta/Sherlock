@@ -11,8 +11,8 @@ var Sherlock = (function() {
 
 		// oct, october
 		months: "\\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\b",
-		// 3, 31, 31st
-		days: "\\b([0-3]?\\d)(?:st|nd|rd|th)?(?:,)?\\b",
+		// 3, 31, 31st, fifth
+		days: "\\b([0-3]?\\d|one|first|two|second|three|third|four|five|fifth|six|seven|eight|eighth|nine|ninth|ten)(?:st|nd|rd|th)?,?\\b",
 		// 2012, 12
 		//year: "((?: 20)?1\d)?",
 
@@ -26,7 +26,7 @@ var Sherlock = (function() {
 
 		inRelativeTime: /\b(\d{1,2}) (hour|min(?:ute)?)s?\b/,
 		midtime: /\b(noon|midnight)\b/,
-		// 0700, 1900, 23.50
+		// 0700, 1900, 23:50
 		militaryTime: /\b([0-2]\d):?([0-5]\d)\b/,
 		// 5, 12pm, 5:00, 5:00pm
 		explicitTime: /\b(?:at |from )?([0-1]?\d)(?::([0-5]\d))? ?([ap]\.?m?\.?)?\b/,
@@ -185,15 +185,15 @@ var Sherlock = (function() {
 
 				if (match = str.match(patterns.monthDay)) {
 					month = this.changeMonth(match[1]);
-					day   = match[2];
+					day   = isNaN(match[2]) ? this.daysToInt[match[2]] : match[2];
 					//year  = match[3];
 				} else if (match = str.match(patterns.dayMonth)) {
 					month = this.changeMonth(match[2]);
-					day   = match[1];
+					day   = isNaN(match[1]) ? this.daysToInt[match[1]] : match[1];
 					//year  = match[3];
 				} else if (match = str.match(patterns.shortForm)) {
 					month = match[1] - 1;
-					day   = match[2];
+					day   = isNaN(match[2]) ? this.daysToInt[match[2]] : match[2];
 					//year  = match[3];
 				} else if (match = str.match(new RegExp(patterns.days, "g"))) {
 					// if multiple matches found, pick the best one
@@ -204,7 +204,7 @@ var Sherlock = (function() {
 						return false;
 					match = match.match(patterns.daysOnly);
 					month = time.getMonth();
-					day = match[1];
+					day = isNaN(match[1]) ? this.daysToInt[match[1]] : match[1];
 
 					// if this date is in the past, move it to next month
 					if (day < time.getDate())
@@ -257,6 +257,25 @@ var Sherlock = (function() {
 					default:
 						return null;
 				}
+			},
+
+			daysToInt: {
+				'one': 1,
+				'first': 1,
+				'two': 2,
+				'second': 2,
+				'three': 3,
+				'third': 3,
+				'four': 4,
+				'five': 5,
+				'fifth': 5,
+				'six': 6,
+				'seven': 7,
+				'eight': 8,
+				'eighth': 8,
+				'nine': 9,
+				'ninth': 9,
+				'ten': 10
 			}
 		},
 
@@ -309,7 +328,7 @@ var Sherlock = (function() {
 	// may 5, may 5th
 	patterns.monthDay = new RegExp(patterns.months + " "  + patterns.days); // add `+ patterns.year` to add year support
 	// 5th may, 5 may
-	patterns.dayMonth = new RegExp(patterns.days + "(?: of)? " + patterns.months); // add `+ patterns.year` to add year support
+	patterns.dayMonth = new RegExp(patterns.days + "(?: (?:day )?of)? " + patterns.months); // add `+ patterns.year` to add year support
 	// 5, 5th
 	patterns.daysOnly = new RegExp(patterns.days);
 
