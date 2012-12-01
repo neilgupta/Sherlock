@@ -7,7 +7,7 @@
 var Sherlock = (function() {
 
 	var patterns = {
-		rangeSplitters: / (to|\-|(?:un)?til|through) /,
+		rangeSplitters: /(\bto\b|\-|\b(?:un)?til\b|\bthrough\b)/g,
 
 		// oct, october
 		months: "\\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\b",
@@ -16,8 +16,8 @@ var Sherlock = (function() {
 		// 2012, 12
 		//year: "((?: 20)?1\d)?",
 
-		// 5/12, 5.12, 5-12
-		shortForm: /\b([0-1]?\d)(?:\/|\-|\.)([0-3]?\d)/, // to add year support, use: /\b([0-1]?\d)(?:\/|\-|\.)([0-3]?\d)((?:\/|\-|\.)(?:20)?1\d)?\b/
+		// 5/12, 5.12
+		shortForm: /\b([0-1]?\d)(?:\/|\.)([0-3]?\d)/, // to add year support, use: /\b([0-1]?\d)(?:\/|\.)([0-3]?\d)((?:\/|\.)(?:20)?1\d)?\b/
 
 		// tue, tues, tuesday
 		weekdays: /(?:next )?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
@@ -346,19 +346,34 @@ var Sherlock = (function() {
 				ret = result[1],
 				// token the string to start and stop times
 				tokens = str.toLowerCase().split(patterns.rangeSplitters);
+			
+			patterns.rangeSplitters.lastIndex = 0;
 
 			// normalize all dates to 0 milliseconds
 			date.setMilliseconds(0);
 
-			// parse the start date
-			if ((result = parser(tokens[0], date, null)) !== null) {
-				if (result.isAllDay)
-					// set to midnight
-					date.setHours(0, 0, 0);
+			while (!ret.startDate) {
+				// parse the start date
+				if ((result = parser(tokens[0], date, null)) !== null) {
+					if (result.isAllDay)
+						// set to midnight
+						date.setHours(0, 0, 0);
 
-				ret.isAllDay = result.isAllDay;
-				ret.eventTitle = result.eventTitle;
-				ret.startDate = result.isValidDate ? date : null;
+					ret.isAllDay = result.isAllDay;
+					ret.eventTitle = result.eventTitle;
+					ret.startDate = result.isValidDate ? date : null;
+				}
+
+				// if no time
+				if (!ret.startDate && tokens.length >= 3) {
+					// join the next 2 tokens to the current one
+					var tokensTmp = [tokens[0] + tokens[1] + tokens[2]];
+					for (var k = 3; k < tokens.length; k++) {
+						tokensTmp.push(tokens[k]);
+					}
+					tokens = tokensTmp;
+				} else
+					break;
 			}
 
 			// parse the 2nd half of the date range, if it exists
