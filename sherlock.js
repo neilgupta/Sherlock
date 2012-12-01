@@ -5,14 +5,15 @@
  */
 
 var Sherlock = (function() {
-
+	
 	var patterns = {
 		rangeSplitters: /(\bto\b|\-|\b(?:un)?til\b|\bthrough\b)/g,
+		digit: /\b(one|first|two|second|three|third|four|five|fifth|six|seven|eight|eighth|nine|ninth|ten)(?:th)?\b/g,
 
 		// oct, october
 		months: "\\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\b",
 		// 3, 31, 31st, fifth
-		days: "\\b([0-3]?\\d|one|first|two|second|three|third|four|five|fifth|six|seven|eight|eighth|nine|ninth|ten)(?:st|nd|rd|th)?,?\\b",
+		days: "\\b([0-3]?\\d)(?:st|nd|rd|th)?,?\\b",
 		// 2012, 12
 		//year: "((?: 20)?1\d)?",
 
@@ -22,9 +23,9 @@ var Sherlock = (function() {
 		// tue, tues, tuesday
 		weekdays: /(?:next )?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
 		relativeDate: /\b(next (?:week|month)|tom(?:orrow)?|today|day after tomorrow)\b/,
-		inRelativeDate: /\b(\d{1,2}) (day|week|month)s?\b/,
+		inRelativeDate: /\b(\d{1,2}|a) (day|week|month)s?\b/,
 
-		inRelativeTime: /\b(\d{1,2}) (hour|min(?:ute)?)s?\b/,
+		inRelativeTime: /\b(\d{1,2}|a|an) (hour|min(?:ute)?)s?\b/,
 		midtime: /\b(noon|midnight)\b/,
 		// 0700, 1900, 23:50
 		militaryTime: /\b([0-2]\d):?([0-5]\d)\b/,
@@ -38,17 +39,18 @@ var Sherlock = (function() {
 	parser = function(str, time, startTime) {
 		var ret = {},
 			dateMatch = false,
-			timeMatch = false;
+			timeMatch = false,
+			strNummed = helpers.strToNum(str);
 
 		// parse date
-		if (dateMatch = helpers.relativeDate.matcher(str, time)	||
-					helpers.weekday.matcher(str, time)			||
-					helpers.explicitDate.matcher(str, time, startTime))
-			str = str.replace(dateMatch, '');
+		if (dateMatch = helpers.explicitDate.matcher(strNummed, time, startTime)	||
+						helpers.weekday.matcher(strNummed, time)					||
+						helpers.relativeDate.matcher(strNummed, time))
+			str = str.replace(new RegExp(helpers.numToStr(dateMatch)), '');
 
 		// parse time
-		if (timeMatch = helpers.hour.matcher(str, time))
-			str = str.replace(timeMatch, '');
+		if (timeMatch = helpers.hour.matcher(strNummed, time))
+			str = str.replace(new RegExp(helpers.numToStr(timeMatch)), '');
 
 		ret.eventTitle = str.split(patterns.fillerWords)[0].trim();
 
@@ -65,7 +67,11 @@ var Sherlock = (function() {
 		hour: {
 			matcher: function(str, time) {
 				var match;
-				if (match = str.match(patterns.inRelativeTime))
+				if (match = str.match(patterns.inRelativeTime)) {
+					// if we matched 'a' or 'an', set the number to 1
+					if (isNaN(match[1]))
+						match[1] = 1;
+
 					switch(match[2]) {
 						case "hour":
 							time.setHours(time.getHours() + parseInt(match[1]));
@@ -79,6 +85,7 @@ var Sherlock = (function() {
 						default:
 							break;
 					}
+				}
 
 				if (match = str.match(patterns.midtime))
 					switch(match[1]) {
@@ -156,7 +163,11 @@ var Sherlock = (function() {
 							break;
 					}
 				
-				if (match = str.match(patterns.inRelativeDate))
+				if (match = str.match(patterns.inRelativeDate)) {
+					// if we matched 'a' or 'an', set the number to 1
+					if (isNaN(match[1]))
+						match[1] = 1;
+
 					switch(match[2]) {
 						case "day":
 							time.setDate(time.getDate() + parseInt(match[1]));
@@ -170,6 +181,7 @@ var Sherlock = (function() {
 						default:
 							break;
 					}
+				}
 				
 				return false;
 			}
@@ -185,17 +197,17 @@ var Sherlock = (function() {
 
 				if (match = str.match(patterns.monthDay)) {
 					month = this.changeMonth(match[1]);
-					day   = isNaN(match[2]) ? this.daysToInt[match[2]] : match[2];
+					day   = match[2];
 					//year  = match[3];
 				} else if (match = str.match(patterns.dayMonth)) {
 					month = this.changeMonth(match[2]);
-					day   = isNaN(match[1]) ? this.daysToInt[match[1]] : match[1];
+					day   = match[1];
 					//year  = match[3];
 				} else if (match = str.match(patterns.shortForm)) {
 					month = match[1] - 1;
-					day   = isNaN(match[2]) ? this.daysToInt[match[2]] : match[2];
+					day   = match[2];
 					//year  = match[3];
-				} else if (match = str.match(new RegExp(patterns.days, "g"))) {
+				} else if (match = str.match(new RegExp(patterns.days + "\.?$", "g"))) {
 					// if multiple matches found, pick the best one
 					match = match.sort(function (a, b) { return b.length - a.length; })[0];
 					if (!(startTime && startTime.isAllDay) && 
@@ -204,7 +216,7 @@ var Sherlock = (function() {
 						return false;
 					match = match.match(patterns.daysOnly);
 					month = time.getMonth();
-					day = isNaN(match[1]) ? this.daysToInt[match[1]] : match[1];
+					day = match[1];
 
 					// if this date is in the past, move it to next month
 					if (day < time.getDate())
@@ -257,25 +269,6 @@ var Sherlock = (function() {
 					default:
 						return null;
 				}
-			},
-
-			daysToInt: {
-				'one': 1,
-				'first': 1,
-				'two': 2,
-				'second': 2,
-				'three': 3,
-				'third': 3,
-				'four': 4,
-				'five': 5,
-				'fifth': 5,
-				'six': 6,
-				'seven': 7,
-				'eight': 8,
-				'eighth': 8,
-				'nine': 9,
-				'ninth': 9,
-				'ten': 10
 			}
 		},
 
@@ -322,6 +315,61 @@ var Sherlock = (function() {
 
 		escapeRegExp: function(str) {
 		  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+		},
+
+		// mapping of words to numbers
+		wordsToInt: {
+			'one': 1,
+			'first': 1,
+			'two': 2,
+			'second': 2,
+			'three': 3,
+			'third': 3,
+			'four': 4,
+			'fourth': 4,
+			'five': 5,
+			'fifth': 5,
+			'six': 6,
+			'sixth': 6,
+			'seven': 7,
+			'seventh': 7,
+			'eight': 8,
+			'eighth': 8,
+			'nine': 9,
+			'ninth': 9,
+			'ten': 10,
+			'tenth': 10
+		},
+
+		// mapping of number to words
+		intToWords: [
+			'one|first',
+			'two|second',
+			'three|third',
+			'four|fourth',
+			'five|fifth',
+			'six|sixth',
+			'seven|seventh',
+			'eight|eighth',
+			'nine|ninth',
+			'ten|tenth'
+		],
+
+		// converts all the words in a string into numbers, such as four -> 4
+		strToNum: function(str) {
+			return str.replace(patterns.digit, function(val) {
+				var out = helpers.wordsToInt[val];
+				if (val.indexOf('th') > 0)
+					out += 'th';
+				return out;
+			});
+		},
+
+		// converts all the numbers in a string into regex for number|word, such as 4 -> 4|four
+		numToStr: function(str) {
+			return str.replace(/((?:[1-9]|10)(?:th)?)/g, function(val) {
+				return '(?:' + val + '|' + helpers.intToWords[parseInt(val) - 1] + ')';
+			});
 		}
 	};
 
