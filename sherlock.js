@@ -10,27 +10,27 @@ var Sherlock = (function() {
 		rangeSplitters: / (to|\-|(?:un)?til|through) /,
 
 		// oct, october
-		months: "(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)",
+		months: "\\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\b",
 		// 3, 31, 31st
-		days: "([0-3]?\\d)(?:st|nd|rd|th)?(?:,)?",
+		days: "\\b([0-3]?\\d)(?:st|nd|rd|th)?(?:,)?\\b",
 		// 2012, 12
 		//year: "((?: 20)?1\d)?",
 
 		// 5/12, 5.12, 5-12
-		shortForm: /([0-1]?\d)(?:\/|\-|\.)([0-3]?\d)/, // to add year support, use: /([0-1]?\d)(?:\/|\-|\.)([0-3]?\d)((?:\/|\-|\.)(?:20)?1\d)?/
+		shortForm: /\b([0-1]?\d)(?:\/|\-|\.)([0-3]?\d)/, // to add year support, use: /\b([0-1]?\d)(?:\/|\-|\.)([0-3]?\d)((?:\/|\-|\.)(?:20)?1\d)?\b/
 
 		// tue, tues, tuesday
-		weekdays: /(?:next )?(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?/,
-		relativeDate: /(next (?:week|month)|tom(?:orrow)?|today)/,
-		inRelativeDate: /(\d{1,2}) (day|week|month)s?/,
+		weekdays: /(?:next )?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
+		relativeDate: /\b(next (?:week|month)|tom(?:orrow)?|today)\b/,
+		inRelativeDate: /\b(\d{1,2}) (day|week|month)s?\b/,
 
-		inRelativeTime: /(\d{1,2}) (hour|min(?:ute)?)s?/,
-		midtime: /(noon|midnight)/,
+		inRelativeTime: /\b(\d{1,2}) (hour|min(?:ute)?)s?\b/,
+		midtime: /\b(noon|midnight)\b/,
 		// 5, 12pm, 5:00, 5:00pm
-		explicitTime: /(?:at )?([0-1]?\d)(?::([0-5]\d))? ?([ap]\.?m?\.?)?/,
+		explicitTime: /\b(?:at )?([0-1]?\d)(?::([0-5]\d))? ?([ap]\.?m?\.?)?\b/,
 		hoursOnly: /^[0-1]?\d$/,
 
-		fillerWords: / (from|is|at|on|for|in) /
+		fillerWords: /\b(from|is|at|on|for|in)\b/
 	},
 
 	parser = function(str, time, startTime) {
@@ -54,7 +54,7 @@ var Sherlock = (function() {
 		ret.isAllDay = !!(dateMatch && !timeMatch);
 
 		// check if date was parsed
-		ret.isValidDate = !!(dateMatch || timeMatch || str.match(/now/));
+		ret.isValidDate = !!(dateMatch || timeMatch || str.match(/\bnow\b/));
 
 		return ret;
 	},
