@@ -26,6 +26,8 @@ var Sherlock = (function() {
 
 		inRelativeTime: /\b(\d{1,2}) (hour|min(?:ute)?)s?\b/,
 		midtime: /\b(noon|midnight)\b/,
+		// 0700, 1900, 23.50
+		militaryTime: /\b([0-2]\d):?([0-5]\d)\b/,
 		// 5, 12pm, 5:00, 5:00pm
 		explicitTime: /\b(?:at |from )?([0-1]?\d)(?::([0-5]\d))? ?([ap]\.?m?\.?)?\b/,
 		hoursOnly: /^[0-1]?\d$/,
@@ -89,6 +91,11 @@ var Sherlock = (function() {
 						default:
 							break;
 					}
+
+				if (match = str.match(patterns.militaryTime)) {
+					time.setHours(match[1], match[2], 0);
+					return match[0];
+				}
 
 				if (match = str.match(new RegExp(patterns.explicitTime.source, "g"))) {
 					// if multiple matches found, pick the best one
