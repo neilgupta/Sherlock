@@ -1,0 +1,78 @@
+Sherlock
+========
+
+**Sherlock parses events written in natural-language, and returns the various attributes needed to define a basic event.
+[Try demo](https://tabule.github.com/sherlock/)**
+
+It was designed to allow event creation using natural language. For example, *"The party is tomorrow from 3pm - 5pm."* will return
+
+```
+{
+	eventTitle: 'The party',
+	startDate: Sat Dec 01 2012 15:00:00 GMT-0600 (CST),
+	endDate: Sat Dec 01 2012 17:00:00 GMT-0600 (CST),
+	isAllDay: false
+}
+```
+
+Sherlock supports a wide variety of input formats that are common in US English. [Try the demo](https://tabule.github.com/sherlock/), and [let us know](https://github.com/Tabule/sherlock/issues) if you find an input that does not work.
+
+# Watson
+
+Sherlock is great for parsing of sentences into basic events, but what if you need to manipulate the data for your specific use case or add some extra properties to the returned object? Just tell Watson to help Sherlock out!
+
+Watson provides a preprocessor and postprocessor layer on Sherlock that allows you to customize Sherlock's input and output. With the preprocessor, you can manipulate the input string before it is parsed by Sherlock. The postprocessor allows you to modify the data returned by Sherlock, or add any additional properties.
+
+For example, [Tabule](https://tabuleapp.com) uses Watson's preprocessor to predict which calendar the user wants to add their event to. We use the postprocessor to sanity check the returned values, such as making sure the user-provided end date is after the start date. [View an example watson.js processor](https://tabule.github.com/sherlock/watson.js).
+
+# Usage
+
+Include sherlock.js and watson.js in your code.
+
+```
+<script type="text/javascript" src="sherlock.js"></script>
+<script type="text/javascript" src="watson.js"></script> <!-- optional - include if you want Watson to help Sherlock -->
+```
+
+To parse a string, simple use
+
+```
+var sherlocked = Sherlock.parse('Homework 5 due next monday at 3pm');
+
+// Basic properties
+var	title = sherlocked.eventTitle;		// 'Homework 5 due'
+var	startDate = sherlocked.startDate; 	// Date object pointing to next monday at 3pm
+var	endDate = sherlocked.endDate; 		// null in this case, since no duration was given
+var	isAllDay = sherlocked.isAllDay;		// false, since a time is included with the event
+
+// Additional custom properties provided by Watson
+var validated = sherlocked.validated; // true
+```
+
+That's it!
+
+# Limitations
+
+Sherlock was built for [Tabule](https://tabuleapp.com), meaning it is designed for entering student due dates. With that in mind, Sherlock has the following limitations:
+
+* Specifying years is not supported. (Basic untested support is included in the source code, but commented out. Feel free to experiment.)
+* Dates must be in the future.
+
+These two limitations together mean that Sherlock always finds the nearest future date that meets the input. For example, if today is November 25th, 2012 and the user enters 'Oct 27th,' then Sherlock will return October 27, 2013. If the user just enters 'the 15th', then December 15th, 2012 will be returned.
+
+# How does this compare to alternatives like Datejs?
+
+[Datejs](http://www.datejs.com) is a great date parsing library available in Javascript, but it can only handle very specific dates or times. If you have a dedicated input fields for times and a separate one for dates, then you should use Datejs. If you want to have one smart input field that can parse out date ranges, titles, and other calendaring attributes, use Sherlock.
+
+Datejs also supports internationalization, and offers a wide variety of other Date manipulation functions. Sherlock supports modularization. Oh, and Mr. Holmes could take on a ninja any day.
+
+# License
+
+The MIT License (MIT)
+Copyright (c) 2012 Tabule, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
