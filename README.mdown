@@ -1,10 +1,12 @@
 Sherlock
 ========
 
-**Sherlock parses events written in natural-language, and returns an object defining a basic event.
-[Try demo](https://tabule.github.com/sherlock/)** It was designed to allow event creation using natural language. For example, *"The party is tomorrow from 3pm - 5pm."* will return
+**Sherlock parses events written in plain English, and returns an object defining a basic event.
+[Try demo](https://tabule.github.com/sherlock/).**
 
-```
+It was designed to allow event creation using natural language. For example, *"The party is tomorrow from 3pm - 5pm."* will return:
+
+```json
 {
 	eventTitle: 'The party',
 	startDate: Sat Dec 01 2012 15:00:00 GMT-0600 (CST),
@@ -27,14 +29,15 @@ For example, [Tabule](https://tabuleapp.com) uses Watson's preprocessor to predi
 
 Include sherlock.js and watson.js in your code.
 
-```
+```javascript
 <script type="text/javascript" src="sherlock.js"></script>
-<script type="text/javascript" src="watson.js"></script> <!-- optional - include if you want Watson to help Sherlock -->
+<!-- optional - include if you want Watson to help Sherlock -->
+<script type="text/javascript" src="watson.js"></script>
 ```
 
 To parse a string, simple use
 
-```
+```javascript
 var sherlocked = Sherlock.parse('Homework 5 due next monday at 3pm');
 
 // Basic properties
@@ -60,9 +63,9 @@ These two limitations together mean that Sherlock always finds the nearest futur
 
 # How does this compare to alternatives like Datejs?
 
-[Datejs](http://www.datejs.com) is a great date parsing library available in Javascript, but it can only handle very specific dates or times. If you have a dedicated input fields for times and a separate one for dates, then you should use Datejs. If you want to have one smart input field that can parse out date ranges, titles, and other calendaring attributes, use Sherlock.
+[Datejs](http://www.datejs.com) is a great date parsing library, but it can only handle very specific dates or times. If you have a dedicated input field for times and a separate one for dates, then you should use Datejs. If you want to have one smart input field that can parse out date ranges, titles, and other calendaring attributes, use Sherlock.
 
-Datejs also supports internationalization, and offers a wide variety of other Date manipulation functions. Sherlock supports modularization. Oh, and Mr. Holmes could take on a ninja any day.
+Datejs also supports internationalization, and offers a wide variety of other Date manipulation functions. On the other hand, Sherlock supports modularization. Oh, and Mr. Holmes could take on a ninja any day.
 
 # License
 
