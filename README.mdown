@@ -30,9 +30,9 @@ For example, [Tabule](https://tabuleapp.com) uses Watson's preprocessor to predi
 Include sherlock.js and watson.js in your code.
 
 ```javascript
-<script type="text/javascript" src="sherlock.js" />
+<script type="text/javascript" src="watson.js"></script>
 <!-- optional - include if you want Watson to help Sherlock -->
-<script type="text/javascript" src="watson.js" />
+<script type="text/javascript" src="sherlock.js"></script>
 ```
 
 To parse a string, simple use
