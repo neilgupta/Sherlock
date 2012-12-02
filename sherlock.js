@@ -7,7 +7,7 @@
 var Sherlock = (function() {
 
 	var patterns = {
-		rangeSplitters: /(\bto\b|\-|\b(?:un)?til\b|\bthrough\b)/g,
+		rangeSplitters: /(\bto\b|\-|\b(?:un)?till?\b|\bthrough|and\b)/g,
 		digit: /\b(one|first|two|second|three|third|four|five|fifth|six|seven|eight|eighth|nine|ninth|ten)(?:th)?\b/g,
 
 		// oct, october
@@ -33,7 +33,7 @@ var Sherlock = (function() {
 		explicitTime: /(?:@ ?)?\b(?:at |from )?([0-1]?\d)(?::([0-5]\d))? ?([ap]\.?m?\.?)?\b/,
 		hoursOnly: /^[0-1]?\d$/,
 
-		fillerWords: /\b(from|is|at|on|for|in)\b/
+		fillerWords: /\b(from|is|at|on|for|in|(?:un)?till?)\b/
 	},
 
 	parser = function(str, time, startTime) {
@@ -435,21 +435,36 @@ var Sherlock = (function() {
 			}
 
 			// parse the 2nd half of the date range, if it exists
-			if (tokens.length > 1) {
-				date = new Date(date.getTime());
-				// parse the end date
-				if ((result = parser(tokens[2], date, ret)) !== null) {
-					if (ret.isAllDay)
-						// set to midnight
-						date.setHours(0, 0, 0);
+			while (!ret.endDate) {
+				if (tokens.length > 1) {
+					date = new Date(date.getTime());
+					// parse the end date
+					if ((result = parser(tokens[2], date, ret)) !== null) {
+						if (ret.isAllDay)
+							// set to midnight
+							date.setHours(0, 0, 0);
 
-					if (result.eventTitle.length > ret.eventTitle.length)
-						ret.eventTitle = result.eventTitle;
+						if (result.eventTitle.length > ret.eventTitle.length)
+							ret.eventTitle = result.eventTitle;
 
-					ret.endDate = result.isValidDate ? date : null;
+						ret.endDate = result.isValidDate ? date : null;
+					}
 				}
-			} else
-				ret.endDate = null;
+
+				if (!ret.endDate) {
+					if (tokens.length >= 4) {
+						// join the next 2 tokens to the current one
+						var tokensTmp = [tokens[0], tokens[1], tokens[2] + tokens[3] + tokens[4]];
+						for (var k = 5; k < tokens.length; k++) {
+							tokensTmp.push(tokens[k]);
+						}
+						tokens = tokensTmp;
+					} else {
+						ret.endDate = null;
+						break;
+					}
+				}
+			}
 
 			// get capitalized version of title
 			if (ret.eventTitle) {

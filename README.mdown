@@ -19,7 +19,7 @@ Sherlock can handle times, days, date ranges, event titles, and more. It support
 
 # Watson
 
-Sherlock is great for parsing of sentences into basic events, but what if you need to manipulate the data for your specific use case or add some extra properties to the returned object? Just tell Watson to help Sherlock out!
+Sherlock is great for parsing sentences into basic events, but what if you need to manipulate the data for your specific use case or add some extra properties to the returned object? Just tell Watson to help Sherlock out!
 
 Watson provides a preprocessor and postprocessor layer on Sherlock that allows you to customize Sherlock's input and output. With the preprocessor, you can manipulate the input string before it is parsed by Sherlock. The postprocessor allows you to modify the data returned by Sherlock, or add any additional properties.
 

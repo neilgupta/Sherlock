@@ -65,7 +65,12 @@
 				})(),
 
 				(function() {
-					return test("The koala will be set free on the fourth of july @noon", "The koala will be set free", createDate(6, 4, 12, 0), null, false);
+					return test("The koala will be set free on the fourth of july @noon", "The koala will be set free", 
+								createDate(6, 4, 12, 0), null, false);
+				})(),
+
+				(function() {
+					return test("@2", null, createDate(null, null, 14, 0), null, false);
 				})(),
 
 				(function() {
@@ -74,6 +79,16 @@
 
 				(function() {
 					return test("first of july through 5th of aug", null, createDate(6, 1, 0, 0), createDate(7, 5, 0, 0), true);
+				})(),
+
+				(function() {
+					var start = createDate(null, null, 14, 0);
+					return test("The exam is @ 2pm and lasts for five hours", "The exam", start, createDate(null, null, 19, 0, start), false);
+				})(),
+
+				(function() {
+					var start = createDate(null, null, 14, 0);
+					return test("The exam is @ 2pm and goes until 4pm", "The exam", start, createDate(null, null, 16, 0, start), false);
 				})(),
 
 				(function() {
@@ -101,8 +116,10 @@
 				return time.getDate() + diff;
 			}
 
-			function createDate(month, day, hour, min) {
-				var date = new Date();
+			function createDate(month, day, hour, min, startDate) {
+				var date = startDate ? new Date(startDate.getTime()) : new Date(),
+					now = new Date();
+
 				// day
 				if (day !== null)
 					date.setDate(day);
@@ -110,7 +127,7 @@
 				// month
 				if (month !== null)
 					date.setMonth(month);
-				else if (date < new Date())
+				else if (date < now)
 					date.setMonth(date.getMonth() + 1);
 
 				// hour
@@ -126,8 +143,12 @@
 					date.setSeconds(0);
 				date.setMilliseconds(0);
 
+				if (!(date.getMonth() === now.getMonth() && date.getDate() === now.getDate() && date.getHours() === 0 && date.getMinutes() === 0) && 
+					month === null && day === null && date < now)
+					date.setDate(date.getDate() + 1);
+
 				// year
-				if (month !== null && date < new Date())
+				if (month !== null && date < now)
 						date.setFullYear(date.getFullYear() + 1);
 
 				return date;
