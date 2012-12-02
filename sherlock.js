@@ -488,8 +488,11 @@ var Sherlock = (function() {
 			if (ret.eventTitle) {
 				ret.eventTitle = ret.eventTitle.replace(/(?:^| )(?:\.|!|,|;)+/g, '');
 				var match = str.match(new RegExp(helpers.escapeRegExp(ret.eventTitle), "i"));
-				if (match)
+				if (match) {
 					ret.eventTitle = match[0].replace(/ +/g, ' ').trim(); // replace multiple spaces
+					if (ret.eventTitle == '')
+						ret.eventTitle = null;
+				}
 			} else
 				ret.eventTitle = null;
 
