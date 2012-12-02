@@ -127,16 +127,25 @@ var Sherlock = (function() {
 			// the time has already passed today, go to tomorrow
 			time.setDate(time.getDate() + 1);
 		else if (time > now && startTime) {
+			if (startTime.startDate > time) {
+				if (str.length - match.length < 2)
+					time.setDate(time.getDate() + 1);
+				else
+					startTime.startDate.setDate(startTime.startDate.getDate() - 1);
+			}
+
 			var temp = new Date(time.getTime()),
 				startTemp = new Date(startTime.startDate.getTime());
 
-			temp.setDate(temp.getDate() - 1);
-			startTemp.setDate(startTemp.getDate() - 1);
+			if (startTemp.getHours() <= now.getHours() && startTemp.getMinutes() <= now.getMinutes()) {
+				startTemp.setDate(startTemp.getDate() - 1);
+				temp.setDate(temp.getDate() - 1);
+			}
 
 			// allow date ranges that extend from past to future
 			if (startTemp < now && temp > now) {
 				startTime.startDate = startTemp;
-				time.setDate(time.getDate() - 1);
+				time.setDate(temp.getDate());
 			}
 		}
 
@@ -184,6 +193,7 @@ var Sherlock = (function() {
 					return false;
 			}
 		} else if (match = str.match(patterns.relativeDate)) {
+			var now = new Date();
 			switch(match[1]) {
 				case "next week":
 					time.setDate(time.getDate() + 7);
@@ -192,20 +202,28 @@ var Sherlock = (function() {
 					time.setMonth(time.getMonth() + 1);
 					return match[0];
 				case "tom":
-					time.setDate(time.getDate() + 1);
+					time.setMonth(now.getMonth());
+					time.setDate(now.getDate() + 1);
 					return match[0];
 				case "tomorrow":
-					time.setDate(time.getDate() + 1);
+					time.setMonth(now.getMonth());
+					time.setDate(now.getDate() + 1);
 					return match[0];
 				case "day after tomorrow":
-					time.setDate(time.getDate() + 2);
+					time.setMonth(now.getMonth());
+					time.setDate(now.getDate() + 2);
 					return match[0];
 				case "day after tom":
-					time.setDate(time.getDate() + 2);
+					time.setMonth(now.getMonth());
+					time.setDate(now.getDate() + 2);
 					return match[0];
 				case "today":
+					time.setMonth(now.getMonth());
+					time.setDate(now.getDate());
 					return match[0];
 				case "tod":
+					time.setMonth(now.getMonth());
+					time.setDate(now.getDate());
 					return match[0];
 				default:
 					return false;

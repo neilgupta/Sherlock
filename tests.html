@@ -133,6 +133,26 @@
 				})(),
 
 				(function() {
+					return test("I work from 1am - 6pm.", "I work", createDate(null, null, 1, 0), createDate(null, null, 18, 0), false);
+				})(),
+
+				(function() {
+					return test("I work from 6pm - 1am.", "I work", createDate(null, null, 18, 0), createDate(null, new Date().getDate() + 1, 1, 0), false);
+				})(),
+
+				(function() {
+					return test("I work from 6pm - 1am today.", "I work", createDate(null, null, 18, 0), createDate(null, new Date().getDate() + 1, 1, 0), false);
+				})(),
+
+				(function() {
+					return test("I work from 6pm - 1am tomorrow.", "I work", createDate(null, null, 18, 0), createDate(null, new Date().getDate() + 1, 1, 0), false);
+				})(),
+
+				(function() {
+					return test("I work from 6pm - 6am tomorrow.", "I work", createDate(null, null, 18, 0), createDate(null, new Date().getDate() + 1, 6, 0), false);
+				})(),
+
+				(function() {
 					return test("ahskjhdsfkhasd .", "ahskjhdsfkhasd", null, null, false);
 				})(),
 
@@ -188,9 +208,9 @@
 					date.setSeconds(0);
 				date.setMilliseconds(0);
 
-				if (!(date.getMonth() === now.getMonth() && date.getDate() === now.getDate() && date.getHours() === 0 && date.getMinutes() === 0) && 
-					month === null && day === null && date < now)
-					date.setDate(date.getDate() + 1);
+				// if (!(date.getMonth() === now.getMonth() && date.getDate() === now.getDate() && date.getHours() === 0 && date.getMinutes() === 0) && 
+				// 	month === null && day === null && date < now)
+				// 	date.setDate(date.getDate() + 1);
 
 				// year
 				if (month !== null && date < now)
