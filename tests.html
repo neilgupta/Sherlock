@@ -117,6 +117,22 @@
 				})(),
 
 				(function() {
+					return test("on the 5th to the ninth, we shall eat.", "we shall eat.", createDate(null, 5, 0, 0), createDate(null, 9, 0, 0), true);
+				})(),
+
+				(function() {
+					return test("The conference is from Feb 12 to 15th.", "The conference", createDate(1, 12, 0, 0), createDate(1, 15, 0, 0), true);
+				})(),
+
+				(function() {
+					return test("The conference is from Feb 12 at 3pm to the 15th.", "The conference", createDate(1, 12, 15, 0), createDate(1, 15, 15, 0), false);
+				})(),
+
+				(function() {
+					return test("ahskjhdsfkhasd .", "ahskjhdsfkhasd", null, null, false);
+				})(),
+
+				(function() {
 					return test("-", "-", null, null, false);
 				})(),
 

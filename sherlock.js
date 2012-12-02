@@ -12,12 +12,13 @@ var Sherlock = (function() {
 		// oct, october
 		months: "\\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\b",
 		// 3, 31, 31st, fifth
-		days: "\\b([0-3]?\\d)(?:st|nd|rd|th)?,?\\b",
+		days: "\\b(?:(?:(?:on )?the )(?=\\d\\d?(?:st|nd|rd|th)))?(0?[1-9]|[1-2]\\d|3[0-1])(?:st|nd|rd|th)?(?:,|\\b)",
 		// 2012, 12
 		//year: "((?: 20)?1\d)?",
 
 		// 5/12, 5.12
-		shortForm: /\b([0-1]?\d)(?:\/|\.)([0-3]?\d)/, // to add year support, use: /\b([0-1]?\d)(?:\/|\.)([0-3]?\d)((?:\/|\.)(?:20)?1\d)?\b/
+		shortForm: /\b(0?[1-9]|1[0-2])(?:\/|\.)(0?[1-9]|[1-2]\d|3[0-1])/,
+		// shortForm with years: /\b(0?[1-9]|1[0-2])(?:\/|\.)(0?[1-9]|[1-2]\d|3[0-1])((?:\/|\.)(?:20)?1\d)?\b/,
 
 		// tue, tues, tuesday
 		weekdays: /(next (?:week (?:on )?)?)?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
@@ -29,10 +30,10 @@ var Sherlock = (function() {
 		// 0700, 1900, 23:50
 		militaryTime: /\b([0-2]\d):?([0-5]\d)\b/,
 		// 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
-		explicitTime: /(?:@ ?)?\b(?:at |from )?([0-1]?\d)(?::([0-5]\d))? ?([ap]\.?m?\.?)?\b/,
-		hoursOnly: /^[0-1]?\d$/,
+		explicitTime: /(?:@ ?)?\b(?:at |from )?(0?[1-9]|1[0-2])(?::([0-5]\d))? ?([ap]\.?m?\.?)?\b/,
+		hoursOnly: /^(0?[1-9]|1[0-2])$/,
 
-		fillerWords: /\b(from|is|at|on|for|in|(?:un)?till?)\b/
+		fillerWords: / (from|is|at|on|for|in|(?:un)?till?)\b/
 	},
 
 	parser = function(str, time, startTime) {
@@ -42,32 +43,12 @@ var Sherlock = (function() {
 			strNummed = helpers.strToNum(str);
 
 		// parse date
-		if (dateMatch = matcher.explicitDate(strNummed, time, startTime)	||
-						matcher.weekday(strNummed, time)					||
-						matcher.relativeDate(strNummed, time))
+		if (dateMatch = matchDate(strNummed, time, startTime))
 			str = str.replace(new RegExp(helpers.numToStr(dateMatch)), '');
 
 		// parse time
-		if (timeMatch = matcher.hour(strNummed, time)) {
-			var now = new Date();
-			if (time < now)
-				// the time has already passed today, go to tomorrow
-				time.setDate(time.getDate() + 1);
-			else if (time > now && startTime) {
-				var temp = new Date(time.getTime()),
-					startTemp = new Date(startTime.startDate.getTime());
-
-				temp.setDate(temp.getDate() - 1);
-				startTemp.setDate(startTemp.getDate() - 1);
-
-				// allow date ranges that extend from past to future
-				if (startTemp < now && temp > now) {
-					startTime.startDate = startTemp;
-					time.setDate(time.getDate() - 1);
-				}				
-			}
+		if (timeMatch = matchTime(strNummed, time, startTime))
 			str = str.replace(new RegExp(helpers.numToStr(timeMatch)), '');
-		}
 
 		ret.eventTitle = str.split(patterns.fillerWords)[0].trim();
 
@@ -80,228 +61,239 @@ var Sherlock = (function() {
 		return ret;
 	},
 
-	matcher = {
-		hour: function(str, time) {
-			var match;
-			if (match = str.match(patterns.inRelativeTime)) {
-				// if we matched 'a' or 'an', set the number to 1
-				if (isNaN(match[1]))
-					match[1] = 1;
+	matchTime = function(str, time, startTime) {
+		var match;
+		if (match = str.match(patterns.inRelativeTime)) {
+			// if we matched 'a' or 'an', set the number to 1
+			if (isNaN(match[1]))
+				match[1] = 1;
 
-				switch(match[2]) {
-					case "hour":
-						time.setHours(time.getHours() + parseInt(match[1]));
-						return match[0];
-					case "min":
-						time.setMinutes(time.getMinutes() + parseInt(match[1]));
-						return match[0];
-					case "minute":
-						time.setMinutes(time.getMinutes() + parseInt(match[1]));
-						return match[0];
-					default:
-						break;
-				}
-			}
-
-			if (match = str.match(patterns.midtime))
-				switch(match[1]) {
-					case "noon":
-						time.setHours(12, 0, 0);
-						return match[0];
-					case "midnight":
-						time.setHours(0, 0, 0);
-						return match[0];
-					default:
-						break;
-				}
-
-			if (match = str.match(patterns.militaryTime)) {
-				time.setHours(match[1], match[2], 0);
-				return match[0];
-			}
-
-			if (match = str.match(new RegExp(patterns.explicitTime.source, "g"))) {
-				// if multiple matches found, pick the best one
-				match = match.sort(function (a, b) { return b.length - a.length; })[0];
-				if (match.length <= 2 && str.trim().length > 2)
+			switch(match[2]) {
+				case "hour":
+					time.setHours(time.getHours() + parseInt(match[1]));
+					break;
+				case "min":
+					time.setMinutes(time.getMinutes() + parseInt(match[1]));
+					break;
+				case "minute":
+					time.setMinutes(time.getMinutes() + parseInt(match[1]));
+					break;
+				default:
 					return false;
-				match = match.match(patterns.explicitTime);
-
-				var hour = parseInt(match[1])
-				,	min = match[2] || 0
-				,	meridian = match[3];
-
-				if (meridian) {
-					// meridian is included, adjust hours accordingly
-					if (meridian.indexOf('p') === 0 && hour != 12)
-						hour += 12;
-					else if (meridian.indexOf('a') === 0 && hour == 12)
-						hour = 0;
-				} else if (hour < 12 && (hour < 7 || hour < time.getHours()))
-					// meridian is not included, adjust any ambiguous times
-					// if you type 3, it will default to 3pm
-					// if you type 11 at 5am, it will default to am,
-					// but if you type it at 2pm, it will default to pm
-					hour += 12;
-
-				time.setHours(hour, min, 0);
-				return match[0];
 			}
-
-			return false;
-		},
-
-		explicitDate: function(str, time, startTime) {
-			var match
-			,	month
-			,	day;
-			//,	year;
-
-			if (match = str.match(patterns.monthDay)) {
-				month = helpers.changeMonth(match[1]);
-				day   = match[2];
-				//year  = match[3];
-			} else if (match = str.match(patterns.dayMonth)) {
-				month = helpers.changeMonth(match[2]);
-				day   = match[1];
-				//year  = match[3];
-			} else if (match = str.match(patterns.shortForm)) {
-				month = match[1] - 1;
-				day   = match[2];
-				//year  = match[3];
-			} else if (match = str.match(new RegExp(patterns.days + "\.?$", "g"))) {
-				// if multiple matches found, pick the best one
-				match = match.sort(function (a, b) { return b.length - a.length; })[0];
-				if (!(startTime && startTime.isAllDay) && 
-					match.length <= 2 && 
-					match.match(patterns.hoursOnly))
+		} else if (match = str.match(patterns.midtime)) {
+			switch(match[1]) {
+				case "noon":
+					time.setHours(12, 0, 0);
+					break;
+				case "midnight":
+					time.setHours(0, 0, 0);
+					break;
+				default:
 					return false;
-				match = match.match(patterns.daysOnly);
-				month = time.getMonth();
-				day = match[1];
-
-				// if this date is in the past, move it to next month
-				if (day < time.getDate())
-					month++;
-			} else
+			}
+		} else if (match = str.match(patterns.militaryTime)) {
+			time.setHours(match[1], match[2], 0);
+		} else if (match = str.match(new RegExp(patterns.explicitTime.source, "g"))) {
+			// if multiple matches found, pick the best one
+			match = match.sort(function (a, b) { return b.length - a.length; })[0];
+			if (match.length <= 2 && str.trim().length > 2)
 				return false;
+			match = match.match(patterns.explicitTime);
 
-			time.setMonth(month, day);
+			var hour = parseInt(match[1])
+			,	min = match[2] || 0
+			,	meridian = match[3];
 
-			// if (year) {
-			// 	if (year < 2000)
-			// 		year += 2000;
+			if (meridian) {
+				// meridian is included, adjust hours accordingly
+				if (meridian.indexOf('p') === 0 && hour != 12)
+					hour += 12;
+				else if (meridian.indexOf('a') === 0 && hour == 12)
+					hour = 0;
+			} else if (hour < 12 && (hour < 7 || hour < time.getHours()))
+				// meridian is not included, adjust any ambiguous times
+				// if you type 3, it will default to 3pm
+				// if you type 11 at 5am, it will default to am,
+				// but if you type it at 2pm, it will default to pm
+				hour += 12;
 
-			// 	time.setFullYear(year);
-			// }
-
-			// if the new date we've entered is in the past, move it to next year
-			var now = new Date();
-			if (time < now && !(time.getMonth() === now.getMonth() && time.getDate() === now.getDate()))
-				time.setFullYear(time.getFullYear() + 1);
-			else if (time > now && startTime) {
-				var temp = new Date(time.getTime()),
-					startTemp = new Date(startTime.startDate.getTime());
-
-				temp.setFullYear(temp.getFullYear() - 1);
-				startTemp.setFullYear(startTemp.getFullYear() - 1);
-
-				// allow date ranges that extend from past to future
-				if (startTemp < now && temp > now) {
-					startTime.startDate = startTemp;
-					time.setFullYear(time.getFullYear() - 1);
-				}
-			}
-
-			return match[0];
-		},
-
-		weekday: function(str, time) {
-			var match = str.match(patterns.weekdays);
-			if (match)
-				switch (match[2].substr(0, 3)) {
-					case "sun":
-						helpers.changeDay(time, 0, match[1]);
-						return match[0];
-					case "mon":
-						helpers.changeDay(time, 1, match[1]);
-						return match[0];
-					case "tue":
-						helpers.changeDay(time, 2, match[1]);
-						return match[0];
-					case "wed":
-						helpers.changeDay(time, 3, match[1]);
-						return match[0];
-					case "thu":
-						helpers.changeDay(time, 4, match[1]);
-						return match[0];
-					case "fri":
-						helpers.changeDay(time, 5, match[1]);
-						return match[0];
-					case "sat":
-						helpers.changeDay(time, 6, match[1]);
-						return match[0];
-					default:
-						break;
-				}
+			time.setHours(hour, min, 0);
+		} else
 			return false;
-		},
 
-		relativeDate: function(str, time) {
-			var match;
-			if (match = str.match(patterns.relativeDate))
-				switch(match[1]) {
-					case "next week":
-						time.setDate(time.getDate() + 7);
-						return match[0];
-					case "next month":
-						time.setMonth(time.getMonth() + 1);
-						return match[0];
-					case "tom":
-						time.setDate(time.getDate() + 1);
-						return match[0];
-					case "tomorrow":
-						time.setDate(time.getDate() + 1);
-						return match[0];
-					case "day after tomorrow":
-						time.setDate(time.getDate() + 2);
-						return match[0];
-					case "day after tom":
-						time.setDate(time.getDate() + 2);
-						return match[0];
-					case "today":
-						return match[0];
-					case "tod":
-						return match[0];
-					default:
-						break;
-				}
-			
-			if (match = str.match(patterns.inRelativeDate)) {
-				// if we matched 'a' or 'an', set the number to 1
-				if (isNaN(match[1]))
-					match[1] = 1;
+		var now = new Date();
+		if (time < now)
+			// the time has already passed today, go to tomorrow
+			time.setDate(time.getDate() + 1);
+		else if (time > now && startTime) {
+			var temp = new Date(time.getTime()),
+				startTemp = new Date(startTime.startDate.getTime());
 
-				switch(match[2]) {
-					case "day":
-						time.setDate(time.getDate() + parseInt(match[1]));
-						return match[0];
-					case "week":
-						time.setDate(time.getDate() + parseInt(match[1])*7);
-						return match[0];
-					case "month":
-						time.setMonth(time.getMonth() + parseInt(match[1]));
-						return match[0];
-					default:
-						break;
-				}
+			temp.setDate(temp.getDate() - 1);
+			startTemp.setDate(startTemp.getDate() - 1);
+
+			// allow date ranges that extend from past to future
+			if (startTemp < now && temp > now) {
+				startTime.startDate = startTemp;
+				time.setDate(time.getDate() - 1);
 			}
-			
-			return false;
 		}
+
+		return match[0];
+	},
+
+	matchDate = function(str, time, startTime) {
+		var match
+		,	month
+		,	day;
+		//,	year;
+
+		if (match = str.match(patterns.monthDay)) {
+			month = helpers.changeMonth(match[1]);
+			day   = match[2];
+			//year  = match[3];
+		} else if (match = str.match(patterns.dayMonth)) {
+			month = helpers.changeMonth(match[2]);
+			day   = match[1];
+			//year  = match[3];
+		} else if (match = str.match(patterns.weekdays)) {
+			switch (match[2].substr(0, 3)) {
+				case "sun":
+					helpers.changeDay(time, 0, match[1]);
+					return match[0];
+				case "mon":
+					helpers.changeDay(time, 1, match[1]);
+					return match[0];
+				case "tue":
+					helpers.changeDay(time, 2, match[1]);
+					return match[0];
+				case "wed":
+					helpers.changeDay(time, 3, match[1]);
+					return match[0];
+				case "thu":
+					helpers.changeDay(time, 4, match[1]);
+					return match[0];
+				case "fri":
+					helpers.changeDay(time, 5, match[1]);
+					return match[0];
+				case "sat":
+					helpers.changeDay(time, 6, match[1]);
+					return match[0];
+				default:
+					return false;
+			}
+		} else if (match = str.match(patterns.relativeDate)) {
+			switch(match[1]) {
+				case "next week":
+					time.setDate(time.getDate() + 7);
+					return match[0];
+				case "next month":
+					time.setMonth(time.getMonth() + 1);
+					return match[0];
+				case "tom":
+					time.setDate(time.getDate() + 1);
+					return match[0];
+				case "tomorrow":
+					time.setDate(time.getDate() + 1);
+					return match[0];
+				case "day after tomorrow":
+					time.setDate(time.getDate() + 2);
+					return match[0];
+				case "day after tom":
+					time.setDate(time.getDate() + 2);
+					return match[0];
+				case "today":
+					return match[0];
+				case "tod":
+					return match[0];
+				default:
+					return false;
+			}
+		} else if (match = str.match(patterns.inRelativeDate)) {
+			// if we matched 'a' or 'an', set the number to 1
+			if (isNaN(match[1]))
+				match[1] = 1;
+
+			switch(match[2]) {
+				case "day":
+					time.setDate(time.getDate() + parseInt(match[1]));
+					return match[0];
+				case "week":
+					time.setDate(time.getDate() + parseInt(match[1])*7);
+					return match[0];
+				case "month":
+					time.setMonth(time.getMonth() + parseInt(match[1]));
+					return match[0];
+				default:
+					return false;
+			}
+		} else if (match = str.match(patterns.shortForm)) {
+			month = match[1] - 1;
+			day   = match[2];
+			//year  = match[3];
+		} else if (match = str.match(new RegExp(patterns.days, "g"))) {
+			// if multiple matches found, pick the best one
+			match = match.sort(function (a, b) { return b.length - a.length; })[0];
+			// check if the possible date match meets our reasonable assumptions...
+				// if the match doesn't start with 'on',
+			if ((match.indexOf('on') !== 0 &&
+				// and if the match doesn't start with 'the' and end with a comma,
+				!(match.indexOf('the') === 0 && match.indexOf(',', match.length - 1) !== -1) &&
+				// and if the match isn't at the end of the overall input, then drop it.
+				str.indexOf(match, str.length - match.length - 1) === -1) ||
+			// But if one of those is true, make sure it passes these other checks too...
+				// if this is an end date and the start date isn't an all day value,
+				(!(startTime && startTime.isAllDay) && 
+				// and if this match is too short to mean something,
+				match.length <= 2 && 
+				// and if this match could be a timestamp too,
+				match.match(patterns.hoursOnly)))
+				// then drop it.
+				return false;
+			match = match.match(patterns.daysOnly);
+			month = time.getMonth();
+			day = match[1];
+
+			// if this date is in the past, move it to next month
+			if (day < time.getDate())
+				month++;
+		} else
+			return false;
+
+		time.setMonth(month, day);
+
+		// if (year) {
+		// 	if (year < 2000)
+		// 		year += 2000;
+
+		// 	time.setFullYear(year);
+		// }
+
+		// if the new date we've entered is in the past, move it to next year
+		var now = new Date();
+		if (time < now && !(time.getMonth() === now.getMonth() && time.getDate() === now.getDate()))
+			time.setFullYear(time.getFullYear() + 1);
+		else if (time > now && startTime) {
+			var temp = new Date(time.getTime()),
+				startTemp = new Date(startTime.startDate.getTime());
+
+			// make sure we weren't too aggressive in our pushing dates to future
+			temp.setFullYear(temp.getFullYear() - 1);
+			startTemp.setFullYear(startTemp.getFullYear() - 1);
+
+			// allow date ranges that extend from past to future
+			if (startTemp < now && temp > now) {
+				startTime.startDate = startTemp;
+				time.setFullYear(time.getFullYear() - 1);
+			}
+		}
+
+		return match[0];
 	},
 
 	helpers = {
+		// convert month string to number
 		changeMonth: function(month) {
 			switch(month.substr(0, 3)) {
 				case "jan":
@@ -333,6 +325,7 @@ var Sherlock = (function() {
 			}
 		},
 
+		// find the nearest future date that is on the given weekday
 		changeDay: function(time, newDay, hasNext) {
 			var diff = 7 - time.getDay() + newDay;
 			if (diff > 7 && !hasNext)
@@ -386,15 +379,21 @@ var Sherlock = (function() {
 		strToNum: function(str) {
 			return str.replace(patterns.digit, function(val) {
 				var out = helpers.wordsToInt[val];
-				if (val.indexOf('th') > 0)
+				if (val.indexOf('th', val.length - 2) !== -1)
 					out += 'th';
+				else if (val.indexOf('st', val.length - 2) !== -1)
+					out += 'st';
+				else if (val.indexOf('nd', val.length - 2) !== -1)
+					out += 'nd';
+				else if (val.indexOf('rd', val.length - 2) !== -1)
+					out += 'rd';
 				return out;
 			});
 		},
 
 		// converts all the numbers in a string into regex for number|word, such as 4 -> 4|four
 		numToStr: function(str) {
-			return str.replace(/((?:[1-9]|10)(?:th)?)/g, function(val) {
+			return str.replace(/((?:[1-9]|10)(?:st|nd|rd|th)?)/g, function(val) {
 				return '(?:' + val + '|' + helpers.intToWords[parseInt(val) - 1] + ')';
 			});
 		}
@@ -487,7 +486,7 @@ var Sherlock = (function() {
 
 			// get capitalized version of title
 			if (ret.eventTitle) {
-				ret.eventTitle = ret.eventTitle.replace(/ (?:\.|!|,|;)+/g, '');
+				ret.eventTitle = ret.eventTitle.replace(/(?:^| )(?:\.|!|,|;)+/g, '');
 				var match = str.match(new RegExp(helpers.escapeRegExp(ret.eventTitle), "i"));
 				if (match)
 					ret.eventTitle = match[0].replace(/ +/g, ' ').trim(); // replace multiple spaces
