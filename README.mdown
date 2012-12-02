@@ -65,7 +65,7 @@ Also, since Sherlock was designed for parsing text entered into a quick add fiel
 
 # How does this compare to alternatives like Datejs?
 
-[Datejs](http://www.datejs.com) is a great date parsing library, but it can only handle very specific dates or times. If you have a dedicated input field for times and a separate one for dates, then you should use Datejs. If you want to have one smart input field that can parse out date ranges, titles, and other calendaring attributes, use Sherlock.
+[Datejs](http://www.datejs.com) is a great date manipulation library, but it can only parse very specific dates or times. If you have a dedicated input field for times and a separate one for dates, then you should use Datejs. If you want to have one smart input field that can parse out date ranges, titles, and other calendaring attributes, use Sherlock.
 
 Datejs also supports internationalization, and offers a wide variety of other Date manipulation functions. On the other hand, Sherlock supports modularization. Oh, and Mr. Holmes could take on a ninja any day.
 
