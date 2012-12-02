@@ -82,6 +82,15 @@
 				})(),
 
 				(function() {
+					return test("My mom's birthday is on the 27th", "My mom's birthday", createDate(null, 27, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("The party is tomorrow from 3pm to 5pm.", "The party", createDate(null, new Date().getDate() + 1, 15, 0), 
+								createDate(null, new Date().getDate() + 1, 17, 0), false);
+				})(),
+
+				(function() {
 					var start = createDate(null, null, 14, 0);
 					return test("The exam is @ 2pm and lasts for five hours", "The exam", start, createDate(null, null, 19, 0, start), false);
 				})(),
