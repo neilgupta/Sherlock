@@ -54,21 +54,23 @@ That's it!
 
 ## Methods
 
-There are 2 public methods in Sherlock.js.
+There are 2 methods in Sherlock.js.
 
 **parse(String)**
 
-`parse()` takes a string representing some English phrase, and returns an object with properties `eventTitle`, `startDate`, `endDate`, and `isAllDay`.
+`parse()` takes a string representing some English phrase, and returns an object with the following properties:
 
-`eventTitle` will be a string representing Sherlock's best guess at what the event title should be, or `null` if no title found.
-`isAllDay` will always return a boolean signifying whether the input string describes an all-day event.
-`startDate` and `endDate` will be Date objects, or `null` if not applicable.
+* `eventTitle` - string representing Sherlock's best guess at what the event title should be, or `null` if no title found.
+* `isAllDay` - `true` the input string describes an all-day event, otherwise `false`.
+* `startDate` - Date object representing start of the event, or `null` if not found.
+* `endDate` - Date object representing end of the event, or `null` if not found.
 
 **_setNow(Date)**
 
 `_setNow()` allows you to change what time Sherlock thinks it is right now, regardless of the system clock.
 
-Pass a Date object, and Sherlock will parse strings as if they there were entered at that time. Pass in `null` to clear your custom date and use the system time instead.
+Pass in a Date object, and Sherlock will parse strings as if they there were entered on that day and time.
+Pass in `null` to clear your custom date and use the system time instead.
 
 This method is primarily meant for debugging purposes.
 
@@ -83,7 +85,7 @@ These two limitations together mean that Sherlock always finds the nearest futur
 
 Also, since Sherlock was designed for parsing text entered into a quick add field, it is not bloated with support for things reasonable people would not type out, like "three o'clock." It does however support phrases like "fourth of august" or "in three days." Sherlock does not attempt to be able to parse all of the obscure ways one could convey a date, but it does tackle most of the reasonable ways.
 
-# How does this compare to alternatives like Datejs?
+## How does this compare to alternatives like Datejs?
 
 [Datejs](http://www.datejs.com) is a date manipulation library, and is not built for handling user input. That means it can only parse very specific dates or times. If you are progrematically passing values or have a dedicated input field for times and a separate one for dates, then you can use Datejs. If you want to let users enter dates, you need Sherlock.
 
