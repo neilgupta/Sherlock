@@ -96,12 +96,12 @@
 
 				(function() {
 					var start = createDate(null, null, 14, 0);
-					return test("The exam is @ 2pm and lasts for five hours", "The exam", start, createDate(null, null, 19, 0, start), false);
+					return test("The exam is @ 2pm and lasts for five hours", "The exam", start, createDate(null, null, 19, 0, {startDate: start}), false);
 				})(),
 
 				(function() {
 					var start = createDate(null, null, 14, 0);
-					return test("The exam is @ 2pm and goes until 4pm", "The exam", start, createDate(null, null, 16, 0, start), false);
+					return test("The exam is @ 2pm and goes until 4pm", "The exam", start, createDate(null, null, 16, 0, {startDate: start}), false);
 				})(),
 
 				(function() {
@@ -133,7 +133,10 @@
 				})(),
 
 				(function() {
-					return test("I work from 1am - 6pm.", "I work", createDate(null, null, 1, 0), createDate(null, null, 18, 0), false);
+					return test("I work from 1am - 6pm.", "I work", 
+									createDate(null, null, 1, 0, {goToTomorrow: new Date() > new Date().setHours(18,0,0)}), 
+									createDate(null, null, 18, 0, {goToTomorrow: new Date() > new Date().setHours(18,0,0)}), 
+								false);
 				})(),
 
 				(function() {
@@ -171,7 +174,7 @@
 				})(),
 
 				(function() {
-					return test("12/3", null, createDate(11, 3, 0, 0), null, true);
+					return test("12/3", null, createDate(11, 3, 0, 0, {goToNextYear: false}), null, true);
 				})(),
 
 				(function() {
@@ -264,7 +267,7 @@
 						start = createDate(null, null, t, 0),
 						end = createDate(null, null, 13, 0);
 
-					if (end > now)
+					if (end > now && start > end)
 						start.setDate(start.getDate() - 1);
 
 					return test("10-1", null, start, end, false);
@@ -340,10 +343,8 @@
 
 					start.setDate(start.getDate() - 5);
 
-					var start = createDate(start.getMonth(), start.getDate(), 0, 0),
-						end = createDate(end.getMonth(), end.getDate(), 0, 0);
-
-					start.setFullYear(end.getFullYear());
+					var start = createDate(start.getMonth(), start.getDate(), 0, 0, {goToNextYear: false}),
+						end = createDate(end.getMonth(), end.getDate(), 0, 0, {goToNextYear: false, goToTomorrow: false});
 
 					return test((start.getMonth() + 1) + "/" + start.getDate() + " - " + (end.getMonth() + 1) + "/" + end.getDate(), 
 								null, start, end, true);
@@ -372,7 +373,7 @@
 					start.setDate(start.getDate() - 5);
 
 					return test((start.getMonth() + 1) + "/" + start.getDate() + " - " + (end.getMonth() + 1) + "/" + end.getDate(), 
-								null, createDate(start.getMonth(), start.getDate(), 0, 0), createDate(end.getMonth(), end.getDate(), 0, 0), true);
+								null, createDate(start.getMonth(), start.getDate(), 0, 0, {goToNextYear: false}), createDate(end.getMonth(), end.getDate(), 0, 0, {goToNextYear: false}), true);
 				})(),
 
 				(function() {
@@ -448,8 +449,10 @@
 				})(),
 
 				(function() {
-					return test("the party goes from midnight to noon", "the party goes", createDate(null, new Date().getDate() + 1, 0, 0), 
-							createDate(null, new Date().getDate() + 1, 12, 0), false);
+					return test("the party goes from midnight to noon", "the party goes", 
+									createDate(null, null, 0, 0, {goToTomorrow: new Date().getHours() < 12}), 
+									createDate(null, null, 12, 0, {goToTomorrow: new Date().getHours() < 12}), 
+								false);
 				})(),
 
 				(function() {
@@ -481,8 +484,17 @@
 				return time.getDate() + diff;
 			}
 
-			function createDate(month, day, hour, min, startDate) {
-				var date = startDate ? new Date(startDate.getTime()) : new Date(),
+			function createDate(month, day, hour, min, args) {
+				if (!args)
+					args = {};
+
+				args = {
+					date: args.startDate ? new Date(args.startDate.getTime()) : new Date(),
+					goToNextYear: args.goToNextYear != null ? args.goToNextYear : true,
+					goToTomorrow: args.goToTomorrow != null ? args.goToTomorrow : true
+				};
+
+				var date = args.date,
 					now = new Date();
 
 				// day
@@ -509,12 +521,17 @@
 				date.setMilliseconds(0);
 
 				// needed for adjusting the day forward when the given time has passed for today
-				if (!(date.getMonth() === now.getMonth() && date.getDate() === now.getDate() && date.getHours() === 0 && date.getMinutes() === 0) && 
+				if (args.goToTomorrow &&
+					!(date.getMonth() === now.getMonth() && 
+					  date.getDate() === now.getDate() && 
+					  date.getHours() === 0 && date.getMinutes() === 0) && 
 					month === null && day === null && date < now)
 					date.setDate(date.getDate() + 1);
 
 				// year
-				if (month !== null && date < now)
+				if (args.goToNextYear &&
+					month !== null && date < now && 
+					!(date.getMonth() === now.getMonth() && date.getDate() === now.getDate()))
 						date.setFullYear(date.getFullYear() + 1);
 
 				return date;

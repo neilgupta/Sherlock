@@ -303,7 +303,9 @@ var Sherlock = (function() {
 			startTemp.setFullYear(startTemp.getFullYear() - 1);
 
 			// allow date ranges that extend from past to future
-			if (startTemp < now && temp > now) {
+			if ((startTemp < now && temp > now) || 
+				(startTemp < now && startTime.isAllDay && 
+					temp.getMonth() === now.getMonth() && temp.getDate() === now.getDate())) {
 				startTime.startDate = startTemp;
 				time.setFullYear(time.getFullYear() - 1);
 			}
