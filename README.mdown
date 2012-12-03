@@ -52,6 +52,26 @@ var validated = sherlocked.validated; // true
 
 That's it!
 
+## Methods
+
+There are 2 public methods in Sherlock.js.
+
+**parse(String)**
+
+`parse()` takes a string representing some English phrase, and returns an object with properties `eventTitle`, `startDate`, `endDate`, and `isAllDay`.
+
+`eventTitle` will be a string representing Sherlock's best guess at what the event title should be, or `null` if no title found.
+`isAllDay` will always return a boolean signifying whether the input string describes an all-day event.
+`startDate` and `endDate` will be Date objects, or `null` if not applicable.
+
+**_setNow(Date)**
+
+`_setNow()` allows you to change what time Sherlock thinks it is right now, regardless of the system clock.
+
+Pass a Date object, and Sherlock will parse strings as if they there were entered at that time. Pass in `null` to clear your custom date and use the system time instead.
+
+This method is primarily meant for debugging purposes.
+
 # Limitations
 
 Sherlock was built for [Tabule](https://tabuleapp.com), meaning it is designed for entering student due dates. With that in mind, Sherlock has the following limitations:

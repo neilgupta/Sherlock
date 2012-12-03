@@ -36,6 +36,15 @@ var Sherlock = (function() {
 		fillerWords: / (from|is|at|on|for|in|(?:un)?till?)\b/
 	},
 
+	nowDate = null,
+
+	getNow = function() {
+		if (nowDate)
+			return new Date(nowDate.getTime());
+		else
+			return new Date();
+	},
+
 	parser = function(str, time, startTime) {
 		var ret = {},
 			dateMatch = false,
@@ -122,7 +131,7 @@ var Sherlock = (function() {
 		} else
 			return false;
 
-		var now = new Date();
+		var now = getNow();
 		if (time < now)
 			// the time has already passed today, go to tomorrow
 			time.setDate(time.getDate() + 1);
@@ -196,7 +205,7 @@ var Sherlock = (function() {
 					return false;
 			}
 		} else if (match = str.match(patterns.relativeDate)) {
-			var now = new Date();
+			var now = getNow();
 			switch(match[1]) {
 				case "next week":
 					month = time.getMonth();
@@ -297,7 +306,7 @@ var Sherlock = (function() {
 		// }
 
 		// if the new date we've entered is in the past, move it to next year
-		var now = new Date();
+		var now = getNow();
 		if (time < now && !(time.getMonth() === now.getMonth() && time.getDate() === now.getDate()))
 			time.setFullYear(time.getFullYear() + 1);
 		else if (time > now && startTime) {
@@ -443,7 +452,7 @@ var Sherlock = (function() {
 			// check for null input
 			if (str === null) str = '';
 
-			var date = new Date(),
+			var date = getNow(),
 				// Check if Watson is around. If not, pretend like he is to keep Sherlock company.
 				result = (typeof Watson !== 'undefined') ? Watson.preprocess(str) : [str, {}],
 				str = result[0],
@@ -527,6 +536,13 @@ var Sherlock = (function() {
 			if (typeof Watson !== 'undefined')
 				Watson.postprocess(ret);
 			return ret;
+		},
+
+		// Sets what time Sherlock thinks it is right now, regardless of the actual system time.
+		// Useful for debugging different times. Pass a Date object to set 'now' to a time of your choosing.
+		// Don't pass in anything to reset 'now' to the real time.
+		_setNow: function(newDate) {
+			nowDate = newDate;
 		}
 	};
 })();
