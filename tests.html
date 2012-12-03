@@ -342,9 +342,12 @@
 						end = new Date();
 
 					start.setDate(start.getDate() - 5);
+					end.setDate(end.getDate() + 1);
 
-					var start = createDate(start.getMonth(), start.getDate(), 0, 0, {goToNextYear: false}),
-						end = createDate(end.getMonth(), end.getDate(), 0, 0, {goToNextYear: false, goToTomorrow: false});
+					var start = createDate(start.getMonth(), start.getDate(), 0, 0),
+						end = createDate(end.getMonth(), end.getDate(), 0, 0);
+
+					start.setFullYear(end.getFullYear());
 
 					return test((start.getMonth() + 1) + "/" + start.getDate() + " - " + (end.getMonth() + 1) + "/" + end.getDate(), 
 								null, start, end, true);
@@ -362,6 +365,83 @@
 
 					start.setFullYear(end.getFullYear());
 
+					return test((start.getMonth() + 1) + "/" + start.getDate() + " - tomorrow", 
+								null, start, end, true);
+				})(),
+
+				(function() {
+					var start = new Date(),
+						end = new Date();
+
+					start.setDate(start.getDate() - 5);
+					end.setDate(end.getDate() + 1);
+
+					var start = createDate(start.getMonth(), start.getDate(), 0, 0),
+						end = createDate(end.getMonth(), end.getDate(), 0, 0);
+
+					start.setFullYear(end.getFullYear());
+
+					return test((start.getMonth() + 1) + "/" + start.getDate() + " -tom", 
+								null, start, end, true);
+				})(),
+
+				(function() {
+					var start = new Date(),
+						end = new Date();
+
+					start.setDate(start.getDate() - 5);
+					end.setDate(end.getDate() + 2);
+
+					var start = createDate(start.getMonth(), start.getDate(), 0, 0),
+						end = createDate(end.getMonth(), end.getDate(), 0, 0);
+
+					start.setFullYear(end.getFullYear());
+
+					return test((start.getMonth() + 1) + "/" + start.getDate() + " - day after tom", 
+								null, start, end, true);
+				})(),
+
+				(function() {
+					var start = new Date(),
+						end = new Date();
+
+					start.setDate(start.getDate() - 5);
+					end.setDate(end.getDate() + 2);
+
+					var start = createDate(start.getMonth(), start.getDate(), 0, 0),
+						end = createDate(end.getMonth(), end.getDate(), 0, 0);
+
+					start.setFullYear(end.getFullYear());
+
+					return test((start.getMonth() + 1) + "/" + start.getDate() + " -day after tomorrow", 
+								null, start, end, true);
+				})(),
+
+				(function() {
+					var start = new Date(),
+						end = new Date();
+
+					start.setDate(start.getDate() - 5);
+					end.setDate(end.getDate() + 2);
+
+					var start = createDate(start.getMonth(), start.getDate(), 0, 0),
+						end = createDate(end.getMonth(), end.getDate(), 0, 0);
+
+					start.setFullYear(end.getFullYear());
+
+					return test((start.getMonth() + 1) + "/" + start.getDate() + " -" + + (end.getMonth() + 1) + "/" + end.getDate(), 
+								null, start, end, true);
+				})(),
+
+				(function() {
+					var start = new Date(),
+						end = new Date();
+
+					start.setDate(start.getDate() - 5);
+
+					var start = createDate(start.getMonth(), start.getDate(), 0, 0, {goToNextYear: false}),
+						end = createDate(end.getMonth(), end.getDate(), 0, 0, {goToNextYear: false});
+
 					return test((start.getMonth() + 1) + "/" + start.getDate() + " - " + (end.getMonth() + 1) + "/" + end.getDate(), 
 								null, start, end, true);
 				})(),
@@ -372,7 +452,17 @@
 
 					start.setDate(start.getDate() - 5);
 
-					return test((start.getMonth() + 1) + "/" + start.getDate() + " - " + (end.getMonth() + 1) + "/" + end.getDate(), 
+					return test((start.getMonth() + 1) + "/" + start.getDate() + " - today", 
+								null, createDate(start.getMonth(), start.getDate(), 0, 0, {goToNextYear: false}), createDate(end.getMonth(), end.getDate(), 0, 0, {goToNextYear: false}), true);
+				})(),
+
+				(function() {
+					var start = new Date(),
+						end = new Date();
+
+					start.setDate(start.getDate() - 5);
+
+					return test((start.getMonth() + 1) + "/" + start.getDate() + " -tod", 
 								null, createDate(start.getMonth(), start.getDate(), 0, 0, {goToNextYear: false}), createDate(end.getMonth(), end.getDate(), 0, 0, {goToNextYear: false}), true);
 				})(),
 

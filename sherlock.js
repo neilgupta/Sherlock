@@ -169,28 +169,29 @@ var Sherlock = (function() {
 			day   = match[1];
 			//year  = match[3];
 		} else if (match = str.match(patterns.weekdays)) {
+			month = time.getMonth();
 			switch (match[2].substr(0, 3)) {
 				case "sun":
-					helpers.changeDay(time, 0, match[1]);
-					return match[0];
+					day = helpers.changeDay(time, 0, match[1]);
+					break;
 				case "mon":
-					helpers.changeDay(time, 1, match[1]);
-					return match[0];
+					day = helpers.changeDay(time, 1, match[1]);
+					break;
 				case "tue":
-					helpers.changeDay(time, 2, match[1]);
-					return match[0];
+					day = helpers.changeDay(time, 2, match[1]);
+					break;
 				case "wed":
-					helpers.changeDay(time, 3, match[1]);
-					return match[0];
+					day = helpers.changeDay(time, 3, match[1]);
+					break;
 				case "thu":
-					helpers.changeDay(time, 4, match[1]);
-					return match[0];
+					day = helpers.changeDay(time, 4, match[1]);
+					break;
 				case "fri":
-					helpers.changeDay(time, 5, match[1]);
-					return match[0];
+					day = helpers.changeDay(time, 5, match[1]);
+					break;
 				case "sat":
-					helpers.changeDay(time, 6, match[1]);
-					return match[0];
+					day = helpers.changeDay(time, 6, match[1]);
+					break;
 				default:
 					return false;
 			}
@@ -198,35 +199,37 @@ var Sherlock = (function() {
 			var now = new Date();
 			switch(match[1]) {
 				case "next week":
-					time.setDate(time.getDate() + 7);
-					return match[0];
+					month = time.getMonth();
+					day = time.getDate() + 7;
+					break;
 				case "next month":
-					time.setMonth(time.getMonth() + 1);
-					return match[0];
+					month = time.getMonth() + 1;
+					day = time.getDate();
+					break;
 				case "tom":
-					time.setMonth(now.getMonth());
-					time.setDate(now.getDate() + 1);
-					return match[0];
+					month = now.getMonth();
+					day = now.getDate() + 1;
+					break;
 				case "tomorrow":
-					time.setMonth(now.getMonth());
-					time.setDate(now.getDate() + 1);
-					return match[0];
+					month = now.getMonth();
+					day = now.getDate() + 1;
+					break;
 				case "day after tomorrow":
-					time.setMonth(now.getMonth());
-					time.setDate(now.getDate() + 2);
-					return match[0];
+					month = now.getMonth();
+					day = now.getDate() + 2;
+					break;
 				case "day after tom":
-					time.setMonth(now.getMonth());
-					time.setDate(now.getDate() + 2);
-					return match[0];
+					month = now.getMonth();
+					day = now.getDate() + 2;
+					break;
 				case "today":
-					time.setMonth(now.getMonth());
-					time.setDate(now.getDate());
-					return match[0];
+					month = now.getMonth();
+					day = now.getDate();
+					break;
 				case "tod":
-					time.setMonth(now.getMonth());
-					time.setDate(now.getDate());
-					return match[0];
+					month = now.getMonth();
+					day = now.getDate();
+					break;
 				default:
 					return false;
 			}
@@ -237,14 +240,17 @@ var Sherlock = (function() {
 
 			switch(match[2]) {
 				case "day":
-					time.setDate(time.getDate() + parseInt(match[1]));
-					return match[0];
+					month = time.getMonth();
+					day = time.getDate() + parseInt(match[1]);
+					break;
 				case "week":
-					time.setDate(time.getDate() + parseInt(match[1])*7);
-					return match[0];
+					month = time.getMonth();
+					day = time.getDate() + parseInt(match[1])*7;
+					break;
 				case "month":
-					time.setMonth(time.getMonth() + parseInt(match[1]));
-					return match[0];
+					month = time.getMonth() + parseInt(match[1]);
+					day = time.getDate();
+					break;
 				default:
 					return false;
 			}
@@ -352,7 +358,7 @@ var Sherlock = (function() {
 			var diff = 7 - time.getDay() + newDay;
 			if (diff > 7 && !hasNext)
 				diff -= 7;
-			time.setDate(time.getDate() + diff);
+			return time.getDate() + diff;
 		},
 
 		escapeRegExp: function(str) {
