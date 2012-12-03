@@ -30,7 +30,7 @@ var Sherlock = (function() {
 		// 0700, 1900, 23:50
 		militaryTime: /\b(?:([0-2]\d):?([0-5]\d))(?! ?[ap]\.?m?\.?)\b/,
 		// 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
-		explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-9])(?::([0-5]\d))? ?([ap]\.?m?\.?)?\b/,
+		explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-9])(?::([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
 		hoursOnly: /^(1[0-2]|0?[1-9])$/,
 
 		fillerWords: / (from|is|at|on|for|in|(?:un)?till?)\b/

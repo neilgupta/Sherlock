@@ -83,8 +83,6 @@ Sherlock was built for [Tabule](https://tabuleapp.com), meaning it is designed f
 
 These two limitations together mean that Sherlock always finds the nearest future date that meets the input. For example, if today is November 25th, 2012 and the user enters 'Oct 27th,' then Sherlock will return October 27, 2013. If the user just enters 'the 15th', then December 15th, 2012 will be returned.
 
-Also, since Sherlock was designed for parsing text entered into a quick add field, it is not bloated with support for things reasonable people would not type out, like "three o'clock." It does however support phrases like "fourth of august" or "in three days." Sherlock does not attempt to be able to parse all of the obscure ways one could convey a date, but it does tackle most of the reasonable ways.
-
 ## How does this compare to alternatives like Datejs?
 
 [Datejs](http://www.datejs.com) is a date manipulation library, and is not built for handling user input. That means it can only parse very specific dates or times. If you are progrematically passing values or have a dedicated input field for times and a separate one for dates, then you can use Datejs. If you want to let users enter dates, you need Sherlock.

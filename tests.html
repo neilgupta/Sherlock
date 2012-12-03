@@ -529,6 +529,10 @@
 					})(),
 
 					(function() {
+						return test("nine o'clock", null, createDate(null, null, getNow().getHours() < 12 ? 9 : 21, 0), null, false);
+					})(),
+
+					(function() {
 						return test("in 3 hours", "in", createDate(null, getNow().getDate(), getNow().getHours() + 3, null), null, false);
 					})(),
 
