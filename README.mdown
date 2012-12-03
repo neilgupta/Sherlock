@@ -61,9 +61,9 @@ There are 2 methods in Sherlock.js.
 `parse()` takes a string representing some English phrase, and returns an object with the following properties:
 
 * `eventTitle` - string representing Sherlock's best guess at what the event title should be, or `null` if no title found.
-* `isAllDay` - `true` the input string describes an all-day event, otherwise `false`.
 * `startDate` - Date object representing start of the event, or `null` if not found.
 * `endDate` - Date object representing end of the event, or `null` if not found.
+* `isAllDay` - `true` if the input string describes an all-day event, otherwise `false`.
 
 **_setNow(Date)**
 
