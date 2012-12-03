@@ -137,19 +137,319 @@
 				})(),
 
 				(function() {
-					return test("I work from 6pm - 1am.", "I work", createDate(null, null, 18, 0), createDate(null, new Date().getDate() + 1, 1, 0), false);
+					return test("I work from 6pm - 1am.", "I work", createDate(null, new Date().getDate(), 18, 0), createDate(null, new Date().getDate() + 1, 1, 0), false);
 				})(),
 
 				(function() {
-					return test("I work from 6pm - 1am today.", "I work", createDate(null, null, 18, 0), createDate(null, new Date().getDate() + 1, 1, 0), false);
+					var now = new Date(),
+						start = createDate(null, null, 23, 0),
+						end = createDate(null, null, 22, 0);
+
+					if (end > now && end.getDate() === now.getDate())
+						start.setDate(start.getDate() - 1);
+
+					return test("I work from 11pm - 10pm today.", "I work", start, end, false);
 				})(),
 
 				(function() {
-					return test("I work from 6pm - 1am tomorrow.", "I work", createDate(null, null, 18, 0), createDate(null, new Date().getDate() + 1, 1, 0), false);
+					var now = new Date(),
+						start = createDate(null, null, 18, 0),
+						end = createDate(null, null, 1, 0);
+
+					if (end > now && end.getDate() === now.getDate())
+						start.setDate(start.getDate() - 1);
+
+					return test("I work from 6pm - 1am today.", "I work", start, end, false);
 				})(),
 
 				(function() {
-					return test("I work from 6pm - 6am tomorrow.", "I work", createDate(null, null, 18, 0), createDate(null, new Date().getDate() + 1, 6, 0), false);
+					return test("I work from 6pm - 1am tomorrow.", "I work", createDate(null, new Date().getDate(), 18, 0), createDate(null, new Date().getDate() + 1, 1, 0), false);
+				})(),
+
+				(function() {
+					return test("I work from 6pm - 6am tomorrow.", "I work", createDate(null, new Date().getDate(), 18, 0), createDate(null, new Date().getDate() + 1, 6, 0), false);
+				})(),
+
+				(function() {
+					return test("12/3", null, createDate(11, 3, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("12/3 @ 3", null, createDate(11, 3, 15, 0), null, false);
+				})(),
+
+				(function() {
+					return test("12/3 @3pm", null, createDate(11, 3, 15, 0), null, false);
+				})(),
+
+				(function() {
+					return test("12/3@3pm", null, createDate(11, 3, 15, 0), null, false);
+				})(),
+
+				(function() {
+					return test("12/03", null, createDate(11, 3, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("12.03", null, createDate(11, 3, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("12.3", null, createDate(11, 3, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("12/23", null, createDate(11, 23, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("12.12", null, createDate(11, 12, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("9/1", null, createDate(8, 1, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("9/0", "9/0", null, null, false);
+				})(),
+
+				(function() {
+					return test("9/19", null, createDate(8, 19, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("10/90", "10/90", null, null, false);
+				})(),
+
+				(function() {
+					return test("10/9/14", null, createDate(9, 9, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("10/9/12", null, createDate(9, 9, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("10/9/0", "/0", createDate(9, 9, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("10/1", null, createDate(9, 1, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("10/01", null, createDate(9, 1, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("10.1", null, createDate(9, 1, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("10.01", null, createDate(9, 1, 0, 0), null, true);
+				})(),
+
+				(function() {
+					var t = 22;
+					if (new Date().getHours() < 12)
+						t = 10;
+
+					return test("10-01", "01", createDate(null, null, t, 0), null, false);
+				})(),
+
+				(function() {
+					var now = new Date(),
+						t = now.getHours() < 12 ? 10 : 22,
+						start = createDate(null, null, t, 0),
+						end = createDate(null, null, 13, 0);
+
+					if (end > now)
+						start.setDate(start.getDate() - 1);
+
+					return test("10-1", null, start, end, false);
+				})(),
+
+				(function() {
+					var start = createDate(11, 2, 0, 0),
+						end = createDate(11, 5, 0, 0);
+
+					start.setFullYear(end.getFullYear());
+
+					return test("dec 2 - 5", null, start, end, true);
+				})(),
+
+				(function() {
+					return test("dec 0 - 11", "dec 0 - 11", null, null, false);
+				})(),
+
+				(function() {
+					var start = createDate(11, 1, 9, 0),
+						end = createDate(11, 5, 20, 0);
+
+					start.setFullYear(end.getFullYear());
+					return test("dec 1st at 9am through dec fifth 8pm", null, start, end, false);
+				})(),
+
+				(function() {
+					var start = createDate(11, 1, 0, 0),
+						end = createDate(11, 11, 0, 0);
+
+					start.setFullYear(end.getFullYear());
+					return test("dec 1 - 11", null, start, end, true);
+				})(),
+
+				(function() {
+					var start = createDate(11, 1, 15, 0),
+						end = createDate(11, 1, 23, 0);
+
+					start.setFullYear(end.getFullYear());
+					return test("dec 1 at 3pm - 11", null, start, end, false);
+				})(),
+
+				(function() {
+					var start = createDate(11, 1, 15, 0),
+						end = createDate(11, 11, 15, 0);
+
+					start.setFullYear(end.getFullYear());
+					return test("dec 1 at 3pm - dec 11", null, start, end, false);
+				})(),
+
+				(function() {
+					var start = createDate(11, 1, 0, 0),
+						end = createDate(11, 11, 0, 0);
+
+					start.setFullYear(end.getFullYear());
+					return test("dec 1 - dec 11 @3pm", null, start, end, true);
+				})(),
+
+				(function() {
+					var start = new Date(),
+						end = new Date();
+
+					start.setDate(start.getDate() - 5);
+					end.setDate(end.getDate() - 3);
+
+					return test((start.getMonth() + 1) + "/" + start.getDate() + " - " + (end.getMonth() + 1) + "/" + end.getDate(), 
+								null, createDate(start.getMonth(), start.getDate(), 0, 0), createDate(end.getMonth(), end.getDate(), 0, 0), true);
+				})(),
+
+				(function() {
+					var start = new Date(),
+						end = new Date();
+
+					start.setDate(start.getDate() - 5);
+
+					var start = createDate(start.getMonth(), start.getDate(), 0, 0),
+						end = createDate(end.getMonth(), end.getDate(), 0, 0);
+
+					start.setFullYear(end.getFullYear());
+
+					return test((start.getMonth() + 1) + "/" + start.getDate() + " - " + (end.getMonth() + 1) + "/" + end.getDate(), 
+								null, start, end, true);
+				})(),
+
+				(function() {
+					var start = new Date(),
+						end = new Date();
+
+					start.setDate(start.getDate() - 5);
+					end.setDate(end.getDate() + 1);
+
+					var start = createDate(start.getMonth(), start.getDate(), 0, 0),
+						end = createDate(end.getMonth(), end.getDate(), 0, 0);
+
+					start.setFullYear(end.getFullYear());
+
+					return test((start.getMonth() + 1) + "/" + start.getDate() + " - " + (end.getMonth() + 1) + "/" + end.getDate(), 
+								null, start, end, true);
+				})(),
+
+				(function() {
+					var start = new Date(),
+						end = new Date();
+
+					start.setDate(start.getDate() - 5);
+
+					return test((start.getMonth() + 1) + "/" + start.getDate() + " - " + (end.getMonth() + 1) + "/" + end.getDate(), 
+								null, createDate(start.getMonth(), start.getDate(), 0, 0), createDate(end.getMonth(), end.getDate(), 0, 0), true);
+				})(),
+
+				(function() {
+					return test("12.32", "12.32", null, null, false);
+				})(),
+
+				(function() {
+					return test("12.31", null, createDate(11, 31, 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("12:00am", null, createDate(null, new Date().getDate() + 1, 0, 0), null, false);
+				})(),
+
+				(function() {
+					return test("12:00 am", null, createDate(null, new Date().getDate() + 1, 0, 0), null, false);
+				})(),
+
+				(function() {
+					return test("12:00 A.M.", null, createDate(null, new Date().getDate() + 1, 0, 0), null, false);
+				})(),
+
+				(function() {
+					return test("12:00a.M.", null, createDate(null, new Date().getDate() + 1, 0, 0), null, false);
+				})(),
+
+				(function() {
+					return test("00:00", null, createDate(null, new Date().getDate() + 1, 0, 0), null, false);
+				})(),
+
+				(function() {
+					return test("0:00", "0:00", null, null, false);
+				})(),
+
+				(function() {
+					return test("12:0 A.M.", "12:0 A.M.", null, null, false);
+				})(),
+
+				(function() {
+					return test("02:0 A.M.", "02:0 A.M.", null, null, false);
+				})(),
+
+				(function() {
+					return test("02:00", null, createDate(null, null, 2, 0), null, false);
+				})(),
+
+				(function() {
+					return test("17:00", null, createDate(null, null, 17, 0), null, false);
+				})(),
+
+				(function() {
+					return test("in 3 hours", "in", createDate(null, new Date().getDate(), new Date().getHours() + 3, null), null, false);
+				})(),
+
+				(function() {
+					return test("in three hours", "in", createDate(null, new Date().getDate(), new Date().getHours() + 3, null), null, false);
+				})(),
+
+				(function() {
+					return test("three hours from now", null, createDate(null, new Date().getDate(), new Date().getHours() + 3, null), null, false);
+				})(),
+
+				(function() {
+					return test("3 hours from now", null, createDate(null, new Date().getDate(), new Date().getHours() + 3, null), null, false);
+				})(),
+
+				(function() {
+					return test("midnight", null, createDate(null, new Date().getDate() + 1, 0, 0), null, false);
+				})(),
+
+				(function() {
+					return test("noon", null, createDate(null, null, 12, 0), null, false);
+				})(),
+
+				(function() {
+					return test("the party goes from midnight to noon", "the party goes", createDate(null, new Date().getDate() + 1, 0, 0), 
+							createDate(null, new Date().getDate() + 1, 12, 0), false);
 				})(),
 
 				(function() {
@@ -208,9 +508,10 @@
 					date.setSeconds(0);
 				date.setMilliseconds(0);
 
-				// if (!(date.getMonth() === now.getMonth() && date.getDate() === now.getDate() && date.getHours() === 0 && date.getMinutes() === 0) && 
-				// 	month === null && day === null && date < now)
-				// 	date.setDate(date.getDate() + 1);
+				// needed for adjusting the day forward when the given time has passed for today
+				if (!(date.getMonth() === now.getMonth() && date.getDate() === now.getDate() && date.getHours() === 0 && date.getMinutes() === 0) && 
+					month === null && day === null && date < now)
+					date.setDate(date.getDate() + 1);
 
 				// year
 				if (month !== null && date < now)
@@ -279,14 +580,19 @@
 					});
 				}
 
-				if (startDate)
+				if (startDate) {
+					startDate.setSeconds(0);
 					startDate = startDate.getTime();
-				if (endDate)
+				} if (endDate) {
+					endDate.setSeconds(0);
 					endDate = endDate.getTime();
-				if (Sherlocked.startDate !== null)
+				} if (Sherlocked.startDate !== null)	{
+					Sherlocked.startDate.setSeconds(0);
 					Sherlocked.startDate = Sherlocked.startDate.getTime();
-				if (Sherlocked.endDate !== null)
+				} if (Sherlocked.endDate !== null) {
+					Sherlocked.endDate.setSeconds(0);
 					Sherlocked.endDate = Sherlocked.endDate.getTime();
+				}
 				
 				return [str, (Sherlocked.eventTitle === title && 
 					Sherlocked.startDate === startDate && 

@@ -12,13 +12,13 @@ var Sherlock = (function() {
 		// oct, october
 		months: "\\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\b",
 		// 3, 31, 31st, fifth
-		days: "\\b(?:(?:(?:on )?the )(?=\\d\\d?(?:st|nd|rd|th)))?(0?[1-9]|[1-2]\\d|3[0-1])(?:st|nd|rd|th)?(?:,|\\b)",
+		days: "\\b(?:(?:(?:on )?the )(?=\\d\\d?(?:st|nd|rd|th)))?([1-2]\\d|3[0-1]|0?[1-9])(?:st|nd|rd|th)?(?:,|\\b)",
 		// 2012, 12
 		//year: "((?: 20)?1\d)?",
 
 		// 5/12, 5.12
-		shortForm: /\b(0?[1-9]|1[0-2])(?:\/|\.)(0?[1-9]|[1-2]\d|3[0-1])/,
-		// shortForm with years: /\b(0?[1-9]|1[0-2])(?:\/|\.)(0?[1-9]|[1-2]\d|3[0-1])((?:\/|\.)(?:20)?1\d)?\b/,
+		shortForm: /\b(0?[1-9]|1[0-2])(?:\/|\.)([1-2]\d|3[0-1]|0?[1-9])(?:(?:\/|\.)(?:20)?1\d)?\b/,
+		// shortForm with years: /\b(0?[1-9]|1[0-2])(?:\/|\.)([1-2]\d|3[0-1]|0?[1-9])((?:\/|\.)(?:20)?1\d)?\b/,
 
 		// tue, tues, tuesday
 		weekdays: /(next (?:week (?:on )?)?)?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
@@ -28,10 +28,10 @@ var Sherlock = (function() {
 		inRelativeTime: /\b(\d{1,2}|a|an) (hour|min(?:ute)?)s?\b/,
 		midtime: /(?:@ ?)?\b(?:at )?(noon|midnight)\b/,
 		// 0700, 1900, 23:50
-		militaryTime: /\b([0-2]\d):?([0-5]\d)\b/,
+		militaryTime: /\b(?:([0-2]\d):?([0-5]\d))(?! ?[ap]\.?m?\.?)\b/,
 		// 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
-		explicitTime: /(?:@ ?)?\b(?:at |from )?(0?[1-9]|1[0-2])(?::([0-5]\d))? ?([ap]\.?m?\.?)?\b/,
-		hoursOnly: /^(0?[1-9]|1[0-2])$/,
+		explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-9])(?::([0-5]\d))? ?([ap]\.?m?\.?)?\b/,
+		hoursOnly: /^(1[0-2]|0?[1-9])$/,
 
 		fillerWords: / (from|is|at|on|for|in|(?:un)?till?)\b/
 	},
@@ -137,7 +137,9 @@ var Sherlock = (function() {
 			var temp = new Date(time.getTime()),
 				startTemp = new Date(startTime.startDate.getTime());
 
-			if (startTemp.getHours() <= now.getHours() && startTemp.getMinutes() <= now.getMinutes()) {
+			if (!startTime.isAllDay && 
+				startTemp.getHours() <= now.getHours() && startTemp.getMinutes() <= now.getMinutes() && 
+				startTemp.getDate() - 1 === now.getDate() && startTemp.getMonth() === now.getMonth() && startTemp.getFullYear() === now.getFullYear()) {
 				startTemp.setDate(startTemp.getDate() - 1);
 				temp.setDate(temp.getDate() - 1);
 			}
