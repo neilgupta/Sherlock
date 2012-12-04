@@ -1,4 +1,4 @@
-/**
+/*!
  * Sherlock
  * Copyright (c) 2012 Tabule, Inc.
  * Version 1.0
