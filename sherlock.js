@@ -80,13 +80,13 @@ var Sherlock = (function() {
 			switch(match[2]) {
 				case "hour":
 					time.setHours(time.getHours() + parseInt(match[1]));
-					break;
+					return match[0];
 				case "min":
 					time.setMinutes(time.getMinutes() + parseInt(match[1]));
-					break;
+					return match[0];
 				case "minute":
 					time.setMinutes(time.getMinutes() + parseInt(match[1]));
-					break;
+					return match[0];
 				default:
 					return false;
 			}
@@ -94,15 +94,16 @@ var Sherlock = (function() {
 			switch(match[1]) {
 				case "noon":
 					time.setHours(12, 0, 0);
-					break;
+					return match[0];
 				case "midnight":
 					time.setHours(0, 0, 0);
-					break;
+					return match[0];
 				default:
 					return false;
 			}
 		} else if (match = str.match(patterns.militaryTime)) {
 			time.setHours(match[1], match[2], 0);
+			return match[0];
 		} else if (match = str.match(new RegExp(patterns.explicitTime.source, "g"))) {
 			// if multiple matches found, pick the best one
 			match = match.sort(function (a, b) { return b.length - a.length; })[0];
@@ -128,79 +129,42 @@ var Sherlock = (function() {
 				hour += 12;
 
 			time.setHours(hour, min, 0);
+			return match[0];
 		} else
 			return false;
-
-		var now = getNow();
-		if (time < now)
-			// the time has already passed today, go to tomorrow
-			time.setDate(time.getDate() + 1);
-		else if (time > now && startTime) {
-			if (startTime.startDate > time) {
-				if (str.length - match.length < 2)
-					time.setDate(time.getDate() + 1);
-				else
-					startTime.startDate.setDate(startTime.startDate.getDate() - 1);
-			}
-
-			var temp = new Date(time.getTime()),
-				startTemp = new Date(startTime.startDate.getTime());
-
-			if (!startTime.isAllDay && 
-				startTemp.getHours() <= now.getHours() && startTemp.getMinutes() <= now.getMinutes() && 
-				startTemp.getDate() - 1 === now.getDate() && startTemp.getMonth() === now.getMonth() && startTemp.getFullYear() === now.getFullYear()) {
-				startTemp.setDate(startTemp.getDate() - 1);
-				temp.setDate(temp.getDate() - 1);
-			}
-
-			// allow date ranges that extend from past to future
-			if (startTemp < now && temp > now) {
-				startTime.startDate = startTemp;
-				time.setDate(temp.getDate());
-			}
-		}
-
-		return match[0];
 	},
 
 	matchDate = function(str, time, startTime) {
-		var match
-		,	month
-		,	day;
-		//,	year;
-
+		var match;
 		if (match = str.match(patterns.monthDay)) {
-			month = helpers.changeMonth(match[1]);
-			day   = match[2];
-			//year  = match[3];
+			time.setMonth(helpers.changeMonth(match[1]), match[2]);
+			return match[0];
 		} else if (match = str.match(patterns.dayMonth)) {
-			month = helpers.changeMonth(match[2]);
-			day   = match[1];
-			//year  = match[3];
+			time.setMonth(helpers.changeMonth(match[2]), match[1]);
+			return match[0];
 		} else if (match = str.match(patterns.weekdays)) {
-			month = time.getMonth();
 			switch (match[2].substr(0, 3)) {
 				case "sun":
-					day = helpers.changeDay(time, 0, match[1]);
-					break;
+					helpers.changeDay(time, 0, match[1]);
+					return match[0];
 				case "mon":
-					day = helpers.changeDay(time, 1, match[1]);
-					break;
+					helpers.changeDay(time, 1, match[1]);
+					return match[0];
 				case "tue":
-					day = helpers.changeDay(time, 2, match[1]);
-					break;
+					helpers.changeDay(time, 2, match[1]);
+					return match[0];
 				case "wed":
-					day = helpers.changeDay(time, 3, match[1]);
-					break;
+					helpers.changeDay(time, 3, match[1]);
+					return match[0];
 				case "thu":
-					day = helpers.changeDay(time, 4, match[1]);
-					break;
+					helpers.changeDay(time, 4, match[1]);
+					return match[0];
 				case "fri":
-					day = helpers.changeDay(time, 5, match[1]);
-					break;
+					helpers.changeDay(time, 5, match[1]);
+					return match[0];
 				case "sat":
-					day = helpers.changeDay(time, 6, match[1]);
-					break;
+					helpers.changeDay(time, 6, match[1]);
+					return match[0];
 				default:
 					return false;
 			}
@@ -208,37 +172,29 @@ var Sherlock = (function() {
 			var now = getNow();
 			switch(match[1]) {
 				case "next week":
-					month = time.getMonth();
-					day = time.getDate() + 7;
-					break;
+					time.setMonth(now.getMonth(), now.getDate() + 7);
+					return match[0];
 				case "next month":
-					month = time.getMonth() + 1;
-					day = time.getDate();
-					break;
+					time.setMonth(time.getMonth() + 1);
+					return match[0];
 				case "tom":
-					month = now.getMonth();
-					day = now.getDate() + 1;
-					break;
+					time.setMonth(now.getMonth(), now.getDate() + 1);
+					return match[0];
 				case "tomorrow":
-					month = now.getMonth();
-					day = now.getDate() + 1;
-					break;
+					time.setMonth(now.getMonth(), now.getDate() + 1);
+					return match[0];
 				case "day after tomorrow":
-					month = now.getMonth();
-					day = now.getDate() + 2;
-					break;
+					time.setMonth(now.getMonth(), now.getDate() + 2);
+					return match[0];
 				case "day after tom":
-					month = now.getMonth();
-					day = now.getDate() + 2;
-					break;
+					time.setMonth(now.getMonth(), now.getDate() + 2);
+					return match[0];
 				case "today":
-					month = now.getMonth();
-					day = now.getDate();
-					break;
+					time.setMonth(now.getMonth(), now.getDate());
+					return match[0];
 				case "tod":
-					month = now.getMonth();
-					day = now.getDate();
-					break;
+					time.setMonth(now.getMonth(), now.getDate());
+					return match[0];
 				default:
 					return false;
 			}
@@ -249,24 +205,20 @@ var Sherlock = (function() {
 
 			switch(match[2]) {
 				case "day":
-					month = time.getMonth();
-					day = time.getDate() + parseInt(match[1]);
-					break;
+					time.setDate(time.getDate() + parseInt(match[1]));
+					return match[0];
 				case "week":
-					month = time.getMonth();
-					day = time.getDate() + parseInt(match[1])*7;
-					break;
+					time.setDate(time.getDate() + parseInt(match[1])*7);
+					return match[0];
 				case "month":
-					month = time.getMonth() + parseInt(match[1]);
-					day = time.getDate();
-					break;
+					time.setMonth(time.getMonth() + parseInt(match[1]));
+					return match[0];
 				default:
 					return false;
 			}
 		} else if (match = str.match(patterns.shortForm)) {
-			month = match[1] - 1;
-			day   = match[2];
-			//year  = match[3];
+			time.setMonth(match[1] - 1, match[2]);
+			return match[0];
 		} else if (match = str.match(new RegExp(patterns.days, "g"))) {
 			// if multiple matches found, pick the best one
 			match = match.sort(function (a, b) { return b.length - a.length; })[0];
@@ -287,46 +239,67 @@ var Sherlock = (function() {
 				// then drop it.
 				return false;
 			match = match.match(patterns.daysOnly);
-			month = time.getMonth();
-			day = match[1];
+			
+			var month = time.getMonth(),
+				day = match[1];
 
 			// if this date is in the past, move it to next month
 			if (day < time.getDate())
 				month++;
+
+			time.setMonth(month, day);
+			return match[0];
 		} else
 			return false;
+	},
 
-		time.setMonth(month, day);
-
-		// if (year) {
-		// 	if (year < 2000)
-		// 		year += 2000;
-
-		// 	time.setFullYear(year);
-		// }
-
-		// if the new date we've entered is in the past, move it to next year
+	// Make some intelligent assumptions of what was meant, even when given incomplete information
+	makeAdjustments = function(start, end, isAllDay) {
 		var now = getNow();
-		if (time < now && !(time.getMonth() === now.getMonth() && time.getDate() === now.getDate()))
-			time.setFullYear(time.getFullYear() + 1);
-		else if (time > now && startTime) {
-			var temp = new Date(time.getTime()),
-				startTemp = new Date(startTime.startDate.getTime());
+		if (end) { // 
+			if (start > end && end > now &&
+				start.getMonth() === end.getMonth() && start.getDate() === end.getDate() && start.getFullYear() === end.getFullYear() &&
+				start.getMonth() === now.getMonth() && start.getDate() === now.getDate() && start.getFullYear() === now.getFullYear()) {
+				// we are dealing with a time range that is today with start > end (ie. 9pm - 5am), move start to yesterday.
+				start.setDate(start.getDate() - 1);
+			}
 
-			// make sure we weren't too aggressive in our pushing dates to future
-			temp.setFullYear(temp.getFullYear() - 1);
-			startTemp.setFullYear(startTemp.getFullYear() - 1);
+			else if (end < now) {
+				if (end.getMonth() === now.getMonth() && end.getDate() === now.getDate() && end.getFullYear() === now.getFullYear()) {
+					// all-day events can be in the past when dealing with today, 
+					// since they are set to midnight which must be in the past today
+					if (!isAllDay) {
+						if (start < end && 
+							start.getMonth() === now.getMonth() && start.getDate() === now.getDate() && start.getFullYear() === now.getFullYear())
+							// the start date is also today, move it tomorrow as well
+							start.setDate(start.getDate() + 1);
 
-			// allow date ranges that extend from past to future
-			if ((startTemp < now && temp > now) || 
-				(startTemp < now && startTime.isAllDay && 
-					temp.getMonth() === now.getMonth() && temp.getDate() === now.getDate())) {
-				startTime.startDate = startTemp;
-				time.setFullYear(time.getFullYear() - 1);
+						// the end time has already passed today, go to tomorrow
+						end.setDate(end.getDate() + 1);
+					}
+				} else {
+					if (start < end)
+						// move start date forward a year if it is before the end date (March 2 - March 5),
+						// but not if it is after (Dec 11 - Jan 23)
+						start.setFullYear(start.getFullYear() + 1);
+					// this date has passed, go to next year
+					end.setFullYear(end.getFullYear() + 1);
+				}
+			}
+
+		} else if (start) { // hallelujah, we aren't dealing with a date range
+			if (start < now) {
+				if (start.getMonth() === now.getMonth() && start.getDate() === now.getDate() && start.getFullYear() === now.getFullYear()) {
+					// all-day events can be in the past when dealing with today, 
+					// since they are set to midnight which must be in the past today
+					if (!isAllDay)
+						// the time has already passed today, go to tomorrow
+						start.setDate(start.getDate() + 1);
+				} else
+					// this date has passed, go to next year
+					start.setFullYear(start.getFullYear() + 1);
 			}
 		}
-
-		return match[0];
 	},
 
 	helpers = {
@@ -367,7 +340,7 @@ var Sherlock = (function() {
 			var diff = 7 - time.getDay() + newDay;
 			if (diff > 7 && !hasNext)
 				diff -= 7;
-			return time.getDate() + diff;
+			time.setDate(time.getDate() + diff);
 		},
 
 		escapeRegExp: function(str) {
@@ -521,6 +494,8 @@ var Sherlock = (function() {
 				}
 			}
 
+			makeAdjustments(ret.startDate, ret.endDate, ret.isAllDay);
+
 			// get capitalized version of title
 			if (ret.eventTitle) {
 				ret.eventTitle = ret.eventTitle.replace(/(?:^| )(?:\.|!|,|;)+/g, '');
@@ -535,6 +510,7 @@ var Sherlock = (function() {
 
 			if (typeof Watson !== 'undefined')
 				Watson.postprocess(ret);
+
 			return ret;
 		},
 

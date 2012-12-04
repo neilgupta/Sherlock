@@ -9,11 +9,25 @@
 		<script type="text/javascript" src="sherlock.js"></script>
 
 		<script type="text/javascript">
-			var debug = false;
+			var debug = true;
 
 			var dates = [
 				new Date("Dec 03, 2012 04:35:00"),
 				new Date("Feb 02, 2013 04:01:00"),
+				new Date("Feb 27, 2013 04:01:00"),
+				new Date("Feb 24, 2013 04:01:00"),
+				new Date("Feb 24, 2013 15:01:00"),
+				new Date("March 3, 2013 12:01:00"),
+				new Date("March 3, 2013 14:01:00"),
+				(function() { var d = new Date(); d.setHours(0, 0, 0); return d; })(),
+				(function() { var d = new Date(); d.setHours(0, 1, 0); return d; })(),
+				(function() { var d = new Date(); d.setHours(2, 0, 0); return d; })(),
+				(function() { var d = new Date(); d.setHours(6, 0, 0); return d; })(),
+				(function() { var d = new Date(); d.setHours(12, 0, 0); return d; })(),
+				(function() { var d = new Date(); d.setHours(14, 0, 0); return d; })(),
+				(function() { var d = new Date(); d.setHours(15, 0, 0); return d; })(),
+				(function() { var d = new Date(); d.setHours(16, 10, 0); return d; })(),
+				(function() { var d = new Date(); d.setHours(23, 30, 0); return d; })(),
 				new Date()
 			], i = 0;
 
@@ -27,11 +41,31 @@
 			function runTestCases() {
 				return [
 					(function() {
-						return test("February 24 at 3pm - 2pm March 3", null, createDate(1, 24, 15, 0), createDate(2, 3, 14, 0), false);
+						var now = getNow(),
+							day = now.getMonth() === 2 && now.getDate() === 3 && now.getHours() > 13 ? 4 : 3;
+						var start = createDate(1, 24, 15, 0, {goToTomorrow: false, goToNextYear: false}),
+							end = createDate(2, day, 14, 0, {goToTomorrow: false, goToNextYear: false});
+						
+						if (end < now)
+							end.setFullYear(end.getFullYear() + 1);
+
+						start.setFullYear(end.getFullYear());
+
+						return test("February 24 at 3pm - 2pm March 3", null, start, end, false);
 					})(),
 
 					(function() {
-						return test("February 24 at 3pm-2pm March 3", null, createDate(1, 24, 15, 0), createDate(2, 3, 14, 0), false);
+						var now = getNow(),
+							day = now.getMonth() === 2 && now.getDate() === 3 && now.getHours() > 13 ? 4 : 3;
+						var start = createDate(1, 24, 15, 0, {goToTomorrow: false, goToNextYear: false}),
+							end = createDate(2, day, 14, 0, {goToTomorrow: false, goToNextYear: false});
+						
+						if (end < now)
+							end.setFullYear(end.getFullYear() + 1);
+
+						start.setFullYear(end.getFullYear());
+
+						return test("February 24 at 3pm-2pm March 3", null, start, end, false);
 					})(),
 
 					(function() {
@@ -104,22 +138,53 @@
 					})(),
 
 					(function() {
-						return test("The party is tomorrow from 3pm to 5pm.", "The party", createDate(null, getNow().getDate() + 1, 15, 0), 
-									createDate(null, getNow().getDate() + 1, 17, 0), false);
+						return test("The party is tomorrow from 3pm to 5pm.", "The party", 
+								createDate(null, getNow().getDate() + 1, 15, 0, {goToTomorrow: false}), 
+								createDate(null,  getNow().getDate() + 1, 17, 0, {goToTomorrow: false}), false);
 					})(),
 
 					(function() {
-						var start = createDate(null, null, 14, 0);
-						return test("The exam is @ 2pm and lasts for five hours", "The exam", start, createDate(null, null, 19, 0, {startDate: start}), false);
+						var plusTime = getNow().getHours() > 18 ? 1 : 0;
+						return test("The exam is @ 2pm and lasts for five hours", "The exam",
+									createDate(null, getNow().getDate() + plusTime, 14, 0, {goToTomorrow: false}), 
+									createDate(null, getNow().getDate() + plusTime, 19, 0, {goToTomorrow: false}), false);
 					})(),
 
 					(function() {
-						var start = createDate(null, null, 14, 0);
-						return test("The exam is @ 2pm and goes until 4pm", "The exam", start, createDate(null, null, 16, 0, {startDate: start}), false);
+						var plusTime = getNow().getHours() > 15 ? 1 : 0;
+						return test("The exam is @ 2pm and goes until 4pm", "The exam", 
+									createDate(null, getNow().getDate() + plusTime, 14, 0, {goToTomorrow: false}), 
+									createDate(null, getNow().getDate() + plusTime, 16, 0, {goToTomorrow: false}), false);
+					})(),
+
+					(function() {
+						return test("sunday", null, createDate(null, changeDay(0, false), 0, 0), null, true);
+					})(),
+
+					(function() {
+						return test("monday", null, createDate(null, changeDay(1, false), 0, 0), null, true);
+					})(),
+
+					(function() {
+						return test("tuesday", null, createDate(null, changeDay(2, false), 0, 0), null, true);
+					})(),
+
+					(function() {
+						var start = createDate(null, changeDay(4, false), 0, 0);
+						return test("thurs - next sat", null, start, 
+								createDate(null, changeDay(6, true, start), 0, 0), true);
 					})(),
 
 					(function() {
 						return test("wednesday", null, createDate(null, changeDay(3, false), 0, 0), null, true);
+					})(),
+
+					(function() {
+						return test("thursday", null, createDate(null, changeDay(4, false), 0, 0), null, true);
+					})(),
+
+					(function() {
+						return test("saturday", null, createDate(null, changeDay(6, false), 0, 0), null, true);
 					})(),
 
 					(function() {
@@ -154,7 +219,13 @@
 					})(),
 
 					(function() {
-						return test("I work from 6pm - 1am.", "I work", createDate(null, getNow().getDate(), 18, 0), createDate(null, getNow().getDate() + 1, 1, 0), false);
+						var now = getNow(),
+							minusTime = now.getHours() === 0 ? 1 : 0,
+							plusTime = minusTime === 1 ? 0 : 1;
+						return test("I work from 6pm - 1am.", "I work", 
+										createDate(now.getMonth(), now.getDate() - minusTime, 18, 0, {goToTomorrow: false, goToNextYear: false}), 
+										createDate(now.getMonth(), now.getDate() + plusTime, 1, 0, {goToTomorrow: false}), 
+									false);
 					})(),
 
 					(function() {
@@ -170,13 +241,13 @@
 
 					(function() {
 						var now = getNow(),
-							start = createDate(null, null, 18, 0),
-							end = createDate(null, null, 1, 0);
+							minusTime = now.getHours() === 0 ? 1 : 0,
+							plusTime = minusTime === 1 ? 0 : 1;
 
-						if (end > now && end.getDate() === now.getDate())
-							start.setDate(start.getDate() - 1);
-
-						return test("I work from 6pm - 1am today.", "I work", start, end, false);
+						return test("I work from 6pm - 1am today.", "I work", 
+										createDate(now.getMonth(), now.getDate() - minusTime, 18, 0, {goToTomorrow: false, goToNextYear: false}), 
+										createDate(now.getMonth(), now.getDate() + plusTime, 1, 0, {goToTomorrow: false}), 
+									false);
 					})(),
 
 					(function() {
@@ -188,19 +259,25 @@
 					})(),
 
 					(function() {
-						return test("12/3", null, createDate(11, 3, 0, 0, {goToNextYear: false}), null, true);
+						return test("12/3", null, createDate(11, 3, 0, 0), null, true);
 					})(),
 
 					(function() {
-						return test("12/3 @ 3", null, createDate(11, 3, 15, 0), null, false);
+						var now = getNow(), 
+							day = now.getMonth() === 11 && now.getDate() === 3 && now.getHours() > 14 ? 4 : 3;
+						return test("12/3 @ 3", null, createDate(11, day, 15, 0, {goToTomorrow: false}), null, false);
 					})(),
 
 					(function() {
-						return test("12/3 @3pm", null, createDate(11, 3, 15, 0), null, false);
+						var now = getNow(), 
+							day = now.getMonth() === 11 && now.getDate() === 3 && now.getHours() > 14 ? 4 : 3;
+						return test("12/3 @3pm", null, createDate(11, day, 15, 0, {goToTomorrow: false}), null, false);
 					})(),
 
 					(function() {
-						return test("12/3@3pm", null, createDate(11, 3, 15, 0), null, false);
+						var now = getNow(), 
+							day = now.getMonth() === 11 && now.getDate() === 3 && now.getHours() > 14 ? 4 : 3;
+						return test("12/3@3pm", null, createDate(11, day, 15, 0, {goToTomorrow: false}), null, false);
 					})(),
 
 					(function() {
@@ -573,9 +650,39 @@
 					})(),
 
 					(function() {
+						return test("today", null, createDate(null, null, 0, 0, {goToTomorrow: false, goToNextYear: false}), null, true);
+					})(),
+
+					(function() {
+						return test("tom", null, createDate(null, getNow().getDate() + 1, 0, 0, {goToTomorrow: false, goToNextYear: false}), null, true);
+					})(),
+
+					(function() {
+						return test("day after tomorrow", null, createDate(null, getNow().getDate() + 2, 0, 0, {goToTomorrow: false, goToNextYear: false}), null, true);
+					})(),
+
+					(function() {
+						return test("next month", null, createDate(getNow().getMonth() + 1, null, 0, 0, {goToTomorrow: false, goToNextYear: false}), null, true);
+					})(),
+
+					(function() {
+						return test("next week", null, createDate(null, getNow().getDate() + 7, 0, 0, {goToTomorrow: false, goToNextYear: false}), null, true);
+					})(),
+
+					(function() {
+						return test("in 5 minutes", "in", createDate(null, null, null, getNow().getMinutes() + 5), null, false);
+					})(),
+
+					(function() {
+						return test("in seven hours", "in", createDate(null, null, getNow().getHours() + 7, null), null, false);
+					})(),
+
+					(function() {
+						var now = getNow(),
+							day = now.getHours() < 12 ? now.getDate() : now.getDate() + 1;
 						return test("the party goes from midnight to noon", "the party goes", 
-										createDate(null, null, 0, 0, {goToTomorrow: getNow().getHours() < 12}), 
-										createDate(null, null, 12, 0, {goToTomorrow: getNow().getHours() < 12}), 
+										createDate(null, day, 0, 0, {goToTomorrow: false}), 
+										createDate(null, day, 12, 0, {goToTomorrow: false}), 
 									false);
 					})(),
 
@@ -601,8 +708,8 @@
 				];
 			}
 
-			function changeDay(newDay, hasNext) {
-				var time = getNow(),
+			function changeDay(newDay, hasNext, oldDate) {
+				var time = oldDate ? new Date(oldDate.getTime()) : getNow(),
 					diff = 7 - time.getDay() + newDay;
 				if (diff > 7 && !hasNext)
 					diff -= 7;
@@ -733,17 +840,6 @@
 			function test(str, title, startDate, endDate, isAllDay) {
 				var Sherlocked = Sherlock.parse(str);
 
-				if (debug) {
-					console.log("parsing... " + str);
-					console.log(Sherlocked);
-					console.log({
-						eventTitle: title,
-						startDate: startDate,
-						endDate: endDate,
-						isAllDay: isAllDay
-					});
-				}
-
 				if (startDate) {
 					startDate.setSeconds(0);
 					startDate = startDate.getTime();
@@ -757,11 +853,27 @@
 					Sherlocked.endDate.setSeconds(0);
 					Sherlocked.endDate = Sherlocked.endDate.getTime();
 				}
+
+				// compare properties
+				var result = (Sherlocked.eventTitle === title && 
+							Sherlocked.startDate === startDate && 
+							Sherlocked.endDate === endDate && 
+							Sherlocked.isAllDay == isAllDay);
+
+				if (debug && !result) {
+					console.log("parsing on " + getNow() + "... " + str);
+					Sherlocked.startDate = Sherlocked.startDate ? new Date(Sherlocked.startDate) : null;
+					Sherlocked.endDate = Sherlocked.endDate ? new Date(Sherlocked.endDate) : null;
+					console.log(Sherlocked);
+					console.log({
+						eventTitle: title,
+						startDate: startDate ? new Date(startDate) : null,
+						endDate: endDate ? new Date(endDate) : null,
+						isAllDay: isAllDay
+					});
+				}
 				
-				return [str, (Sherlocked.eventTitle === title && 
-					Sherlocked.startDate === startDate && 
-					Sherlocked.endDate === endDate && 
-					Sherlocked.isAllDay == isAllDay)];
+				return [str, result];
 			}
 		</script>
 
