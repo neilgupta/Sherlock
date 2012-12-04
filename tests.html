@@ -29,11 +29,11 @@
 				})(),
 
 				(function() {
-					return test("Homework 5 due next monday at 3pm", "Homework 5 due", createDate(null, changeDay(1), 15, 0), null, false);
+					return test("Homework 5 due monday at 3pm", "Homework 5 due", createDate(null, changeDay(1, false), 15, 0), null, false);
 				})(),
 
 				(function() {
-					return test("Homework 5 due next monday@3pm", "Homework 5 due", createDate(null, changeDay(1), 15, 0), null, false);
+					return test("Homework 5 due next monday@3pm", "Homework 5 due", createDate(null, changeDay(1, true), 15, 0), null, false);
 				})(),
 
 				(function() {
@@ -101,6 +101,22 @@
 				})(),
 
 				(function() {
+					return test("wednesday", null, createDate(null, changeDay(3, false), 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("next wednesday", null, createDate(null, changeDay(3, true), 0, 0), null, true);
+				})(),
+
+				(function() {
+					return test("next week on sunday at 4", null, createDate(null, changeDay(0, true), 16, 0), null, false);
+				})(),
+
+				(function() {
+					return test("next week friday", null, createDate(null, changeDay(5, true), 0, 0), null, true);
+				})(),
+
+				(function() {
 					return test("-", "-", null, null, false);
 				})(),
 
@@ -117,10 +133,10 @@
 				})()
 			];
 
-			function changeDay(newDay) {
+			function changeDay(newDay, hasNext) {
 				var time = new Date(),
 					diff = 7 - time.getDay() + newDay;
-				if (diff > 7)
+				if (diff > 7 && !hasNext)
 					diff -= 7;
 				return time.getDate() + diff;
 			}

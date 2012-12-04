@@ -21,7 +21,7 @@ var Sherlock = (function() {
 		shortForm: /\b([0-1]?\d)(?:\/|\.)([0-3]?\d)/, // to add year support, use: /\b([0-1]?\d)(?:\/|\.)([0-3]?\d)((?:\/|\.)(?:20)?1\d)?\b/
 
 		// tue, tues, tuesday
-		weekdays: /(?:next )?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
+		weekdays: /(next (?:week (?:on )?)?)?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
 		relativeDate: /\b(next (?:week|month)|tom(?:orrow)?|tod(?:ay)?|day after tom(?:orrow)?)\b/,
 		inRelativeDate: /\b(\d{1,2}|a) (day|week|month)s?\b/,
 
@@ -50,9 +50,23 @@ var Sherlock = (function() {
 
 		// parse time
 		if (timeMatch = helpers.hour.matcher(strNummed, time)) {
-			if (time < new Date())
+			var now = new Date();
+			if (time < now)
 				// the time has already passed today, go to tomorrow
 				time.setDate(time.getDate() + 1);
+			else if (time > now && startTime) {
+				var temp = new Date(time.getTime()),
+					startTemp = new Date(startTime.startDate.getTime());
+
+				temp.setDate(temp.getDate() - 1);
+				startTemp.setDate(startTemp.getDate() - 1);
+
+				// allow date ranges that extend from past to future
+				if (startTemp < now && temp > now) {
+					startTime.startDate = startTemp;
+					time.setDate(time.getDate() - 1);
+				}				
+			}
 			str = str.replace(new RegExp(helpers.numToStr(timeMatch)), '');
 		}
 
@@ -111,7 +125,7 @@ var Sherlock = (function() {
 				if (match = str.match(new RegExp(patterns.explicitTime.source, "g"))) {
 					// if multiple matches found, pick the best one
 					match = match.sort(function (a, b) { return b.length - a.length; })[0];
-					if (match.length <= 2 && str.length > 2)
+					if (match.length <= 2 && str.trim().length > 2)
 						return false;
 					match = match.match(patterns.explicitTime);
 
@@ -243,8 +257,22 @@ var Sherlock = (function() {
 				// }
 
 				// if the new date we've entered is in the past, move it to next year
-				if (time < new Date())
+				var now = new Date();
+				if (time < now && !(time.getMonth() === now.getMonth() && time.getDate() === now.getDate()))
 					time.setFullYear(time.getFullYear() + 1);
+				else if (time > now && startTime) {
+					var temp = new Date(time.getTime()),
+						startTemp = new Date(startTime.startDate.getTime());
+
+					temp.setFullYear(temp.getFullYear() - 1);
+					startTemp.setFullYear(startTemp.getFullYear() - 1);
+
+					// allow date ranges that extend from past to future
+					if (startTemp < now && temp > now) {
+						startTime.startDate = startTemp;
+						time.setFullYear(time.getFullYear() - 1);
+					}
+				}
 
 				return match[0];
 			},
@@ -286,27 +314,27 @@ var Sherlock = (function() {
 			matcher: function(str, time) {
 				var match = str.match(patterns.weekdays);
 				if (match)
-					switch (match[1].substr(0, 3)) {
+					switch (match[2].substr(0, 3)) {
 						case "sun":
-							this.changeDay(time, 0);
+							this.changeDay(time, 0, match[1]);
 							return match[0];
 						case "mon":
-							this.changeDay(time, 1);
+							this.changeDay(time, 1, match[1]);
 							return match[0];
 						case "tue":
-							this.changeDay(time, 2);
+							this.changeDay(time, 2, match[1]);
 							return match[0];
 						case "wed":
-							this.changeDay(time, 3);
+							this.changeDay(time, 3, match[1]);
 							return match[0];
 						case "thu":
-							this.changeDay(time, 4);
+							this.changeDay(time, 4, match[1]);
 							return match[0];
 						case "fri":
-							this.changeDay(time, 5);
+							this.changeDay(time, 5, match[1]);
 							return match[0];
 						case "sat":
-							this.changeDay(time, 6);
+							this.changeDay(time, 6, match[1]);
 							return match[0];
 						default:
 							break;
@@ -314,9 +342,9 @@ var Sherlock = (function() {
 				return false;
 			},
 
-			changeDay: function(time, newDay) {
+			changeDay: function(time, newDay, hasNext) {
 				var diff = 7 - time.getDay() + newDay;
-				if (diff > 7)
+				if (diff > 7 && !hasNext)
 					diff -= 7;
 				time.setDate(time.getDate() + diff);
 			}
