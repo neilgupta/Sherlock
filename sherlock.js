@@ -13,12 +13,9 @@ var Sherlock = (function() {
 		months: "\\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\b",
 		// 3, 31, 31st, fifth
 		days: "\\b(?:(?:(?:on )?the )(?=\\d\\d?(?:st|nd|rd|th)))?([1-2]\\d|3[0-1]|0?[1-9])(?:st|nd|rd|th)?(?:,|\\b)",
-		// 2012, 12
-		//year: "((?: 20)?1\d)?",
 
 		// 5/12, 5.12
 		shortForm: /\b(0?[1-9]|1[0-2])(?:\/|\.)([1-2]\d|3[0-1]|0?[1-9])(?:(?:\/|\.)(?:20)?1\d)?\b/,
-		// shortForm with years: /\b(0?[1-9]|1[0-2])(?:\/|\.)([1-2]\d|3[0-1]|0?[1-9])((?:\/|\.)(?:20)?1\d)?\b/,
 
 		// tue, tues, tuesday
 		weekdays: /(next (?:week (?:on )?)?)?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
@@ -410,9 +407,9 @@ var Sherlock = (function() {
 	};
 
 	// may 5, may 5th
-	patterns.monthDay = new RegExp(patterns.months + " "  + patterns.days); // add `+ patterns.year` to add year support
+	patterns.monthDay = new RegExp(patterns.months + " "  + patterns.days);
 	// 5th may, 5 may
-	patterns.dayMonth = new RegExp(patterns.days + "(?: (?:day )?of)? " + patterns.months); // add `+ patterns.year` to add year support
+	patterns.dayMonth = new RegExp(patterns.days + "(?: (?:day )?of)? " + patterns.months);
 	// 5, 5th
 	patterns.daysOnly = new RegExp(patterns.days);
 	patterns.digit = new RegExp("\\b(" + helpers.intToWords.join("|") + ")\\b", "g");

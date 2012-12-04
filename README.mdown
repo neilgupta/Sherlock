@@ -78,7 +78,7 @@ This method is primarily meant for debugging purposes.
 
 Sherlock was built for [Tabule](https://tabuleapp.com), meaning it is designed for entering student due dates. With that in mind, Sherlock has the following limitations:
 
-* Specifying years is not supported. (Basic untested support is included in the source code, but commented out. Feel free to experiment.)
+* Specifying years is not supported.
 * Dates must be in the future.
 
 These two limitations together mean that Sherlock always finds the nearest future date that meets the input. For example, if today is November 25th, 2012 and the user enters 'Oct 27th,' then Sherlock will return October 27, 2013. If the user just enters 'the 15th', then December 15th, 2012 will be returned.
