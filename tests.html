@@ -14,6 +14,9 @@
 			var dates = [
 				new Date("Dec 03, 2012 04:35:00"),
 				new Date("Feb 02, 2013 04:01:00"),
+				new Date("Jan 29, 2013 00:01:00"),
+				new Date("June 30, 2013 14:01:00"),
+				new Date("Jan 31, 2013 04:01:00"),
 				new Date("Feb 27, 2013 04:01:00"),
 				new Date("Feb 24, 2013 04:01:00"),
 				new Date("Feb 24, 2013 15:01:00"),
@@ -45,7 +48,7 @@
 							day = now.getMonth() === 2 && now.getDate() === 3 && now.getHours() > 13 ? 4 : 3;
 						var start = createDate(1, 24, 15, 0, {goToTomorrow: false, goToNextYear: false}),
 							end = createDate(2, day, 14, 0, {goToTomorrow: false, goToNextYear: false});
-						
+
 						if (end < now)
 							end.setFullYear(end.getFullYear() + 1);
 
@@ -73,7 +76,7 @@
 					})(),
 
 					(function() {
-						return test("Christmas is on December 25th.", "Christmas", createDate(11, 25, 0, 0), null, true);
+						return test("Christmas is on December 25th.", "Christmas", createDate(11, 25, 0, 0, {goToTomorrow: false}), null, true);
 					})(),
 
 					(function() {
@@ -89,7 +92,10 @@
 					})(),
 
 					(function() {
-						return test("The retreat is from Jan 12 - 29.", "The retreat", createDate(0, 12, 0, 0), createDate(0, 29, 0, 0), true);
+						var start = createDate(0, 12, 0, 0), 
+							end = createDate(0, 29, 0, 0);
+						start.setFullYear(end.getFullYear());
+						return test("The retreat is from Jan 12 - 29.", "The retreat", start, end, true);
 					})(),
 
 					(function() {
@@ -230,13 +236,13 @@
 
 					(function() {
 						var now = getNow(),
-							start = createDate(null, null, 23, 0),
-							end = createDate(null, null, 22, 0);
+							minusTime = now.getHours() <= 22 ? 1 : 0,
+							plusTime = minusTime === 1 ? 0 : 1;
 
-						if (end > now && end.getDate() === now.getDate())
-							start.setDate(start.getDate() - 1);
-
-						return test("I work from 11pm - 10pm today.", "I work", start, end, false);
+						return test("I work from 11pm - 10pm today.", "I work", 
+										createDate(now.getMonth(), now.getDate() - minusTime, 23, 0, {goToTomorrow: false, goToNextYear: false}), 
+										createDate(now.getMonth(), now.getDate() + plusTime, 22, 0, {goToTomorrow: false}), 
+									false);
 					})(),
 
 					(function() {
@@ -729,12 +735,11 @@
 				var date = args.date,
 					now = getNow();
 
-				// month
-				if (month !== null)
+				if (month !== null && day !== null)
+					date.setMonth(month, day);
+				else if (month !== null)
 					date.setMonth(month);
-
-				// day
-				if (day !== null)
+				else if (day !== null)
 					date.setDate(day);
 
 				if (month === null && date < now)
