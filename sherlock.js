@@ -254,20 +254,16 @@ var Sherlock = (function() {
 	makeAdjustments = function(start, end, isAllDay) {
 		var now = getNow();
 		if (end) { // 
-			if (start > end && end > now &&
-				start.getMonth() === end.getMonth() && start.getDate() === end.getDate() && start.getFullYear() === end.getFullYear() &&
-				start.getMonth() === now.getMonth() && start.getDate() === now.getDate() && start.getFullYear() === now.getFullYear()) {
+			if (start > end && end > now && helpers.isSameDay(start, end) && helpers.isSameDay(start, now))
 				// we are dealing with a time range that is today with start > end (ie. 9pm - 5am), move start to yesterday.
 				start.setDate(start.getDate() - 1);
-			}
 
 			else if (end < now) {
-				if (end.getMonth() === now.getMonth() && end.getDate() === now.getDate() && end.getFullYear() === now.getFullYear()) {
+				if (helpers.isSameDay(end, now)) {
 					// all-day events can be in the past when dealing with today, 
 					// since they are set to midnight which must be in the past today
 					if (!isAllDay) {
-						if (start < end && 
-							start.getMonth() === now.getMonth() && start.getDate() === now.getDate() && start.getFullYear() === now.getFullYear())
+						if (start < end && helpers.isSameDay(start, now))
 							// the start date is also today, move it tomorrow as well
 							start.setDate(start.getDate() + 1);
 
@@ -286,7 +282,7 @@ var Sherlock = (function() {
 
 		} else if (start) { // hallelujah, we aren't dealing with a date range
 			if (start < now) {
-				if (start.getMonth() === now.getMonth() && start.getDate() === now.getDate() && start.getFullYear() === now.getFullYear()) {
+				if (helpers.isSameDay(start, now)) {
 					// all-day events can be in the past when dealing with today, 
 					// since they are set to midnight which must be in the past today
 					if (!isAllDay)
@@ -302,34 +298,7 @@ var Sherlock = (function() {
 	helpers = {
 		// convert month string to number
 		changeMonth: function(month) {
-			switch(month.substr(0, 3)) {
-				case "jan":
-					return 0;
-				case "feb":
-					return 1;
-				case "mar":
-					return 2;
-				case "apr":
-					return 3;
-				case "may":
-					return 4;
-				case "jun":
-					return 5;
-				case "jul":
-					return 6;
-				case "aug":
-					return 7;
-				case "sep":
-					return 8;
-				case "oct":
-					return 9;
-				case "nov":
-					return 10;
-				case "dec":
-					return 11;
-				default:
-					return null;
-			}
+			return this.monthToInt[month.substr(0, 3)];
 		},
 
 		// find the nearest future date that is on the given weekday
@@ -344,28 +313,34 @@ var Sherlock = (function() {
 		  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
 		},
 
+		isSameDay: function(date1, date2) {
+			return date1.getMonth() === date2.getMonth() && date1.getDate() === date2.getDate() && date1.getFullYear() === date2.getFullYear();
+		},
+
+		monthToInt: {"jan": 0, "feb": 1, "mar": 2, "apr": 3, "may": 4, "jun": 5, "jul": 6, "aug": 7, "sep": 8, "oct": 9, "nov": 10, "dec": 11},
+
 		// mapping of words to numbers
 		wordsToInt: {
-			'one': 1,
-			'first': 1,
-			'two': 2,
-			'second': 2,
-			'three': 3,
-			'third': 3,
-			'four': 4,
-			'fourth': 4,
-			'five': 5,
-			'fifth': 5,
-			'six': 6,
-			'sixth': 6,
-			'seven': 7,
-			'seventh': 7,
-			'eight': 8,
-			'eighth': 8,
-			'nine': 9,
-			'ninth': 9,
-			'ten': 10,
-			'tenth': 10
+			'one'		: 1,
+			'first'		: 1,
+			'two'		: 2,
+			'second'	: 2,
+			'three'		: 3,
+			'third'		: 3,
+			'four'		: 4,
+			'fourth'	: 4,
+			'five'		: 5,
+			'fifth'		: 5,
+			'six'		: 6,
+			'sixth'		: 6,
+			'seven'		: 7,
+			'seventh'	: 7,
+			'eight'		: 8,
+			'eighth'	: 8,
+			'nine'		: 9,
+			'ninth'		: 9,
+			'ten'		: 10,
+			'tenth'		: 10
 		},
 
 		// mapping of number to words
