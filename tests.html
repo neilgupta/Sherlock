@@ -384,8 +384,9 @@
 					})(),
 
 					(function() {
-						var start = createDate(11, 1, 9, 0),
-							end = createDate(11, 5, 20, 0);
+						var plusTime = getNow().getMonth() === 11 && getNow().getDate() === 5 && getNow().getHours() > 19 ? 1 : 0,
+							start = createDate(11, 1, 9, 0, {goToTomorrow: false, goToNextYear: false}),
+							end = createDate(11, 5 + plusTime, 20, 0, {goToTomorrow: false});
 
 						start.setFullYear(end.getFullYear());
 						return test("dec 1st at 9am through dec fifth 8pm", null, start, end, false);

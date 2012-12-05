@@ -76,12 +76,14 @@ This method is primarily meant for debugging purposes.
 
 # Limitations
 
-Sherlock was built for [Tabule](https://tabuleapp.com), meaning it is designed for entering student due dates. With that in mind, Sherlock has the following limitations:
+Sherlock was built to handle due date scheduling for [Tabule](https://tabuleapp.com). With that in mind, Sherlock has the following limitations:
 
 * Specifying years is not supported.
 * Dates must be in the future.
 
-These two limitations together mean that Sherlock always finds the nearest future date that meets the input. For example, if today is November 25th, 2012 and the user enters 'Oct 27th,' then Sherlock will return October 27, 2013. If the user just enters 'the 15th', then December 15th, 2012 will be returned.
+These two limitations together mean that Sherlock always finds the nearest future date that meets the input. For example, if today is December 25th, 2012 and the user enters 'Oct 27th,' then Sherlock will return October 27, 2013. If the user just enters 'the 15th', then January 15th, 2013 will be returned.
+
+A more aggressive example would be if you enter '12/25 at 8pm' and it is past 8pm, Sherlock will return 12/26 at 8pm. The reason for this is that if you are scheduling an event and accidently enter today's date for a time that's already passed, in most cases, you probably meant to enter tomorrow's date. However, this can be confusing to the user if they enter 'today at 8pm' and get back tomorrow's date. Eventually, I plan to modify Sherlock to return these more aggressive assumptions as suggested dates in addition to the actual entered date.
 
 ## How does this compare to alternatives like Datejs?
 
