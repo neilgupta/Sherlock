@@ -206,7 +206,11 @@
 					})(),
 
 					(function() {
-						return test("on the 5th to the ninth, we shall eat.", "we shall eat.", createDate(null, 5, 0, 0), createDate(null, 9, 0, 0), true);
+						var start = createDate(null, 5, 0, 0),
+							end = createDate(null, 9, 0, 0);
+						end.setMonth(start.getMonth());
+						end.setFullYear(start.getFullYear());
+						return test("on the 5th to the ninth, we shall eat.", "we shall eat.", start, end, true);
 					})(),
 
 					(function() {
