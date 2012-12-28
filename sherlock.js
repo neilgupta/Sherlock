@@ -28,7 +28,6 @@ var Sherlock = (function() {
 		militaryTime: /\b(?:([0-2]\d):?([0-5]\d))(?! ?[ap]\.?m?\.?)\b/,
 		// 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
 		explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-9])(?::([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
-		hoursOnly: /^(1[0-2]|0?[1-9])$/,
 
 		fillerWords: / (from|is|at|on|for|in|(?:un)?till?)\b/
 	},
@@ -230,9 +229,7 @@ var Sherlock = (function() {
 				// if this is an end date and the start date isn't an all day value,
 				(!(startTime && startTime.isAllDay) && 
 				// and if this match is too short to mean something,
-				match.length <= 2 && 
-				// and if this match could be a timestamp too,
-				match.match(patterns.hoursOnly)))
+				match.length <= 2))
 				// then drop it.
 				return false;
 			match = match.match(patterns.daysOnly);
