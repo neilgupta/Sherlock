@@ -19,8 +19,8 @@ var Sherlock = (function() {
 
 		// tue, tues, tuesday
 		weekdays: /(next (?:week (?:on )?)?)?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
-		relativeDate: /\b(next (?:week|month)|tom(?:orrow)?|tod(?:ay)?|day after tom(?:orrow)?)\b/,
-		inRelativeDate: /\b(\d{1,2}|a) (day|week|month)s?\b/,
+		relativeDateStr: "(next (?:week|month)|tom(?:orrow)?|tod(?:ay)?|day after tom(?:orrow)?)",
+		inRelativeDateStr: "(\\d{1,2}|a) (day|week|month)s?",
 
 		inRelativeTime: /\b(\d{1,2}|a|an) (hour|min(?:ute)?)s?\b/,
 		midtime: /(?:@ ?)?\b(?:at )?(noon|midnight)\b/,
@@ -164,54 +164,21 @@ var Sherlock = (function() {
 				default:
 					return false;
 			}
+		} else if (match = str.match(patterns.inRelativeDateFromRelativeDate)) {
+			if (helpers.relativeDateMatcher(match[3], time) && helpers.inRelativeDateMatcher(match[1], match[2], time))
+				return match[0];
+			else
+				return false;
 		} else if (match = str.match(patterns.relativeDate)) {
-			var now = getNow();
-			switch(match[1]) {
-				case "next week":
-					time.setMonth(now.getMonth(), now.getDate() + 7);
-					return match[0];
-				case "next month":
-					time.setMonth(time.getMonth() + 1);
-					return match[0];
-				case "tom":
-					time.setMonth(now.getMonth(), now.getDate() + 1);
-					return match[0];
-				case "tomorrow":
-					time.setMonth(now.getMonth(), now.getDate() + 1);
-					return match[0];
-				case "day after tomorrow":
-					time.setMonth(now.getMonth(), now.getDate() + 2);
-					return match[0];
-				case "day after tom":
-					time.setMonth(now.getMonth(), now.getDate() + 2);
-					return match[0];
-				case "today":
-					time.setMonth(now.getMonth(), now.getDate());
-					return match[0];
-				case "tod":
-					time.setMonth(now.getMonth(), now.getDate());
-					return match[0];
-				default:
-					return false;
-			}
+			if (helpers.relativeDateMatcher(match[1], time))
+				return match[0];
+			else
+				return false;
 		} else if (match = str.match(patterns.inRelativeDate)) {
-			// if we matched 'a' or 'an', set the number to 1
-			if (isNaN(match[1]))
-				match[1] = 1;
-
-			switch(match[2]) {
-				case "day":
-					time.setDate(time.getDate() + parseInt(match[1]));
-					return match[0];
-				case "week":
-					time.setDate(time.getDate() + parseInt(match[1])*7);
-					return match[0];
-				case "month":
-					time.setMonth(time.getMonth() + parseInt(match[1]));
-					return match[0];
-				default:
-					return false;
-			}
+			if (helpers.inRelativeDateMatcher(match[1], match[2], time))
+				return match[0];
+			else
+				return false;
 		} else if (match = str.match(patterns.shortForm)) {
 			time.setMonth(match[1] - 1, match[2]);
 			return match[0];
@@ -293,6 +260,60 @@ var Sherlock = (function() {
 	},
 
 	helpers = {
+		relativeDateMatcher: function(match, time) {
+			var now = getNow();
+			switch(match) {
+				case "next week":
+					time.setMonth(now.getMonth(), now.getDate() + 7);
+					return true;
+				case "next month":
+					time.setMonth(time.getMonth() + 1);
+					return true;
+				case "tom":
+					time.setMonth(now.getMonth(), now.getDate() + 1);
+					return true;
+				case "tomorrow":
+					time.setMonth(now.getMonth(), now.getDate() + 1);
+					return true;
+				case "day after tomorrow":
+					time.setMonth(now.getMonth(), now.getDate() + 2);
+					return true;
+				case "day after tom":
+					time.setMonth(now.getMonth(), now.getDate() + 2);
+					return true;
+				case "today":
+					time.setMonth(now.getMonth(), now.getDate());
+					return true;
+				case "tod":
+					time.setMonth(now.getMonth(), now.getDate());
+					return true;
+				default:
+					return false;
+			}
+		},
+
+		inRelativeDateMatcher: function(num, scale, time) {
+			// if we matched 'a' or 'an', set the number to 1
+			if (isNaN(num))
+				num = 1;
+			else
+				num = parseInt(num);
+
+			switch(scale) {
+				case "day":
+					time.setDate(time.getDate() + num);
+					return true;
+				case "week":
+					time.setDate(time.getDate() + num*7);
+					return true;
+				case "month":
+					time.setMonth(time.getMonth() + num);
+					return true;
+				default:
+					return false;
+			}
+		},
+
 		// convert month string to number
 		changeMonth: function(month) {
 			return this.monthToInt[month.substr(0, 3)];
@@ -385,6 +406,12 @@ var Sherlock = (function() {
 	// 5, 5th
 	patterns.daysOnly = new RegExp(patterns.days);
 	patterns.digit = new RegExp("\\b(" + helpers.intToWords.join("|") + ")\\b", "g");
+	// today, tomorrow, day after tomorrow
+	patterns.relativeDate = new RegExp("\\b" + patterns.relativeDateStr + "\\b");
+	// in 2 weeks
+	patterns.inRelativeDate = new RegExp("\\b" + patterns.inRelativeDateStr + "\\b");
+	// 2 weeks from tomorrow
+	patterns.inRelativeDateFromRelativeDate = new RegExp("\\b" + patterns.inRelativeDateStr + " from " + patterns.relativeDateStr + "\\b");
 
 	return {
 		// parses a string and returns an object defining the basic event 

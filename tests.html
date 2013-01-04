@@ -76,6 +76,10 @@
 					})(),
 
 					(function() {
+						return test("The exam is in three weeks from tomorrow.", "The exam", createDate(null, getNow().getDate() + 7*3 + 1, 0, 0), null, true);
+					})(),
+
+					(function() {
 						return test("Christmas is on December 25th.", "Christmas", createDate(11, 25, 0, 0, {goToTomorrow: false}), null, true);
 					})(),
 
