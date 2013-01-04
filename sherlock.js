@@ -1,7 +1,7 @@
 /*!
  * Sherlock
- * Copyright (c) 2012 Tabule, Inc.
- * Version 1.0
+ * Copyright (c) 2013 Tabule, Inc.
+ * Version 1.1
  */
 
 var Sherlock = (function() {

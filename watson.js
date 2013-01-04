@@ -1,6 +1,6 @@
 /**
  * Watson - Collects data for Sherlock to analyze.
- * Copyright (c) 2012 Tabule, Inc.
+ * Copyright (c) 2013 Tabule, Inc.
  */
 
 var Watson = (function() {
