@@ -23,19 +23,19 @@ Sherlock is great for parsing sentences into basic events, but what if you need 
 
 Watson provides a preprocessor and postprocessor layer on Sherlock that allows you to customize Sherlock's input and output. With the preprocessor, you can manipulate the input string before it is parsed by Sherlock. The postprocessor allows you to modify the data returned by Sherlock, or add any additional properties.
 
-For example, [Tabule](https://tabuleapp.com) uses Watson's preprocessor to predict which calendar the user wants to add their event to. We use the postprocessor to sanity check the returned values, such as making sure the user-provided end date is after the start date. [View an example watson.js processor](https://github.com/Tabule/Sherlock/blob/gh-pages/watson.js).
+For example, [Tabule](https://tabuleapp.com) uses Watson's preprocessor for app-specific logic, such as determining which course the user wants to add their assignment to. We use the postprocessor to sanity check the returned values, such as making sure the end date is after the start date. [View an example watson.js processor](https://github.com/Tabule/Sherlock/blob/gh-pages/watson.js).
 
 # Usage
 
 Include sherlock.js and watson.js in your code.
 
 ```html
-<script type="text/javascript" src="watson.js"></script>
-<!-- optional - include if you want Watson to help Sherlock -->
 <script type="text/javascript" src="sherlock.js"></script>
+<!-- optional - include if you want Watson to help Sherlock -->
+<script type="text/javascript" src="watson.js"></script>
 ```
 
-To parse a string, simple use
+To parse a string, simply use
 
 ```javascript
 var sherlocked = Sherlock.parse('Homework 5 due next monday at 3pm');
@@ -46,8 +46,8 @@ var	startDate = sherlocked.startDate; 	// Date object pointing to next monday at
 var	endDate = sherlocked.endDate; 		// null in this case, since no duration was given
 var	isAllDay = sherlocked.isAllDay;		// false, since a time is included with the event
 
-// Additional custom properties provided by Watson
-var validated = sherlocked.validated; // true
+// Example of an additional custom property added by Watson
+var validated = sherlocked.validated; 	// true
 ```
 
 That's it!
@@ -56,18 +56,18 @@ That's it!
 
 There are 2 methods in Sherlock.js.
 
-**parse(String)**
+**Sherlock.parse(String)**
 
-`parse()` takes a string representing some English phrase, and returns an object with the following properties:
+`Sherlock.parse()` takes a string representing some English phrase, and returns an object with the following properties:
 
 * `eventTitle` - string representing Sherlock's best guess at what the event title should be, or `null` if no title found.
 * `startDate` - Date object representing start of the event, or `null` if not found.
 * `endDate` - Date object representing end of the event, or `null` if not found.
 * `isAllDay` - `true` if the input string describes an all-day event, otherwise `false`.
 
-**_setNow(Date)**
+**Sherlock._setNow(Date)**
 
-`_setNow()` allows you to change what time Sherlock thinks it is right now, regardless of the system clock.
+`Sherlock._setNow()` allows you to change what time Sherlock thinks it is right now, regardless of the system clock.
 
 Pass in a Date object, and Sherlock will parse strings as if they there were entered on that day and time.
 Pass in `null` to clear your custom date and use the system time instead.
