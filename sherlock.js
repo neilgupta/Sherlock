@@ -413,6 +413,12 @@ var Sherlock = (function() {
 	// 2 weeks from tomorrow
 	patterns.inRelativeDateFromRelativeDate = new RegExp("\\b" + patterns.inRelativeDateStr + " from " + patterns.relativeDateStr + "\\b");
 
+	if(!String.prototype.trim) {  
+		String.prototype.trim = function () {  
+			return this.replace(/^\s+|\s+$/g,'');  
+		};  
+	}
+
 	return {
 		// parses a string and returns an object defining the basic event 
 		// with properties: eventTitle, startDate, endDate, isAllDay
