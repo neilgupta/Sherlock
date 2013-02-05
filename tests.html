@@ -367,13 +367,13 @@
 					})(),
 
 					(function() {
-						var now = getNow(),
-							t = now.getHours() < 12 ? 10 : 22,
-							start = createDate(null, null, t, 0),
-							end = createDate(null, null, 13, 0);
+						var start = getNow(),
+							end = getNow();
 
-						if (end > now && start > end)
-							start.setDate(start.getDate() - 1);
+						start.setHours(start.getHours() <= 12 ? 10 : 22, 0, 0, 0);
+						end.setHours(13, 0, 0, 0);
+						if (end < start)
+							end.setDate(end.getDate() + 1);
 
 						return test("10-1", null, start, end, false);
 					})(),

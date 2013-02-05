@@ -1,7 +1,7 @@
 /*!
  * Sherlock
  * Copyright (c) 2013 Tabule, Inc.
- * Version 1.1
+ * Version 1.2
  */
 
 var Sherlock = (function() {
@@ -24,8 +24,10 @@ var Sherlock = (function() {
 
 		inRelativeTime: /\b(\d{1,2}|a|an) (hour|min(?:ute)?)s?\b/,
 		midtime: /(?:@ ?)?\b(?:at )?(noon|midnight)\b/,
-		// 0700, 1900, 23:50
-		militaryTime: /\b(?:([0-2]\d):?([0-5]\d))(?! ?[ap]\.?m?\.?)\b/,
+		// 0700, 1900
+		militaryTime: /\b(?:([0-2]\d)([0-5]\d))\b/,
+		// 23:50
+		internationalTime: /\b(?:(0[0-9]|1[3-9]|2[0-3]):([0-5]\d))\b/,
 		// 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
 		explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-9])(?::([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
 
@@ -90,15 +92,18 @@ var Sherlock = (function() {
 			switch(match[1]) {
 				case "noon":
 					time.setHours(12, 0, 0);
+					time.hasMeridian = true;
 					return match[0];
 				case "midnight":
 					time.setHours(0, 0, 0);
+					time.hasMeridian = true;
 					return match[0];
 				default:
 					return false;
 			}
-		} else if (match = str.match(patterns.militaryTime)) {
+		} else if ((match = str.match(patterns.militaryTime)) || (match = str.match(patterns.internationalTime))) {
 			time.setHours(match[1], match[2], 0);
+			time.hasMeridian = true;
 			return match[0];
 		} else if (match = str.match(new RegExp(patterns.explicitTime.source, "g"))) {
 			// if multiple matches found, pick the best one
@@ -111,12 +116,14 @@ var Sherlock = (function() {
 			,	min = match[2] || 0
 			,	meridian = match[3];
 
+			time.hasMeridian = false;
 			if (meridian) {
 				// meridian is included, adjust hours accordingly
 				if (meridian.indexOf('p') === 0 && hour != 12)
 					hour += 12;
 				else if (meridian.indexOf('a') === 0 && hour == 12)
 					hour = 0;
+				time.hasMeridian = true;
 			} else if (hour < 12 && (hour < 7 || hour < time.getHours()))
 				// meridian is not included, adjust any ambiguous times
 				// if you type 3, it will default to 3pm
@@ -218,9 +225,20 @@ var Sherlock = (function() {
 	makeAdjustments = function(start, end, isAllDay) {
 		var now = getNow();
 		if (end) { // 
-			if (start > end && end > now && helpers.isSameDay(start, end) && helpers.isSameDay(start, now))
-				// we are dealing with a time range that is today with start > end (ie. 9pm - 5am), move start to yesterday.
-				start.setDate(start.getDate() - 1);
+			if (start > end && end > now && helpers.isSameDay(start, end) && helpers.isSameDay(start, now)) {
+				if (start.hasMeridian)
+					// we explicitly set the meridian, so don't mess with the hours
+					start.setDate(start.getDate() - 1);
+				else {
+					// we are dealing with a time range that is today with start > end 
+					// (ie. 9pm - 5pm when we want 9am - 5pm), roll back 12 hours.
+					start.setHours(start.getHours() - 12);
+					// if start is still higher than end, that means we probably have
+					// 9am - 5am, so roll back another 12 hours to get 9pm yesterday - 5am today
+					if (start > end)
+						start.setHours(start.getHours() - 12);
+				}
+			}
 
 			else if (end < now) {
 				if (helpers.isSameDay(end, now)) {
