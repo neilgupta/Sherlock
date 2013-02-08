@@ -1,7 +1,7 @@
 /*!
  * Sherlock
  * Copyright (c) 2013 Tabule, Inc.
- * Version 1.2
+ * Version 1.2.1
  */
 
 var Sherlock = (function() {
@@ -22,7 +22,8 @@ var Sherlock = (function() {
 		relativeDateStr: "(next (?:week|month)|tom(?:orrow)?|tod(?:ay)?|day after tom(?:orrow)?)",
 		inRelativeDateStr: "(\\d{1,2}|a) (day|week|month)s?",
 
-		inRelativeTime: /\b(\d{1,2}|a|an) (hour|min(?:ute)?)s?\b/,
+		inRelativeTime: /\b(\d{1,2} ?|a |an )(h(?:our)?|m(?:in(?:ute)?)?)s?\b/,
+		inMilliTime: /\b(\d+) ?(s(?:ec(?:ond)?)?|ms|millisecond)s?\b/,
 		midtime: /(?:@ ?)?\b(?:at )?(noon|midnight)\b/,
 		// 0700, 1900
 		militaryTime: /\b(?:([0-2]\d)([0-5]\d))\b/,
@@ -75,15 +76,23 @@ var Sherlock = (function() {
 			if (isNaN(match[1]))
 				match[1] = 1;
 
-			switch(match[2]) {
-				case "hour":
+			switch(match[2].substring(0, 1)) {
+				case "h":
 					time.setHours(time.getHours() + parseInt(match[1]));
 					return match[0];
-				case "min":
+				case "m":
 					time.setMinutes(time.getMinutes() + parseInt(match[1]));
 					return match[0];
-				case "minute":
-					time.setMinutes(time.getMinutes() + parseInt(match[1]));
+				default:
+					return false;
+			}
+		} else if (match = str.match(patterns.inMilliTime)) {
+			switch(match[2].substring(0, 1)) {
+				case "s":
+					time.setSeconds(time.getSeconds() + parseInt(match[1]));
+					return match[0];
+				case "m":
+					time.setMilliseconds(time.getMilliseconds() + parseInt(match[1]));
 					return match[0];
 				default:
 					return false;
