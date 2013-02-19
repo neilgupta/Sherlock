@@ -1,13 +1,13 @@
 /*!
  * Sherlock
  * Copyright (c) 2013 Tabule, Inc.
- * Version 1.2.1
+ * Version 1.2.2
  */
 
 var Sherlock = (function() {
 
 	var patterns = {
-		rangeSplitters: /(\bto\b|\-|\b(?:un)?till?\b|\bthrough|and\b)/g,
+		rangeSplitters: /(\bto\b|\-|\b(?:un)?till?\b|\bthrough\b|\bthru\b|\band\b)/g,
 
 		// oct, october
 		months: "\\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\b",
@@ -32,6 +32,7 @@ var Sherlock = (function() {
 		// 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
 		explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-9])(?::([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
 
+		// filler words must be preceded with a space to count
 		fillerWords: / (from|is|at|on|for|in|(?:un)?till?)\b/
 	},
 
