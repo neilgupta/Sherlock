@@ -1,7 +1,7 @@
 /*!
  * Sherlock
  * Copyright (c) 2013 Tabule, Inc.
- * Version 1.2.2
+ * Version 1.2.3
  */
 
 var Sherlock = (function() {
@@ -33,7 +33,7 @@ var Sherlock = (function() {
 		explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-9])(?::([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
 
 		// filler words must be preceded with a space to count
-		fillerWords: / (from|is|at|on|for|in|(?:un)?till?)\b/
+		fillerWords: / (from|is|at|on|for|in|due|(?:un)?till?)\b/
 	},
 
 	nowDate = null,
@@ -528,7 +528,7 @@ var Sherlock = (function() {
 
 			// get capitalized version of title
 			if (ret.eventTitle) {
-				ret.eventTitle = ret.eventTitle.replace(/(?:^| )(?:\.|!|,|;)+/g, '');
+				ret.eventTitle = ret.eventTitle.replace(/(?:^| )(?:\.|-$|!|,|;)+/g, '');
 				var match = str.match(new RegExp(helpers.escapeRegExp(ret.eventTitle), "i"));
 				if (match) {
 					ret.eventTitle = match[0].replace(/ +/g, ' ').trim(); // replace multiple spaces
