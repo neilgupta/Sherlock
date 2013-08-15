@@ -1,7 +1,7 @@
 /*!
  * Sherlock
  * Copyright (c) 2013 Tabule, Inc.
- * Version 1.2.3
+ * Version 1.2.4
  */
 
 var Sherlock = (function() {
@@ -30,7 +30,7 @@ var Sherlock = (function() {
 		// 23:50
 		internationalTime: /\b(?:(0[0-9]|1[3-9]|2[0-3]):([0-5]\d))\b/,
 		// 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
-		explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-9])(?::([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
+		explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-9])(?::?([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
 
 		// filler words must be preceded with a space to count
 		fillerWords: / (from|is|at|on|for|in|due(?! date)|(?:un)?till?)\b/
