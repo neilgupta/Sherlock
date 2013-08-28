@@ -124,7 +124,16 @@ var Sherlock = (function() {
 			return match[0];
 		} else if (match = str.match(new RegExp(patterns.explicitTime.source, "g"))) {
 			// if multiple matches found, pick the best one
-			match = match.sort(function (a, b) { return b.length - a.length; })[0];
+			match = match.sort(function (a, b) {
+				var aScore = a.length,
+					bScore = b.length;
+				// Weight matches that include full meridian
+				if (a.match(/(?:a|p).?m.?/))
+					aScore += 20;
+				if (b.match(/(?:a|p).?m.?/))
+					bScore += 20;
+				return bScore - aScore;
+			})[0];
 			if (match.length <= 2 && str.trim().length > 2)
 				return false;
 			match = match.match(patterns.explicitTime);
