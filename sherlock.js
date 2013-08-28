@@ -33,7 +33,9 @@ var Sherlock = (function() {
 		explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-9])(?::?([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
 
 		// filler words must be preceded with a space to count
-		fillerWords: / (from|is|at|on|for|in|due(?! date)|(?:un)?till?)\b/
+		fillerWords: / (from|is|at|on|for|in|due(?! date)|(?:un)?till?)\b/,
+		// less aggressive filler words regex to use when rangeSplitters are disabled
+		fillerWords2: / (is|due(?! date))\b/
 	},
 
 	nowDate = null,
@@ -45,11 +47,16 @@ var Sherlock = (function() {
 			return new Date();
 	},
 
+	readConfig = function(config_var) {
+		return (typeof Watson !== 'undefined' && Watson.config) ? Watson.config[config_var] : null;
+	},
+
 	parser = function(str, time, startTime) {
 		var ret = {},
 			dateMatch = false,
 			timeMatch = false,
-			strNummed = helpers.strToNum(str);
+			strNummed = helpers.strToNum(str),
+			fillerWords = readConfig("disableRanges") ? patterns.fillerWords2 : patterns.fillerWords;
 
 		// parse date
 		if (dateMatch = matchDate(strNummed, time, startTime))
@@ -59,7 +66,7 @@ var Sherlock = (function() {
 		if (timeMatch = matchTime(strNummed, time, startTime))
 			str = str.replace(new RegExp(helpers.numToStr(timeMatch)), '');
 
-		ret.eventTitle = str.split(patterns.fillerWords)[0].trim();
+		ret.eventTitle = str.split(fillerWords)[0].trim();
 
 		// if time data not given, then this is an all day event
 		ret.isAllDay = !!(dateMatch && !timeMatch);
@@ -461,7 +468,7 @@ var Sherlock = (function() {
 				str = result[0],
 				ret = result[1],
 				// token the string to start and stop times
-				tokens = str.toLowerCase().split(patterns.rangeSplitters);
+				tokens = readConfig("disableRanges") ? [str.toLowerCase()] : str.toLowerCase().split(patterns.rangeSplitters);
 			
 			patterns.rangeSplitters.lastIndex = 0;
 
@@ -528,7 +535,7 @@ var Sherlock = (function() {
 
 			// get capitalized version of title
 			if (ret.eventTitle) {
-				ret.eventTitle = ret.eventTitle.replace(/(?:^| )(?:\.|-$|by$|!|,|;)+/g, '');
+				ret.eventTitle = ret.eventTitle.replace(/(?:^| )(?:\.|-$|by$|in$|at$|from$|on$|for$|(?:un)?till?$|!|,|;)+/g, '');
 				var match = str.match(new RegExp(helpers.escapeRegExp(ret.eventTitle), "i"));
 				if (match) {
 					ret.eventTitle = match[0].replace(/ +/g, ' ').trim(); // replace multiple spaces

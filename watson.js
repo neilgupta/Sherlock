@@ -31,6 +31,12 @@ var Watson = (function() {
 			// Manipulate Sherlocked here...
 
 			return Sherlocked;
+		},
+
+		/* Config vars for disabling certain features */
+		config: {
+			// Should Sherlock try to parse time ranges and return an endDate?
+			disableRanges: true
 		}
 	};
 })();
