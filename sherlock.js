@@ -1,7 +1,7 @@
 /*!
  * Sherlock
  * Copyright (c) 2013 Tabule, Inc.
- * Version 1.2.5
+ * Version 1.2.6
  */
 
 var Sherlock = (function() {
@@ -133,7 +133,7 @@ var Sherlock = (function() {
 				if (b.match(/(?:a|p).?m.?/))
 					bScore += 20;
 				return bScore - aScore;
-			})[0];
+			})[0].trim();
 			if (match.length <= 2 && str.trim().length > 2)
 				return false;
 			match = match.match(patterns.explicitTime);
@@ -217,7 +217,7 @@ var Sherlock = (function() {
 			return match[0];
 		} else if (match = str.match(new RegExp(patterns.days, "g"))) {
 			// if multiple matches found, pick the best one
-			match = match.sort(function (a, b) { return b.length - a.length; })[0];
+			match = match.sort(function (a, b) { return b.length - a.length; })[0].trim();
 			// check if the possible date match meets our reasonable assumptions...
 				// if the match doesn't start with 'on',
 			if ((match.indexOf('on') !== 0 &&
