@@ -14,8 +14,8 @@ var Sherlock = (function() {
 		// 3, 31, 31st, fifth
 		days: "\\b(?:(?:(?:on )?the )(?=\\d\\d?(?:st|nd|rd|th)))?([1-2]\\d|3[0-1]|0?[1-9])(?:st|nd|rd|th)?(?:,|\\b)",
 
-		// 5/12, 5.12
-		shortForm: /\b(0?[1-9]|1[0-2])(?:\/|\.)([1-2]\d|3[0-1]|0?[1-9])(?:(?:\/|\.)(?:20)?1\d)?\b/,
+		// 5/12
+		shortForm: /\b(0?[1-9]|1[0-2])\/([1-2]\d|3[0-1]|0?[1-9])(?:\/(?:20)?1\d)?\b/,
 
 		// tue, tues, tuesday
 		weekdays: /(next (?:week (?:on )?)?)?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
