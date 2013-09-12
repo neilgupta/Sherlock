@@ -1,7 +1,7 @@
 /*!
  * Sherlock
  * Copyright (c) 2013 Tabule, Inc.
- * Version 1.2.6
+ * Version 1.2.7
  */
 
 var Sherlock = (function() {
@@ -25,10 +25,8 @@ var Sherlock = (function() {
 		inRelativeTime: /\b(\d{1,2} ?|a |an )(h(?:our)?|m(?:in(?:ute)?)?)s?\b/,
 		inMilliTime: /\b(\d+) ?(s(?:ec(?:ond)?)?|ms|millisecond)s?\b/,
 		midtime: /(?:@ ?)?\b(?:at )?(noon|midnight)\b/,
-		// 0700, 1900
-		militaryTime: /\b(?:([0-2]\d)([0-5]\d))\b/,
-		// 23:50
-		internationalTime: /\b(?:(0[0-9]|1[3-9]|2[0-3]):([0-5]\d))\b/,
+		// 23:50, 0700, 1900
+		internationalTime: /\b(?:(0[0-9]|1[3-9]|2[0-3]):?([0-5]\d))\b/,
 		// 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
 		explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-9])(?::?([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
 
@@ -78,55 +76,13 @@ var Sherlock = (function() {
 	},
 
 	matchTime = function(str, time, startTime) {
-		var match;
-		if (match = str.match(patterns.inRelativeTime)) {
-			// if we matched 'a' or 'an', set the number to 1
-			if (isNaN(match[1]))
-				match[1] = 1;
+		var match, matchConfidence = 0, matchedString = false, matchedHour, matchedMin, matchedHasMeridian;
 
-			switch(match[2].substring(0, 1)) {
-				case "h":
-					time.setHours(time.getHours() + parseInt(match[1]));
-					return match[0];
-				case "m":
-					time.setMinutes(time.getMinutes() + parseInt(match[1]));
-					return match[0];
-				default:
-					return false;
-			}
-		} else if (match = str.match(patterns.inMilliTime)) {
-			switch(match[2].substring(0, 1)) {
-				case "s":
-					time.setSeconds(time.getSeconds() + parseInt(match[1]));
-					return match[0];
-				case "m":
-					time.setMilliseconds(time.getMilliseconds() + parseInt(match[1]));
-					return match[0];
-				default:
-					return false;
-			}
-		} else if (match = str.match(patterns.midtime)) {
-			switch(match[1]) {
-				case "noon":
-					time.setHours(12, 0, 0);
-					time.hasMeridian = true;
-					return match[0];
-				case "midnight":
-					time.setHours(0, 0, 0);
-					time.hasMeridian = true;
-					return match[0];
-				default:
-					return false;
-			}
-		} else if ((match = str.match(patterns.militaryTime)) || (match = str.match(patterns.internationalTime))) {
-			time.setHours(match[1], match[2], 0);
-			time.hasMeridian = true;
-			return match[0];
-		} else if (match = str.match(new RegExp(patterns.explicitTime.source, "g"))) {
+		if (match = str.match(new RegExp(patterns.explicitTime.source, "g"))) {
 			// if multiple matches found, pick the best one
 			match = match.sort(function (a, b) {
-				var aScore = a.length,
-					bScore = b.length;
+				var aScore = a.trim().length,
+						bScore = b.trim().length;
 				// Weight matches that include full meridian
 				if (a.match(/(?:a|p).?m.?/))
 					aScore += 20;
@@ -134,33 +90,94 @@ var Sherlock = (function() {
 					bScore += 20;
 				return bScore - aScore;
 			})[0].trim();
+
 			if (match.length <= 2 && str.trim().length > 2)
-				return false;
-			match = match.match(patterns.explicitTime);
+				matchConfidence = 0;
+			else {
+				matchConfidence = match.length;
+				match = match.match(patterns.explicitTime);
 
-			var hour = parseInt(match[1])
-			,	min = match[2] || 0
-			,	meridian = match[3];
+				var hour = parseInt(match[1])
+				,	min = match[2] || 0
+				,	meridian = match[3];
 
-			time.hasMeridian = false;
-			if (meridian) {
-				// meridian is included, adjust hours accordingly
-				if (meridian.indexOf('p') === 0 && hour != 12)
+				if (meridian) {
+					// meridian is included, adjust hours accordingly
+					if (meridian.indexOf('p') === 0 && hour != 12)
+						hour += 12;
+					else if (meridian.indexOf('a') === 0 && hour == 12)
+						hour = 0;
+					matchConfidence += 20;
+				} else if (hour < 12 && (hour < 7 || hour < time.getHours()))
+					// meridian is not included, adjust any ambiguous times
+					// if you type 3, it will default to 3pm
+					// if you type 11 at 5am, it will default to am,
+					// but if you type it at 2pm, it will default to pm
 					hour += 12;
-				else if (meridian.indexOf('a') === 0 && hour == 12)
-					hour = 0;
-				time.hasMeridian = true;
-			} else if (hour < 12 && (hour < 7 || hour < time.getHours()))
-				// meridian is not included, adjust any ambiguous times
-				// if you type 3, it will default to 3pm
-				// if you type 11 at 5am, it will default to am,
-				// but if you type it at 2pm, it will default to pm
-				hour += 12;
 
-			time.setHours(hour, min, 0);
-			return match[0];
+				matchedHour = hour;
+				matchedMin = min;
+				matchedHasMeridian = !!meridian;
+				matchedString = match[0];
+			}
+		}
+
+		var useLowConfidenceMatchedTime = function() {
+			if (matchedString) {
+				time.setHours(matchedHour, matchedMin, 0);
+				time.hasMeridian = matchedHasMeridian;
+			}
+			return matchedString;
+		};
+
+		if (matchConfidence < 4) {
+			if (match = str.match(patterns.inRelativeTime)) {
+				// if we matched 'a' or 'an', set the number to 1
+				if (isNaN(match[1]))
+					match[1] = 1;
+
+				switch(match[2].substring(0, 1)) {
+					case "h":
+						time.setHours(time.getHours() + parseInt(match[1]));
+						return match[0];
+					case "m":
+						time.setMinutes(time.getMinutes() + parseInt(match[1]));
+						return match[0];
+					default:
+						return useLowConfidenceMatchedTime();
+				}
+			} else if (match = str.match(patterns.inMilliTime)) {
+				switch(match[2].substring(0, 1)) {
+					case "s":
+						time.setSeconds(time.getSeconds() + parseInt(match[1]));
+						return match[0];
+					case "m":
+						time.setMilliseconds(time.getMilliseconds() + parseInt(match[1]));
+						return match[0];
+					default:
+						return useLowConfidenceMatchedTime();
+				}
+			} else if (match = str.match(patterns.midtime)) {
+				switch(match[1]) {
+					case "noon":
+						time.setHours(12, 0, 0);
+						time.hasMeridian = true;
+						return match[0];
+					case "midnight":
+						time.setHours(0, 0, 0);
+						time.hasMeridian = true;
+						return match[0];
+					default:
+						return useLowConfidenceMatchedTime();
+				}
+			} else if (match = str.match(patterns.internationalTime)) {
+				time.setHours(match[1], match[2], 0);
+				time.hasMeridian = true;
+				return match[0];
+			} else
+				return useLowConfidenceMatchedTime();
 		} else
-			return false;
+			return useLowConfidenceMatchedTime();
 	},
 
 	matchDate = function(str, time, startTime) {
@@ -170,6 +187,9 @@ var Sherlock = (function() {
 			return match[0];
 		} else if (match = str.match(patterns.dayMonth)) {
 			time.setMonth(helpers.changeMonth(match[2]), match[1]);
+			return match[0];
+		} else if (match = str.match(patterns.shortForm)) {
+			time.setMonth(match[1] - 1, match[2]);
 			return match[0];
 		} else if (match = str.match(patterns.weekdays)) {
 			switch (match[2].substr(0, 3)) {
@@ -212,14 +232,11 @@ var Sherlock = (function() {
 				return match[0];
 			else
 				return false;
-		} else if (match = str.match(patterns.shortForm)) {
-			time.setMonth(match[1] - 1, match[2]);
-			return match[0];
 		} else if (match = str.match(new RegExp(patterns.days, "g"))) {
 			// if multiple matches found, pick the best one
-			match = match.sort(function (a, b) { return b.length - a.length; })[0].trim();
+			match = match.sort(function (a, b) { return b.trim().length - a.trim().length; })[0].trim();
 			// check if the possible date match meets our reasonable assumptions...
-				// if the match doesn't start with 'on',
+			// if the match doesn't start with 'on',
 			if ((match.indexOf('on') !== 0 &&
 				// and if the match doesn't start with 'the' and end with a comma,
 				!(match.indexOf('the') === 0 && match.indexOf(',', match.length - 1) !== -1) &&
