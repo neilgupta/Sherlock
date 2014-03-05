@@ -1,6 +1,6 @@
 /**
  * Watson - Collects data for Sherlock to analyze.
- * Copyright (c) 2013 Tabule, Inc.
+ * Copyright (c) 2014 Tabule, Inc.
  */
 
 var Watson = (function() {
@@ -36,7 +36,7 @@ var Watson = (function() {
 		/* Config vars for disabling certain features */
 		config: {
 			// Should Sherlock try to parse time ranges and return an endDate?
-			disableRanges: true
+			disableRanges: false
 		}
 	};
 })();
