@@ -1,13 +1,13 @@
 /*!
  * Sherlock
  * Copyright (c) 2014 Tabule, Inc.
- * Version 1.2.7
+ * Version 1.2.8
  */
 
 var Sherlock = (function() {
 
 	var patterns = {
-		rangeSplitters: /(\bto\b|\-|\b(?:un)?till?\b|\bthrough\b|\bthru\b|\band\b)/g,
+		rangeSplitters: /(\bto\b|\-|\b(?:un)?till?\b|\bthrough\b|\bthru\b|\band\b|\bends?\b)/g,
 
 		// oct, october
 		months: "\\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\b",
@@ -561,7 +561,7 @@ var Sherlock = (function() {
 
 			// get capitalized version of title
 			if (ret.eventTitle) {
-				ret.eventTitle = ret.eventTitle.replace(/(?:^| )(?:\.|-$|by$|in$|at$|from$|on$|for$|(?:un)?till?$|!|,|;)+/g, '');
+				ret.eventTitle = ret.eventTitle.replace(/(?:^| )(?:\.|-$|by$|in$|at$|from$|on$|starts?$|for$|(?:un)?till?$|!|,|;)+/g, '');
 				var match = str.match(new RegExp(helpers.escapeRegExp(ret.eventTitle), "i"));
 				if (match) {
 					ret.eventTitle = match[0].replace(/ +/g, ' ').trim(); // replace multiple spaces

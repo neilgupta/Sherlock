@@ -1185,6 +1185,16 @@
 					})(),
 
 					(function() {
+						var start = getNow(),
+								end = getNow();
+
+						start.setHours(0, 0, 0, 0);
+						end.setHours(0, 0, 0, 0);
+						end.setDate(start.getDate() + 2);
+						return test("Event starts today ends within two days.", "Event", start, end, true);
+					})(),
+
+					(function() {
 						return test("-", null, null, null, false);
 					})(),
 
