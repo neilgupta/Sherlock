@@ -665,15 +665,72 @@
 					})(),
 
 					(function() {
-						var now = getNow(),
-							start = new Date(now.getFullYear(), 9, 9);
-
-						now.setHours(0, 0, 0, 0);
-						if (start < now)
-							start.setFullYear(start.getFullYear() + 1);
-
-						return test("10/9/14", null, start, null, true);
+						return test("10/9/14", null, new Date(2014, 9, 9), null, true);
 					})(),
+
+					(function() {
+						return test("10/9/12", null, new Date(2012, 9, 9), null, true);
+					})(),
+
+          (function() {
+            return test("March 3 2014", null, new Date(2014, 2, 3), null, true);
+          })(),
+
+          (function() {
+            return test("7 feb 2012", null, new Date(2012, 1, 7), null, true);
+          })(),
+
+          (function() {
+            return test("6 jan 2017", null, new Date(2017, 0, 6), null, true);
+          })(),
+
+          (function() {
+            return test("6 jan 1990", null, new Date(1990, 0, 6), null, true);
+          })(),
+
+          (function() {
+            var now = getNow(),
+              start = getNow();
+
+            start.setMonth(0, 6);
+            start.setHours(19, 30, 0, 0);
+
+            if (start < now)
+              start.setFullYear(start.getFullYear() + 1);
+
+            return test("6 jan 1930", null, start, null, false);
+          })(),
+
+          (function() {
+            var now = getNow();
+            return test("in 3 years", null, new Date(now.getFullYear() + 3, now.getMonth(), now.getDate()), null, true);
+          })(),
+
+          (function() {
+            var now = getNow();
+            return test("10 years from now", null, new Date(now.getFullYear() + 10, now.getMonth(), now.getDate()), null, true);
+          })(),
+
+          (function() {
+            var now = getNow();
+            return test("next year", null, new Date(now.getFullYear() + 1, now.getMonth(), now.getDate()), null, true);
+          })(),
+
+          (function() {
+            var now = getNow(),
+              start = getNow(),
+              end = getNow();
+
+            start.setHours(15, 0, 0, 0);
+            end.setHours(17, 0, 0, 0);
+
+            if (end < now) {
+              end.setDate(end.getDate() + 1);
+              start.setDate(end.getDate());
+            }
+
+            return test("today 3-5", null, start, end, false);
+          })(),
 
 					(function() {
 						var now = getNow(),
@@ -683,18 +740,7 @@
 						if (start < now)
 							start.setFullYear(start.getFullYear() + 1);
 
-						return test("10/9/12", null, start, null, true);
-					})(),
-
-					(function() {
-						var now = getNow(),
-							start = new Date(now.getFullYear(), 9, 9);
-
-						now.setHours(0, 0, 0, 0);
-						if (start < now)
-							start.setFullYear(start.getFullYear() + 1);
-
-						return test("10/9/0", "/0", start, null, true);
+						return test("10/9/0", "0", start, null, true);
 					})(),
 
 					(function() {

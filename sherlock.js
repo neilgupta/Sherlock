@@ -1,7 +1,7 @@
 /*!
  * Sherlock
  * Copyright (c) 2014 Tabule, Inc.
- * Version 1.2.8
+ * Version 1.2.9
  */
 
 var Sherlock = (function() {
@@ -13,14 +13,18 @@ var Sherlock = (function() {
 		months: "\\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\b",
 		// 3, 31, 31st, fifth
 		days: "\\b(?:(?:(?:on )?the )(?=\\d\\d?(?:st|nd|rd|th)))?([1-2]\\d|3[0-1]|0?[1-9])(?:st|nd|rd|th)?(?:,|\\b)",
+		// 2014, 1990
+		// Does not recognize 1930 for example because that could be confused with a valid time.
+		// Exceptions are made for years in 21st century.
+		years: "\\b(20\\d{2}|\\d{2}[6-9]\\d)\\b",
 
-		// 5/12
-		shortForm: /\b(0?[1-9]|1[0-2])\/([1-2]\d|3[0-1]|0?[1-9])(?:\/(?:20)?1\d)?\b/,
+		// 5/12/2014
+		shortForm: /\b(0?[1-9]|1[0-2])\/([1-2]\d|3[0-1]|0?[1-9])\/?(\d{2,4})?\b/,
 
 		// tue, tues, tuesday
 		weekdays: /(next (?:week (?:on )?)?)?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
-		relativeDateStr: "(next (?:week|month)|tom(?:orrow)?|tod(?:ay)?|day after tom(?:orrow)?)",
-		inRelativeDateStr: "(\\d{1,2}|a) (day|week|month)s?",
+		relativeDateStr: "(next (?:week|month|year)|tom(?:orrow)?|tod(?:ay)?|day after tom(?:orrow)?)",
+		inRelativeDateStr: "(\\d{1,2}|a) (day|week|month|year)s?",
 
 		inRelativeTime: /\b(\d{1,2} ?|a |an )(h(?:our)?|m(?:in(?:ute)?)?)s?\b/,
 		inMilliTime: /\b(\d+) ?(s(?:ec(?:ond)?)?|ms|millisecond)s?\b/,
@@ -57,8 +61,10 @@ var Sherlock = (function() {
 			fillerWords = readConfig("disableRanges") ? patterns.fillerWords2 : patterns.fillerWords;
 
 		// parse date
-		if (dateMatch = matchDate(strNummed, time, startTime))
-			str = str.replace(new RegExp(helpers.numToStr(dateMatch)), '');
+		if (dateMatch = matchDate(strNummed, time, startTime)) {
+      strNummed = strNummed.replace(new RegExp(dateMatch), '');
+      str = str.replace(new RegExp(helpers.numToStr(dateMatch)), '');
+    }
 
 		// parse time
 		if (timeMatch = matchTime(strNummed, time, startTime))
@@ -183,13 +189,28 @@ var Sherlock = (function() {
 	matchDate = function(str, time, startTime) {
 		var match;
 		if (match = str.match(patterns.monthDay)) {
-			time.setMonth(helpers.changeMonth(match[1]), match[2]);
+			if (match[3])
+				time.setFullYear(match[3], helpers.changeMonth(match[1]), match[2]);
+			else
+				time.setMonth(helpers.changeMonth(match[1]), match[2]);
 			return match[0];
 		} else if (match = str.match(patterns.dayMonth)) {
-			time.setMonth(helpers.changeMonth(match[2]), match[1]);
+			if (match[3])
+				time.setFullYear(match[3], helpers.changeMonth(match[2]), match[1]);
+			else
+				time.setMonth(helpers.changeMonth(match[2]), match[1]);
 			return match[0];
 		} else if (match = str.match(patterns.shortForm)) {
-			time.setMonth(match[1] - 1, match[2]);
+			var yearStr = match[3], year = null;
+			if (yearStr)
+				year = parseInt(yearStr);
+			if (year && yearStr.length < 4)
+				// if only 2 digits are given, assume years above 50 are in the 20th century, otherwise 21st century
+				year += year > 50 ? 1900 : 2000;
+			if (year)
+				time.setFullYear(year, match[1] - 1, match[2])
+			else
+				time.setMonth(match[1] - 1, match[2]);
 			return match[0];
 		} else if (match = str.match(patterns.weekdays)) {
 			switch (match[2].substr(0, 3)) {
@@ -325,28 +346,31 @@ var Sherlock = (function() {
 			var now = getNow();
 			switch(match) {
 				case "next week":
-					time.setMonth(now.getMonth(), now.getDate() + 7);
+					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() + 7);
 					return true;
 				case "next month":
-					time.setMonth(time.getMonth() + 1);
+					time.setFullYear(now.getFullYear(), now.getMonth() + 1, now.getDate());
+					return true;
+				case "next year":
+					time.setFullYear(now.getFullYear() + 1, now.getMonth(), now.getDate());
 					return true;
 				case "tom":
-					time.setMonth(now.getMonth(), now.getDate() + 1);
+					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() + 1);
 					return true;
 				case "tomorrow":
-					time.setMonth(now.getMonth(), now.getDate() + 1);
+					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() + 1);
 					return true;
 				case "day after tomorrow":
-					time.setMonth(now.getMonth(), now.getDate() + 2);
+					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() + 2);
 					return true;
 				case "day after tom":
-					time.setMonth(now.getMonth(), now.getDate() + 2);
+					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() + 2);
 					return true;
 				case "today":
-					time.setMonth(now.getMonth(), now.getDate());
+					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
 					return true;
 				case "tod":
-					time.setMonth(now.getMonth(), now.getDate());
+					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
 					return true;
 				default:
 					return false;
@@ -369,6 +393,9 @@ var Sherlock = (function() {
 					return true;
 				case "month":
 					time.setMonth(time.getMonth() + num);
+					return true;
+				case "year":
+					time.setFullYear(time.getFullYear() + num);
 					return true;
 				default:
 					return false;
@@ -461,9 +488,9 @@ var Sherlock = (function() {
 	};
 
 	// may 5, may 5th
-	patterns.monthDay = new RegExp(patterns.months + " "  + patterns.days);
+	patterns.monthDay = new RegExp(patterns.months + " "  + patterns.days + "(?: " + patterns.years + ")?");
 	// 5th may, 5 may
-	patterns.dayMonth = new RegExp(patterns.days + "(?: (?:day )?of)? " + patterns.months);
+	patterns.dayMonth = new RegExp(patterns.days + "(?: (?:day )?of)? " + patterns.months + "(?: " + patterns.years + ")?");
 	// 5, 5th
 	patterns.daysOnly = new RegExp(patterns.days);
 	patterns.digit = new RegExp("\\b(" + helpers.intToWords.join("|") + ")\\b", "g");
