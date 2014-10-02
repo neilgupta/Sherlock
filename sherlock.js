@@ -1,7 +1,7 @@
 /*!
  * Sherlock
  * Copyright (c) 2014 Tabule, Inc.
- * Version 1.2.9
+ * Version 1.3.0
  */
 
 var Sherlock = (function() {
@@ -22,12 +22,12 @@ var Sherlock = (function() {
 		shortForm: /\b(0?[1-9]|1[0-2])\/([1-2]\d|3[0-1]|0?[1-9])\/?(\d{2,4})?\b/,
 
 		// tue, tues, tuesday
-		weekdays: /(next (?:week (?:on )?)?)?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
-		relativeDateStr: "(next (?:week|month|year)|tom(?:orrow)?|tod(?:ay)?|day after tom(?:orrow)?)",
-		inRelativeDateStr: "(\\d{1,2}|a) (day|week|month|year)s?",
+		weekdays: /(?:(next|last) (?:week (?:on )?)?)?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
+		relativeDateStr: "((?:next|last|this) (?:week|month|year)|tom(?:orrow)?|tod(?:ay)?|day after tom(?:orrow)?|yesterday|day before yesterday)",
+		inRelativeDateStr: "(\\d{1,4}|a) (day|week|month|year)s?( ago)?",
 
-		inRelativeTime: /\b(\d{1,2} ?|a |an )(h(?:our)?|m(?:in(?:ute)?)?)s?\b/,
-		inMilliTime: /\b(\d+) ?(s(?:ec(?:ond)?)?|ms|millisecond)s?\b/,
+		inRelativeTime: /\b(\d{1,2} ?|a |an )(h(?:our)?|m(?:in(?:ute)?)?)s?( ago)?\b/,
+		inMilliTime: /\b(\d+) ?(s(?:ec(?:ond)?)?|ms|millisecond)s?( ago)?\b/,
 		midtime: /(?:@ ?)?\b(?:at )?(noon|midnight)\b/,
 		// 23:50, 0700, 1900
 		internationalTime: /\b(?:(0[0-9]|1[3-9]|2[0-3]):?([0-5]\d))\b/,
@@ -35,9 +35,9 @@ var Sherlock = (function() {
 		explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-9])(?::?([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
 
 		// filler words must be preceded with a space to count
-		fillerWords: / (from|is|at|on|for|in|due(?! date)|(?:un)?till?)\b/,
+		fillerWords: / (from|is|was|at|on|for|in|due(?! date)|(?:un)?till?)\b/,
 		// less aggressive filler words regex to use when rangeSplitters are disabled
-		fillerWords2: / (is|due(?! date))\b/
+		fillerWords2: / (was|is|due(?! date))\b/
 	},
 
 	nowDate = null,
@@ -142,6 +142,9 @@ var Sherlock = (function() {
 				if (isNaN(match[1]))
 					match[1] = 1;
 
+				if (match[3])
+					match[1] = match[1]*-1;
+
 				switch(match[2].substring(0, 1)) {
 					case "h":
 						time.setHours(time.getHours() + parseInt(match[1]));
@@ -153,6 +156,9 @@ var Sherlock = (function() {
 						return useLowConfidenceMatchedTime();
 				}
 			} else if (match = str.match(patterns.inMilliTime)) {
+				if (match[3])
+					match[1] = match[1]*-1;
+
 				switch(match[2].substring(0, 1)) {
 					case "s":
 						time.setSeconds(time.getSeconds() + parseInt(match[1]));
@@ -189,14 +195,18 @@ var Sherlock = (function() {
 	matchDate = function(str, time, startTime) {
 		var match;
 		if (match = str.match(patterns.monthDay)) {
-			if (match[3])
+			if (match[3]) {
 				time.setFullYear(match[3], helpers.changeMonth(match[1]), match[2]);
+				time.hasYear = true;
+			}
 			else
 				time.setMonth(helpers.changeMonth(match[1]), match[2]);
 			return match[0];
 		} else if (match = str.match(patterns.dayMonth)) {
-			if (match[3])
+			if (match[3]) {
 				time.setFullYear(match[3], helpers.changeMonth(match[2]), match[1]);
+				time.hasYear = true;
+			}
 			else
 				time.setMonth(helpers.changeMonth(match[2]), match[1]);
 			return match[0];
@@ -207,8 +217,10 @@ var Sherlock = (function() {
 			if (year && yearStr.length < 4)
 				// if only 2 digits are given, assume years above 50 are in the 20th century, otherwise 21st century
 				year += year > 50 ? 1900 : 2000;
-			if (year)
-				time.setFullYear(year, match[1] - 1, match[2])
+			if (year) {
+				time.setFullYear(year, match[1] - 1, match[2]);
+				time.hasYear = true;
+			}
 			else
 				time.setMonth(match[1] - 1, match[2]);
 			return match[0];
@@ -239,7 +251,7 @@ var Sherlock = (function() {
 					return false;
 			}
 		} else if (match = str.match(patterns.inRelativeDateFromRelativeDate)) {
-			if (helpers.relativeDateMatcher(match[3], time) && helpers.inRelativeDateMatcher(match[1], match[2], time))
+			if (helpers.relativeDateMatcher(match[4], time) && helpers.inRelativeDateMatcher(match[1], match[2], match[3], time))
 				return match[0];
 			else
 				return false;
@@ -249,7 +261,7 @@ var Sherlock = (function() {
 			else
 				return false;
 		} else if (match = str.match(patterns.inRelativeDate)) {
-			if (helpers.inRelativeDateMatcher(match[1], match[2], time))
+			if (helpers.inRelativeDateMatcher(match[1], match[2], match[3], time))
 				return match[0];
 			else
 				return false;
@@ -286,9 +298,10 @@ var Sherlock = (function() {
 	},
 
 	// Make some intelligent assumptions of what was meant, even when given incomplete information
-	makeAdjustments = function(start, end, isAllDay) {
+	makeAdjustments = function(start, end, isAllDay, str) {
 		var now = getNow();
-		if (end) { // 
+
+		if (end) {
 			if (start > end && end > now && helpers.isSameDay(start, end) && helpers.isSameDay(start, now)) {
 				if (start.hasMeridian)
 					// we explicitly set the meridian, so don't mess with the hours
@@ -304,40 +317,17 @@ var Sherlock = (function() {
 				}
 			}
 
-			else if (end < now) {
-				if (helpers.isSameDay(end, now)) {
-					// all-day events can be in the past when dealing with today, 
-					// since they are set to midnight which must be in the past today
-					if (!isAllDay) {
-						if (start < end && helpers.isSameDay(start, now))
-							// the start date is also today, move it tomorrow as well
-							start.setDate(start.getDate() + 1);
-
-						// the end time has already passed today, go to tomorrow
-						end.setDate(end.getDate() + 1);
-					}
-				} else {
-					if (start < end)
-						// move start date forward a year if it is before the end date (March 2 - March 5),
-						// but not if it is after (Dec 11 - Jan 23)
-						start.setFullYear(start.getFullYear() + 1);
-					// this date has passed, go to next year
-					end.setFullYear(end.getFullYear() + 1);
-				}
+			else if (start > end) {
+				end.setDate(start.getDate() + 1);
 			}
 
-		} else if (start) { // hallelujah, we aren't dealing with a date range
-			if (start < now) {
-				if (helpers.isSameDay(start, now)) {
-					// all-day events can be in the past when dealing with today, 
-					// since they are set to midnight which must be in the past today
-					if (!isAllDay)
-						// the time has already passed today, go to tomorrow
-						start.setDate(start.getDate() + 1);
-				} else
-					// this date has passed, go to next year
-					start.setFullYear(start.getFullYear() + 1);
+			else if (end < now && str.indexOf(" was ") === -1 && helpers.monthDiff(end, now) >= 3 && !end.hasYear && !start.hasYear) {
+				end.setFullYear(end.getFullYear() + 1);
+				start.setFullYear(start.getFullYear() + 1);
 			}
+
+		} else if (start && start < now && helpers.monthDiff(start, now) >= 3 && !start.hasYear && str.indexOf(" was ") === -1) {
+			start.setFullYear(start.getFullYear() + 1);
 		}
 	},
 
@@ -347,55 +337,103 @@ var Sherlock = (function() {
 			switch(match) {
 				case "next week":
 					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() + 7);
+					time.hasYear = true;
 					return true;
 				case "next month":
 					time.setFullYear(now.getFullYear(), now.getMonth() + 1, now.getDate());
+					time.hasYear = true;
 					return true;
 				case "next year":
 					time.setFullYear(now.getFullYear() + 1, now.getMonth(), now.getDate());
+					time.hasYear = true;
+					return true;
+				case "last week":
+					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+					time.hasYear = true;
+					return true;
+				case "last month":
+					time.setFullYear(now.getFullYear(), now.getMonth() - 1, now.getDate());
+					time.hasYear = true;
+					return true;
+				case "last year":
+					time.setFullYear(now.getFullYear() - 1, now.getMonth(), now.getDate());
+					time.hasYear = true;
+					return true;
+				case "this week": // this week|month|year is pretty meaningless, but let's include it so that it parses as today
+					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
+					time.hasYear = true;
+					return true;
+				case "this month":
+					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
+					time.hasYear = true;
+					return true;
+				case "this year":
+					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
+					time.hasYear = true;
 					return true;
 				case "tom":
 					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+					time.hasYear = true;
 					return true;
 				case "tomorrow":
 					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+					time.hasYear = true;
 					return true;
 				case "day after tomorrow":
 					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() + 2);
+					time.hasYear = true;
 					return true;
 				case "day after tom":
 					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() + 2);
+					time.hasYear = true;
 					return true;
 				case "today":
 					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
+					time.hasYear = true;
 					return true;
 				case "tod":
 					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
+					time.hasYear = true;
+					return true;
+				case "yesterday":
+					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+					time.hasYear = true;
+					return true;
+				case "day before yesterday":
+					time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() - 2);
+					time.hasYear = true;
 					return true;
 				default:
 					return false;
 			}
 		},
 
-		inRelativeDateMatcher: function(num, scale, time) {
+		inRelativeDateMatcher: function(num, scale, ago, time) {
 			// if we matched 'a' or 'an', set the number to 1
 			if (isNaN(num))
 				num = 1;
 			else
 				num = parseInt(num);
 
+			if (ago)
+				num = num*-1;
+
 			switch(scale) {
 				case "day":
 					time.setDate(time.getDate() + num);
+					time.hasYear = true;
 					return true;
 				case "week":
 					time.setDate(time.getDate() + num*7);
+					time.hasYear = true;
 					return true;
 				case "month":
 					time.setMonth(time.getMonth() + num);
+					time.hasYear = true;
 					return true;
 				case "year":
 					time.setFullYear(time.getFullYear() + num);
+					time.hasYear = true;
 					return true;
 				default:
 					return false;
@@ -410,9 +448,20 @@ var Sherlock = (function() {
 		// find the nearest future date that is on the given weekday
 		changeDay: function(time, newDay, hasNext) {
 			var diff = 7 - time.getDay() + newDay;
-			if (diff > 7 && !hasNext)
+			if (diff > 7 && hasNext === undefined)
 				diff -= 7;
+			if (hasNext === "last")
+				diff = diff*-1;
+
 			time.setDate(time.getDate() + diff);
+		},
+
+		monthDiff: function(d1, d2) {
+			var months;
+	    months = (d2.getFullYear() - d1.getFullYear()) * 12;
+	    months -= d1.getMonth() + 1;
+	    months += d2.getMonth() + 1;
+	    return months <= 0 ? 0 : months;
 		},
 
 		escapeRegExp: function(str) {
@@ -584,7 +633,7 @@ var Sherlock = (function() {
 				}
 			}
 
-			makeAdjustments(ret.startDate, ret.endDate, ret.isAllDay);
+			makeAdjustments(ret.startDate, ret.endDate, ret.isAllDay, str);
 
 			// get capitalized version of title
 			if (ret.eventTitle) {
