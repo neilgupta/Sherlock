@@ -1244,6 +1244,16 @@
           })(),
 
           (function() {
+            var start = getNow(),
+              end = new Date(3000, 0, 1, 0, 0, 0, 0);
+
+            start.setDate(start.getDate() + 1);
+            start.setHours(0, 0, 0, 0);
+
+            return test("after tomorrow", null, start, end, true);
+          })(),
+
+          (function() {
             var start = new Date(1900, 0, 1, 0, 0, 0, 0),
               end = getNow();
             end.setHours(0, 0, 0, 0);
