@@ -10,10 +10,10 @@ It was designed to allow event creation using natural language. For example, *"T
 
 ```javascript
 {
-	eventTitle: 'The party',
-	startDate: Sat Dec 01 2012 15:00:00 GMT-0600 (CST),
-	endDate: Sat Dec 01 2012 17:00:00 GMT-0600 (CST),
-	isAllDay: false
+  eventTitle: 'The party',
+  startDate: Sat Dec 01 2012 15:00:00 GMT-0600 (CST),
+  endDate: Sat Dec 01 2012 17:00:00 GMT-0600 (CST),
+  isAllDay: false
 }
 ```
 
@@ -47,13 +47,13 @@ To parse a string, simply use
 var sherlocked = Sherlock.parse('Homework 5 due next monday at 3pm');
 
 // Basic properties
-var	title = sherlocked.eventTitle;		// 'Homework 5 due'
-var	startDate = sherlocked.startDate; 	// Date object pointing to next monday at 3pm
-var	endDate = sherlocked.endDate; 		// null in this case, since no duration was given
-var	isAllDay = sherlocked.isAllDay;		// false, since a time is included with the event
+var title = sherlocked.eventTitle;    // 'Homework 5 due'
+var startDate = sherlocked.startDate; // Date object pointing to next monday at 3pm
+var endDate = sherlocked.endDate;     // null in this case, since no duration was given
+var isAllDay = sherlocked.isAllDay;   // false, since a time is included with the event
 
 // Example of an additional custom property added by Watson
-var validated = sherlocked.validated; 	// true
+var validated = sherlocked.validated; // true
 ```
 
 That's it!
