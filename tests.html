@@ -44,6 +44,8 @@
           return new Date();
       }
 
+      // Sherlock's method for finding the number of months between 2 dates.
+      // Used for making assumptions about what a user means when year is ambiguous
       function monthDiff(d1, d2) {
         var months;
         months = (d2.getFullYear() - d1.getFullYear()) * 12;
@@ -1336,8 +1338,10 @@
             p = document.createElement('p'),
             status = document.createElement('span');
 
-          if (t[0] === null || t[0].trim() == "")
-            t[0] = "<code>Blank input</code>";
+          if (t[0] === null)
+            t[0] = "<code>null</code>";
+          else if (t[0].trim() == "")
+            t[0] = "<code>'" + t[0] + "'</code>";
           p.innerHTML = t[0];
 
           if (t[1]) {
@@ -1394,7 +1398,9 @@
           console.log("parsing on " + getNow() + "... " + str);
           Sherlocked.startDate = Sherlocked.startDate ? new Date(Sherlocked.startDate) : null;
           Sherlocked.endDate = Sherlocked.endDate ? new Date(Sherlocked.endDate) : null;
+          console.log("-- what Sherlock returned:");
           console.log(Sherlocked);
+          console.log("-- what we expected:");
           console.log({
             eventTitle: title,
             startDate: startDate ? new Date(startDate) : null,
