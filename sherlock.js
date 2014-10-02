@@ -1,7 +1,7 @@
 /*!
  * Sherlock
  * Copyright (c) 2014 Tabule, Inc.
- * Version 1.3.1
+ * Version 1.3.2
  */
 
 var Sherlock = (function() {
@@ -24,15 +24,18 @@ var Sherlock = (function() {
     // tue, tues, tuesday
     weekdays: /(?:(next|last) (?:week (?:on )?)?)?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
     relativeDateStr: "((?:next|last|this) (?:week|month|year)|tom(?:orrow)?|tod(?:ay)?|now|day after tom(?:orrow)?|yesterday|day before yesterday)",
-    inRelativeDateStr: "(\\d{1,4}|a) (day|week|month|year)s?( ago)?",
+    inRelativeDateStr: "(\\d{1,4}|a) (day|week|month|year)s? ?(ago|old)?",
 
-    inRelativeTime: /\b(\d{1,2} ?|a |an )(h(?:our)?|m(?:in(?:ute)?)?)s?( ago)?\b/,
-    inMilliTime: /\b(\d+) ?(s(?:ec(?:ond)?)?|ms|millisecond)s?( ago)?\b/,
+    inRelativeTime: /\b(\d{1,2} ?|a |an )(h(?:our)?|m(?:in(?:ute)?)?)s? ?(ago|old)?\b/,
+    inMilliTime: /\b(\d+) ?(s(?:ec(?:ond)?)?|ms|millisecond)s? ?(ago|old)?\b/,
     midtime: /(?:@ ?)?\b(?:at )?(noon|midnight)\b/,
     // 23:50, 0700, 1900
     internationalTime: /\b(?:(0[0-9]|1[3-9]|2[0-3]):?([0-5]\d))\b/,
     // 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
     explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-9])(?::?([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
+
+    more_than_comparator: /((?:more|greater|newer) than)/i,
+    less_than_comparator: /((?:less|fewer|older) than)/i,
 
     // filler words must be preceded with a space to count
     fillerWords: / (from|is|was|at|on|for|in|due(?! date)|(?:un)?till?)\b/,
@@ -143,7 +146,7 @@ var Sherlock = (function() {
           match[1] = 1;
 
         if (match[3])
-          match[1] = match[1]*-1;
+          match[1] = parseInt(match[1])*-1;
 
         switch(match[2].substring(0, 1)) {
           case "h":
@@ -157,7 +160,7 @@ var Sherlock = (function() {
         }
       } else if (match = str.match(patterns.inMilliTime)) {
         if (match[3])
-          match[1] = match[1]*-1;
+          match[1] = parseInt(match[1])*-1;
 
         switch(match[2].substring(0, 1)) {
           case "s":
@@ -298,7 +301,7 @@ var Sherlock = (function() {
   },
 
   // Make some intelligent assumptions of what was meant, even when given incomplete information
-  makeAdjustments = function(start, end, isAllDay, str) {
+  makeAdjustments = function(start, end, isAllDay, str, ret) {
     var now = getNow();
 
     if (end) {
@@ -326,8 +329,34 @@ var Sherlock = (function() {
         start.setFullYear(start.getFullYear() + 1);
       }
 
-    } else if (start && start < now && helpers.monthDiff(start, now) >= 3 && !start.hasYear && str.indexOf(" was ") === -1) {
-      start.setFullYear(start.getFullYear() + 1);
+    } else if (start) {
+      if (start < now && helpers.monthDiff(start, now) >= 3 && !start.hasYear && str.indexOf(" was ") === -1) {
+        start.setFullYear(start.getFullYear() + 1);
+      }
+
+      // check for open ranges (more than...)
+      else if (str.match(patterns.more_than_comparator)) {
+        // if "ago" is used and matched (not showing in title), then we need to invert the more than comparator
+        if (str.match(/(ago|old)/i) && ret.eventTitle.match(/(ago|old)/i) === null) {
+          ret.endDate = new Date(start.getTime());
+          ret.startDate = new Date(1900, 0, 1, 0, 0, 0, 0);
+        } else {
+          ret.endDate = new Date(3000, 0, 1, 0, 0, 0, 0);
+        }
+        ret.eventTitle = ret.eventTitle.replace(patterns.more_than_comparator, '');
+      }
+
+      // check for open ranges (less than...)
+      else if (str.match(patterns.less_than_comparator)) {
+        // if "ago" is used and matched (not showing in title), then we need to invert the less than comparator
+        if (str.match(/(ago|old)/i) && ret.eventTitle.match(/(ago|old)/i) === null) {
+          ret.endDate = new Date(3000, 0, 1, 0, 0, 0, 0);
+        } else {
+          ret.endDate = new Date(start.getTime());
+          ret.startDate = new Date(1900, 0, 1, 0, 0, 0, 0);
+        }
+        ret.eventTitle = ret.eventTitle.replace(patterns.less_than_comparator, '');
+      }
     }
   },
 
@@ -639,11 +668,11 @@ var Sherlock = (function() {
         }
       }
 
-      makeAdjustments(ret.startDate, ret.endDate, ret.isAllDay, str);
+      makeAdjustments(ret.startDate, ret.endDate, ret.isAllDay, str, ret);
 
       // get capitalized version of title
       if (ret.eventTitle) {
-        ret.eventTitle = ret.eventTitle.replace(/(?:^| )(?:\.|-$|by$|in$|at$|from$|on$|starts?$|for$|(?:un)?till?$|!|,|;)+/g, '');
+        ret.eventTitle = ret.eventTitle.replace(/(?:^| )(?:\.|-$|by$|in$|at$|from$|on$|starts?$|for$|(?:un)?till?$|!|,|;)+/g, '').replace(/ +/g, ' ').trim();
         var match = str.match(new RegExp(helpers.escapeRegExp(ret.eventTitle), "i"));
         if (match) {
           ret.eventTitle = match[0].replace(/ +/g, ' ').trim(); // replace multiple spaces

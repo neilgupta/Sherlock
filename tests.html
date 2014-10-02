@@ -1232,6 +1232,85 @@
           })(),
 
           (function() {
+            var start = getNow(),
+              end = new Date(3000, 0, 1, 0, 0, 0, 0);
+
+            start.setMonth(9, 5);
+            start.setHours(0, 0, 0, 0);
+            if (monthDiff(start, getNow()) >= 3)
+              start.setFullYear(start.getFullYear() + 1);
+
+            return test("more than oct 5", null, start, end, true);
+          })(),
+
+          (function() {
+            var start = new Date(1900, 0, 1, 0, 0, 0, 0),
+              end = getNow();
+            end.setHours(0, 0, 0, 0);
+
+            return test("less than today", null, start, end, true);
+          })(),
+
+          (function() {
+            var start = new Date(1900, 0, 1, 0, 0, 0, 0),
+              end = getNow();
+
+            end.setMilliseconds(0);
+
+            return test("less than now", null, start, end, false);
+          })(),
+
+          (function() {
+            var start = new Date(1900, 0, 1, 0, 0, 0, 0),
+              end = getNow();
+            end.setHours(0, 0, 0, 0);
+            end.setDate(end.getDate() - 5);
+
+            return test("more than 5 days ago", null, start, end, true);
+          })(),
+
+          (function() {
+            var start = new Date(1900, 0, 1, 0, 0, 0, 0),
+              end = getNow();
+            end.setHours(end.getHours() - 10);
+            end.setMilliseconds(0);
+
+            return test("more than 10 hours ago", null, start, end, false);
+          })(),
+
+          (function() {
+            var start = getNow(),
+              end = new Date(3000, 0, 1, 0, 0, 0, 0);
+
+            start.setMonth(start.getMonth() - 3);
+            start.setHours(0, 0, 0, 0);
+
+            return test("less than 3 months ago", null, start, end, true);
+          })(),
+
+          (function() {
+            var start = new Date(1900, 0, 1, 0, 0, 0, 0),
+              end = getNow();
+
+            end.setMonth(9, 5);
+            end.setHours(0, 0, 0, 0);
+            if (monthDiff(end, getNow()) >= 3)
+              end.setFullYear(end.getFullYear() + 1);
+
+            return test("less than oct 5 ago", "ago", start, end, true);
+          })(),
+
+          (function() {
+            var start = new Date(1900, 0, 1, 0, 0, 0, 0),
+              end = getNow();
+
+            end.setHours(0, 0, 0, 0);
+            end.setFullYear(end.getFullYear() - 4);
+
+            return test("this computer is more than 4 years old", "this computer", start, end, true);
+          })(),
+
+          (function() {
             var start = getNow();
             start.setHours(start.getHours(), start.getMinutes() + 5, 0, 0);
 
