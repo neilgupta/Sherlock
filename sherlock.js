@@ -34,8 +34,8 @@ var Sherlock = (function() {
     // 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
     explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-9])(?::?([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
 
-    more_than_comparator: /((?:more|greater|newer) than)/i,
-    less_than_comparator: /((?:less|fewer|older) than)/i,
+    more_than_comparator: /((?:more|greater|newer) than|after)/i,
+    less_than_comparator: /((?:less|fewer|older) than|before)/i,
 
     // filler words must be preceded with a space to count
     fillerWords: / (from|is|was|at|on|for|in|due(?! date)|(?:un)?till?)\b/,
@@ -60,8 +60,7 @@ var Sherlock = (function() {
     var ret = {},
       dateMatch = false,
       timeMatch = false,
-      strNummed = helpers.strToNum(str),
-      fillerWords = readConfig("disableRanges") ? patterns.fillerWords2 : patterns.fillerWords;
+      strNummed = helpers.strToNum(str);
 
     // parse date
     if (dateMatch = matchDate(strNummed, time, startTime)) {
@@ -73,7 +72,7 @@ var Sherlock = (function() {
     if (timeMatch = matchTime(strNummed, time, startTime))
       str = str.replace(new RegExp(helpers.numToStr(timeMatch)), '');
 
-    ret.eventTitle = str.split(fillerWords)[0].trim();
+    ret.eventTitle = str;
 
     // if time data not given, then this is an all day event
     ret.isAllDay = !!(dateMatch && !timeMatch && dateMatch !== "now");
@@ -335,7 +334,7 @@ var Sherlock = (function() {
       }
 
       // check for open ranges (more than...)
-      else if (str.match(patterns.more_than_comparator)) {
+      else if (ret.eventTitle.match(patterns.more_than_comparator)) {
         // if "ago" is used and matched (not showing in title), then we need to invert the more than comparator
         if (str.match(/(ago|old)/i) && ret.eventTitle.match(/(ago|old)/i) === null) {
           ret.endDate = new Date(start.getTime());
@@ -347,7 +346,7 @@ var Sherlock = (function() {
       }
 
       // check for open ranges (less than...)
-      else if (str.match(patterns.less_than_comparator)) {
+      else if (ret.eventTitle.match(patterns.less_than_comparator)) {
         // if "ago" is used and matched (not showing in title), then we need to invert the less than comparator
         if (str.match(/(ago|old)/i) && ret.eventTitle.match(/(ago|old)/i) === null) {
           ret.endDate = new Date(3000, 0, 1, 0, 0, 0, 0);
@@ -672,6 +671,8 @@ var Sherlock = (function() {
 
       // get capitalized version of title
       if (ret.eventTitle) {
+        var fillerWords = readConfig("disableRanges") ? patterns.fillerWords2 : patterns.fillerWords;
+        ret.eventTitle = ret.eventTitle.split(fillerWords)[0].trim();
         ret.eventTitle = ret.eventTitle.replace(/(?:^| )(?:\.|-$|by$|in$|at$|from$|on$|starts?$|for$|(?:un)?till?$|!|,|;)+/g, '').replace(/ +/g, ' ').trim();
         var match = str.match(new RegExp(helpers.escapeRegExp(ret.eventTitle), "i"));
         if (match) {
