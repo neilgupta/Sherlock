@@ -1181,6 +1181,32 @@
           })(),
 
           (function() {
+            var start = getNow(),
+              end = getNow();
+            start.setHours(0, 0, 0, 0);
+            start.setDate(start.getDate() - 3);
+            end.setHours(0, 0, 0, 0);
+
+            return test("3 days ago to now", null, start, end, true);
+          })(),
+
+          (function() {
+            var start = getNow(),
+              end = getNow();
+            start.setHours(start.getHours() - 3, start.getMinutes(), start.getSeconds(), 0);
+            end.setMilliseconds(0);
+
+            return test("3 hours ago to now", null, start, end, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            start.setMilliseconds(0);
+
+            return test("now", null, start, null, false);
+          })(),
+
+          (function() {
             var start = getNow();
             start.setHours(15, 0, 0, 0);
             start.setDate(start.getDate() - 1);

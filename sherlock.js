@@ -1,7 +1,7 @@
 /*!
  * Sherlock
  * Copyright (c) 2014 Tabule, Inc.
- * Version 1.3.0
+ * Version 1.3.1
  */
 
 var Sherlock = (function() {
@@ -23,7 +23,7 @@ var Sherlock = (function() {
 
     // tue, tues, tuesday
     weekdays: /(?:(next|last) (?:week (?:on )?)?)?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
-    relativeDateStr: "((?:next|last|this) (?:week|month|year)|tom(?:orrow)?|tod(?:ay)?|day after tom(?:orrow)?|yesterday|day before yesterday)",
+    relativeDateStr: "((?:next|last|this) (?:week|month|year)|tom(?:orrow)?|tod(?:ay)?|now|day after tom(?:orrow)?|yesterday|day before yesterday)",
     inRelativeDateStr: "(\\d{1,4}|a) (day|week|month|year)s?( ago)?",
 
     inRelativeTime: /\b(\d{1,2} ?|a |an )(h(?:our)?|m(?:in(?:ute)?)?)s?( ago)?\b/,
@@ -73,10 +73,10 @@ var Sherlock = (function() {
     ret.eventTitle = str.split(fillerWords)[0].trim();
 
     // if time data not given, then this is an all day event
-    ret.isAllDay = !!(dateMatch && !timeMatch);
+    ret.isAllDay = !!(dateMatch && !timeMatch && dateMatch !== "now");
 
     // check if date was parsed
-    ret.isValidDate = !!(dateMatch || timeMatch || str.match(/\bnow\b/));
+    ret.isValidDate = !!(dateMatch || timeMatch);
 
     return ret;
   },
@@ -393,6 +393,12 @@ var Sherlock = (function() {
           return true;
         case "tod":
           time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
+          time.hasYear = true;
+          return true;
+        case "now":
+          time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
+          time.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), 0);
+          time.hasMeridian = true;
           time.hasYear = true;
           return true;
         case "yesterday":
