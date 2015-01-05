@@ -697,3 +697,12 @@ var Sherlock = (function() {
     }
   };
 })();
+
+// Add AMD compatibility.
+if (typeof define === 'function' && define.amd) {
+  define(Sherlock);
+}
+// Add CommonJS compatibility.
+else if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Sherlock;
+}
