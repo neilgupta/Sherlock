@@ -1,10 +1,10 @@
 Sherlock
 ========
 
-https://github.com/Tabule/Sherlock/
+https://github.com/neilgupta/Sherlock/
 
 **Sherlock parses events written in plain English, and returns an object defining a basic event.
-[Try demo](http://tabule.github.com/Sherlock/).**
+[Try demo](http://neilgupta.github.com/Sherlock/).**
 
 It was designed to allow event creation using natural language. For example, *"The party is tomorrow from 3pm to 5pm."* will return:
 
@@ -17,7 +17,7 @@ It was designed to allow event creation using natural language. For example, *"T
 }
 ```
 
-Sherlock can handle times, days, date ranges, event titles, and more. It supports a wide variety of input formats that are common in US English. [Try the demo](http://tabule.github.com/Sherlock/), and [let us know](https://github.com/Tabule/Sherlock/issues) if you find an input that does not work.
+Sherlock can handle times, days, date ranges, event titles, and more. It supports a wide variety of input formats that are common in US English. [Try the demo!](http://neilgupta.github.com/Sherlock/)
 
 Just like Sherlock the detective finds the clues needed to solve a mystery by looking at a crime scene, Sherlock.js finds the components needed to define an event by looking at a sentence. But Sherlock doesn't work alone...
 
@@ -27,7 +27,7 @@ Sherlock is great for parsing sentences into basic events, but what if you need 
 
 Watson provides a preprocessor and postprocessor layer on Sherlock that allows you to customize Sherlock's input and output. With the preprocessor, you can manipulate the input string before it is parsed by Sherlock. The postprocessor allows you to modify the data returned by Sherlock, or add any additional properties.
 
-For example, [Tabule](https://tabuleapp.com) uses Watson's preprocessor for app-specific logic, such as determining which course the user wants to add their assignment to. We use the postprocessor to validate the data, such as making sure the user provided a due date. [View an example watson.js processor](https://github.com/Tabule/Sherlock/blob/gh-pages/watson.js).
+For example, Tabule used Watson's preprocessor for app-specific logic, such as determining which course the user wants to add their assignment to. We used the postprocessor to validate the data, such as making sure the user provided a due date. [View an example watson.js processor](https://github.com/neilgupta/Sherlock/blob/gh-pages/watson.js).
 
 Basically, Watson helps Sherlock fit in and interact with the world.
 
@@ -89,7 +89,7 @@ Oh, and Mr. Holmes could take on a ninja any day.
 # License
 
 The MIT License (MIT)
-Copyright (c) 2014 Tabule, Inc.
+Copyright (c) 2015 Neil Gupta
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
