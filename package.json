@@ -1,0 +1,12 @@
+{
+  "name": "Sherlock",
+  "version": "1.3.2",
+  "author": "Neil Gupta",
+  "description": "Natural-language event parser for Javascript.",
+  "main": "sherlock.min.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/neilgupta/Sherlock.git"
+  },
+  "license": "MIT"
+}
