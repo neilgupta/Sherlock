@@ -33,6 +33,13 @@ Basically, Watson helps Sherlock fit in and interact with the world.
 
 # Usage
 
+To include language support include language file before you include sherlock.js
+
+```html
+<script type="text/javascript" src="i18n/sv-SE.js"></script>
+```
+
+
 Include sherlock.js and watson.js in your code.
 
 ```html
@@ -40,6 +47,8 @@ Include sherlock.js and watson.js in your code.
 <!-- optional - include if you want Watson to help Sherlock -->
 <script type="text/javascript" src="watson.js"></script>
 ```
+
+
 
 To parse a string, simply use
 
