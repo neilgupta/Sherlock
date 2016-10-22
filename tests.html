@@ -1152,6 +1152,153 @@
 
           (function() {
             var start = getNow();
+            var diff = 7 - start.getDay() + 1;
+            diff -= 7;
+            if (diff >= 0)
+              diff -= 7
+            start.setHours(15, 0, 0, 0);
+            start.setDate(start.getDate() + diff);
+
+            return test("Meeting last mon at 3pm", "Meeting", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            var diff = 7 - start.getDay() + 2;
+            diff -= 7;
+            if (diff >= 0)
+              diff -= 7
+            start.setHours(15, 0, 0, 0);
+            start.setDate(start.getDate() + diff);
+
+            return test("Meeting last tues at 3pm", "Meeting", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            var diff = 7 - start.getDay() + 3;
+            diff -= 7;
+            if (diff >= 0)
+              diff -= 7
+            start.setHours(15, 0, 0, 0);
+            start.setDate(start.getDate() + diff);
+
+            return test("Meeting last wed at 3pm", "Meeting", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            var diff = 7 - start.getDay() + 4;
+            diff -= 7;
+            if (diff >= 0)
+              diff -= 7
+            start.setHours(15, 0, 0, 0);
+            start.setDate(start.getDate() + diff);
+
+            return test("Meeting last thurs at 3pm", "Meeting", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            var diff = 7 - start.getDay() + 5;
+            diff -= 7;
+            if (diff >= 0)
+              diff -= 7
+            start.setHours(15, 0, 0, 0);
+            start.setDate(start.getDate() + diff);
+
+            return test("Meeting last fri at 3pm", "Meeting", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            var diff = 7 - start.getDay() + 6;
+            diff -= 7;
+            if (diff >= 0)
+              diff -= 7
+            start.setHours(15, 0, 0, 0);
+            start.setDate(start.getDate() + diff);
+
+            return test("Meeting last sat at 3pm", "Meeting", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            var diff = 7 - start.getDay() + 0;
+            diff -= 7;
+            if (diff >= 0)
+              diff -= 7
+            start.setHours(15, 0, 0, 0);
+            start.setDate(start.getDate() + diff);
+
+            return test("Meeting last sunday at 3pm", "Meeting", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            var diff = 7 - start.getDay() + 1;
+            start.setHours(15, 0, 0, 0);
+            start.setDate(start.getDate() + diff);
+
+            return test("Meeting next mon at 3pm", "Meeting", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            var diff = 7 - start.getDay() + 2;
+            start.setHours(15, 0, 0, 0);
+            start.setDate(start.getDate() + diff);
+
+            return test("Meeting next tues at 3pm", "Meeting", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            var diff = 7 - start.getDay() + 3;
+            start.setHours(15, 0, 0, 0);
+            start.setDate(start.getDate() + diff);
+
+            return test("Meeting next wed at 3pm", "Meeting", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            var diff = 7 - start.getDay() + 4;
+            start.setHours(15, 0, 0, 0);
+            start.setDate(start.getDate() + diff);
+
+            return test("Meeting next thurs at 3pm", "Meeting", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            var diff = 7 - start.getDay() + 5;
+            start.setHours(15, 0, 0, 0);
+            start.setDate(start.getDate() + diff);
+
+            return test("Meeting next fri at 3pm", "Meeting", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            var diff = 7 - start.getDay() + 6;
+            start.setHours(15, 0, 0, 0);
+            start.setDate(start.getDate() + diff);
+
+            return test("Meeting next sat at 3pm", "Meeting", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            var diff = 7 - start.getDay() + 0;
+            start.setHours(15, 0, 0, 0);
+            start.setDate(start.getDate() + diff);
+
+            return test("Meeting next sunday at 3pm", "Meeting", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
             start.setHours(0, 0, 0, 0);
             start.setFullYear(start.getFullYear() - 5);
 
