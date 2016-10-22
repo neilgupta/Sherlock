@@ -1,6 +1,6 @@
 /*!
  * Sherlock
- * Copyright (c) 2014 Tabule, Inc.
+ * Copyright (c) 2016 Neil Gupta
  * Version 1.3.3
  */
 
@@ -485,6 +485,8 @@ var Sherlock = (function() {
       if ((diff > 7 && hasNext === undefined) || hasNext === "last")
         diff -= 7;
       if (diff >= 0 && hasNext === "last")
+        // If entering "last saturday" on a Saturday, for example,
+        // diff will be 0 when it should be -7
         diff -= 7;
 
       time.setDate(time.getDate() + diff);
