@@ -1,6 +1,6 @@
 /*!
  * Sherlock
- * Copyright (c) 2014 Tabule, Inc.
+ * Copyright (c) 2016 Neil Gupta
  * Version 1.3.3
  */
 
@@ -482,10 +482,12 @@ var Sherlock = (function() {
     // find the nearest future date that is on the given weekday
     changeDay: function(time, newDay, hasNext) {
       var diff = 7 - time.getDay() + newDay;
-      if (diff > 7 && hasNext === undefined)
+      if ((diff > 7 && hasNext === undefined) || hasNext === "last")
         diff -= 7;
-      if (hasNext === "last")
-        diff = diff*-1;
+      if (diff >= 0 && hasNext === "last")
+        // If entering "last saturday" on a Saturday, for example,
+        // diff will be 0 when it should be -7
+        diff -= 7;
 
       time.setDate(time.getDate() + diff);
     },
