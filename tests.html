@@ -24,6 +24,7 @@
         new Date("Feb 24, 2013 15:01:00"),
         new Date("March 3, 2013 12:01:00"),
         new Date("March 3, 2013 14:01:00"),
+        new Date("October 27, 2018 22:34:40"),
         (function() { var d = new Date(); d.setHours(0, 0, 0); return d; })(),
         (function() { var d = new Date(); d.setHours(0, 1, 0); return d; })(),
         (function() { var d = new Date(); d.setHours(2, 0, 0); return d; })(),
@@ -181,9 +182,45 @@
 
           (function() {
             var start = getNow();
+            start.setDate(start.getDate() + 1);
+            start.setHours(0, 0, 0, 0);
+
+            return test("Bake a cake tmrw.", "Bake a cake", start, null, true);
+          })(),
+
+          (function() {
+            var start = getNow();
             start.setHours(0, 0, 0, 0);
 
             return test("Use Tabule today!", "Use Tabule", start, null, true);
+          })(),
+
+          (function() {
+            var start = getNow();
+            start.setHours(0, 0, 0, 0);
+
+            return test("Use Tabule tod!", "Use Tabule", start, null, true);
+          })(),
+
+          (function() {
+            var start = getNow();
+            start.setHours(0, 0, 0, 0);
+
+            return test("Eat more kale this week", "Eat more kale", start, null, true);
+          })(),
+
+          (function() {
+            var start = getNow();
+            start.setHours(0, 0, 0, 0);
+
+            return test("Eat more kale this month", "Eat more kale", start, null, true);
+          })(),
+
+          (function() {
+            var start = getNow();
+            start.setHours(0, 0, 0, 0);
+
+            return test("Eat more kale this year", "Eat more kale", start, null, true);
           })(),
 
           (function() {
@@ -218,6 +255,8 @@
 
           (function() {
             var start = getNow();
+            if (start.getHours() >= 14)
+              start.setDate(start.getDate() + 1);
             start.setHours(14, 0, 0, 0);
 
             return test("@2", null, start, null, false);
@@ -702,6 +741,11 @@
           })(),
 
           (function() {
+            var now = getNow();
+            return test("last year", null, new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()), null, true);
+          })(),
+
+          (function() {
             var now = getNow(),
               start = getNow(),
               end = getNow();
@@ -746,8 +790,12 @@
             var start = getNow();
             start.setHours(10, 0, 0, 0);
 
-            if (start < getNow())
-              start.setHours(22);
+            if (start.getHours() <= getNow().getHours()) {
+              if (getNow().getHours() < 22)
+                start.setHours(22);
+              else
+                start.setDate(start.getDate() + 1);
+            }
 
             return test("10-01", "01", start, null, false);
           })(),
@@ -972,6 +1020,7 @@
           (function() {
             var start = getNow();
             start.setHours(0, 0, 0, 0);
+            start.setDate(start.getDate() + 1);
 
             return test("12:00am", null, start, null, false);
           })(),
@@ -979,6 +1028,7 @@
           (function() {
             var start = getNow();
             start.setHours(0, 0, 0, 0);
+            start.setDate(start.getDate() + 1);
 
             return test("12:00 am", null, start, null, false);
           })(),
@@ -986,6 +1036,7 @@
           (function() {
             var start = getNow();
             start.setHours(0, 0, 0, 0);
+            start.setDate(start.getDate() + 1);
 
             return test("12:00 A.M.", null, start, null, false);
           })(),
@@ -993,6 +1044,7 @@
           (function() {
             var start = getNow();
             start.setHours(0, 0, 0, 0);
+            start.setDate(start.getDate() + 1);
 
             return test("12:00a.M.", null, start, null, false);
           })(),
@@ -1000,6 +1052,7 @@
           (function() {
             var start = getNow();
             start.setHours(0, 0, 0, 0);
+            start.setDate(start.getDate() + 1);
 
             return test("00:00", null, start, null, false);
           })(),
@@ -1018,6 +1071,8 @@
 
           (function() {
             var start = getNow();
+            if (start.getHours() >= 2)
+              start.setDate(start.getDate() + 1);
             start.setHours(2, 0, 0, 0);
 
             return test("02:00", null, start, null, false);
@@ -1025,6 +1080,8 @@
 
           (function() {
             var start = getNow();
+            if (start.getHours() >= 17)
+              start.setDate(start.getDate() + 1);
             start.setHours(17, 0, 0, 0);
 
             return test("17:00", null, start, null, false);
@@ -1033,10 +1090,67 @@
           (function() {
             var start = getNow();
             start.setHours(9, 0, 0, 0);
-            if (start < getNow())
-              start.setHours(21);
+            if (start.getHours() <= getNow().getHours()) {
+              if (getNow().getHours() < 21)
+                start.setHours(21);
+              else
+                start.setDate(start.getDate() + 1);
+            }
 
             return test("nine o'clock", null, start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            if (start.getHours() < 21)
+              start.setHours(21, 0, 0, 0);
+
+            return test("The party is tonight", "The party", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            if (start.getHours() >= 5)
+              start.setDate(start.getDate() + 1);
+            start.setHours(5, 0, 0, 0);
+
+            return test("Wake up at dawn", "Wake up", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            if (start.getHours() >= 8)
+              start.setDate(start.getDate() + 1);
+            start.setHours(8, 0, 0, 0);
+
+            return test("Eat breakfast in the morning", "Eat breakfast", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            if (start.getHours() >= 14)
+              start.setDate(start.getDate() + 1);
+            start.setHours(14, 0, 0, 0);
+
+            return test("Eat lunch in the afternoon", "Eat lunch", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            if (start.getHours() >= 19)
+              start.setDate(start.getDate() + 1);
+            start.setHours(19, 0, 0, 0);
+
+            return test("Eat dinner in the evening", "Eat dinner", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            if (start.getHours() >= 21)
+              start.setDate(start.getDate() + 1);
+            start.setHours(21, 0, 0, 0);
+
+            return test("Go to sleep at night", "Go to sleep", start, null, false);
           })(),
 
           (function() {
@@ -1101,12 +1215,15 @@
           (function() {
             var start = getNow();
             start.setHours(0, 0, 0, 0);
+            start.setDate(start.getDate() + 1);
 
             return test("midnight", null, start, null, false);
           })(),
 
           (function() {
             var start = getNow();
+            if (start.getHours() >= 12)
+              start.setDate(start.getDate() + 1);
             start.setHours(12, 0, 0, 0);
 
             return test("noon", null, start, null, false);
@@ -1138,9 +1255,41 @@
           (function() {
             var start = getNow();
             start.setHours(0, 0, 0, 0);
+            start.setDate(start.getDate() + 2);
+
+            return test("day after tmrw", null, start, null, true);
+          })(),
+
+          (function() {
+            var start = getNow();
+            start.setHours(0, 0, 0, 0);
+            start.setDate(start.getDate() - 2);
+
+            return test("day before yesterday", null, start, null, true);
+          })(),
+
+          (function() {
+            var start = getNow();
+            start.setHours(0, 0, 0, 0);
+            start.setDate(start.getDate() - 2);
+
+            return test("day before yest", null, start, null, true);
+          })(),
+
+          (function() {
+            var start = getNow();
+            start.setHours(0, 0, 0, 0);
             start.setMonth(start.getMonth() + 1);
 
             return test("next month", null, start, null, true);
+          })(),
+
+          (function() {
+            var start = getNow();
+            start.setHours(0, 0, 0, 0);
+            start.setMonth(start.getMonth() - 1);
+
+            return test("last month", null, start, null, true);
           })(),
 
           (function() {
@@ -1352,16 +1501,20 @@
             var start = getNow(),
               end = getNow();
             start.setHours(start.getHours() - 3, start.getMinutes(), start.getSeconds(), 0);
-            end.setMilliseconds(0);
 
             return test("3 hours ago to now", null, start, end, false);
           })(),
 
           (function() {
             var start = getNow();
-            start.setMilliseconds(0);
 
             return test("now", null, start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+
+            return test("The exam is right now", "The exam", start, null, false);
           })(),
 
           (function() {
@@ -1370,6 +1523,14 @@
             start.setDate(start.getDate() - 1);
 
             return test("Homework due yesterday at 3pm", "Homework", start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            start.setHours(15, 0, 0, 0);
+            start.setDate(start.getDate() - 1);
+
+            return test("Homework due yest at 3pm", "Homework", start, null, false);
           })(),
 
           (function() {
@@ -1388,15 +1549,19 @@
           })(),
 
           (function() {
-            var start = getNow(),
-              end = new Date(3000, 0, 1, 0, 0, 0, 0);
-
+            var start = getNow();
             start.setMonth(9, 5);
             start.setHours(0, 0, 0, 0);
             if (monthDiff(start, getNow()) >= 3)
               start.setFullYear(start.getFullYear() + 1);
 
-            return test("more than oct 5", null, start, end, true);
+            var date1 = new Date(1900, 0, 1, 0, 0, 0, 0), date2 = start;
+            if (start >= getNow()) {
+              date1 = start;
+              date2 = new Date(3000, 0, 1, 0, 0, 0, 0);
+            }
+
+            return test("more than oct 5", null, date1, date2, true);
           })(),
 
           (function() {
@@ -1410,6 +1575,36 @@
           })(),
 
           (function() {
+            var start = getNow(),
+              end = new Date(3000, 0, 1, 0, 0, 0, 0);
+
+            start.setDate(start.getDate() - 1);
+            start.setHours(0, 0, 0, 0);
+
+            return test("after yesterday", null, start, end, true);
+          })(),
+
+          (function() {
+            var end = getNow(),
+              start = new Date(1900, 0, 1, 0, 0, 0, 0);
+
+            end.setDate(end.getDate() + 5);
+            end.setHours(0, 0, 0, 0);
+
+            return test("before 5 days", null, start, end, true);
+          })(),
+
+          (function() {
+            var end = getNow(),
+              start = new Date(1900, 0, 1, 0, 0, 0, 0);
+
+            end.setDate(end.getDate() - 1);
+            end.setHours(0, 0, 0, 0);
+
+            return test("before yesterday", null, start, end, true);
+          })(),
+
+          (function() {
             var start = new Date(1900, 0, 1, 0, 0, 0, 0),
               end = getNow();
             end.setHours(0, 0, 0, 0);
@@ -1418,12 +1613,43 @@
           })(),
 
           (function() {
+            var end = new Date(3000, 0, 1, 0, 0, 0, 0),
+              start = getNow();
+            start.setHours(0, 0, 0, 0);
+
+            return test("more than today", null, start, end, true);
+          })(),
+
+          (function() {
+            var start = new Date(1900, 0, 1, 0, 0, 0, 0),
+              end = getNow();
+            end.setMonth(end.getMonth() + 2);
+            end.setHours(0, 0, 0, 0);
+
+            return test("older than 2 months from now", null, start, end, true);
+          })(),
+
+          (function() {
+            var end = new Date(3000, 0, 1, 0, 0, 0, 0),
+              start = getNow();
+            start.setDate(start.getDate() + 14);
+            start.setHours(0, 0, 0, 0);
+
+            return test("more than 2 weeks from now", null, start, end, true);
+          })(),
+
+          (function() {
             var start = new Date(1900, 0, 1, 0, 0, 0, 0),
               end = getNow();
 
-            end.setMilliseconds(0);
-
             return test("less than now", null, start, end, false);
+          })(),
+
+          (function() {
+            var end = new Date(3000, 0, 1, 0, 0, 0, 0),
+              start = getNow();
+
+            return test("more than now", null, start, end, false);
           })(),
 
           (function() {
@@ -1438,15 +1664,14 @@
           (function() {
             var start = new Date(1900, 0, 1, 0, 0, 0, 0),
               end = getNow();
-            end.setHours(end.getHours() - 10);
-            end.setMilliseconds(0);
+            end.setHours(end.getHours() - 1);
 
-            return test("more than 10 hours ago", null, start, end, false);
+            return test("more than an hour ago", null, start, end, false);
           })(),
 
           (function() {
             var start = getNow(),
-              end = new Date(3000, 0, 1, 0, 0, 0, 0);
+              end = getNow();
 
             start.setMonth(start.getMonth() - 3);
             start.setHours(0, 0, 0, 0);
@@ -1455,15 +1680,28 @@
           })(),
 
           (function() {
-            var start = new Date(1900, 0, 1, 0, 0, 0, 0),
+            var start = getNow(),
               end = getNow();
 
-            end.setMonth(9, 5);
-            end.setHours(0, 0, 0, 0);
-            if (monthDiff(end, getNow()) >= 3)
-              end.setFullYear(end.getFullYear() + 1);
+            end.setHours(end.getHours() + 5);
 
-            return test("less than oct 5 ago", "ago", start, end, true);
+            return test("fewer than 5 hours from now", null, start, end, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            start.setMonth(9, 5);
+            start.setHours(0, 0, 0, 0);
+            if (monthDiff(start, getNow()) >= 3)
+              start.setFullYear(start.getFullYear() + 1);
+
+            var date1 = start, date2 = getNow();
+            if (start >= getNow()) {
+              date1 = getNow();
+              date2 = start;
+            }
+
+            return test("less than oct 5 ago", "ago", date1, date2, true);
           })(),
 
           (function() {
@@ -1619,16 +1857,19 @@
         var Sherlocked = Sherlock.parse(str);
 
         if (startDate) {
-          startDate.setSeconds(0);
+          startDate.setSeconds(0, 0);
           startDate = startDate.getTime();
-        } if (endDate) {
-          endDate.setSeconds(0);
+        }
+        if (endDate) {
+          endDate.setSeconds(0, 0);
           endDate = endDate.getTime();
-        } if (Sherlocked.startDate !== null)  {
-          Sherlocked.startDate.setSeconds(0);
+        }
+        if (Sherlocked.startDate !== null)  {
+          Sherlocked.startDate.setSeconds(0, 0);
           Sherlocked.startDate = Sherlocked.startDate.getTime();
-        } if (Sherlocked.endDate !== null) {
-          Sherlocked.endDate.setSeconds(0);
+        }
+        if (Sherlocked.endDate !== null) {
+          Sherlocked.endDate.setSeconds(0, 0);
           Sherlocked.endDate = Sherlocked.endDate.getTime();
         }
 
@@ -1751,11 +1992,11 @@
   <body onload="onLoad();">
     <div id="container">
       <h1>It's quite elementary, my dear Watson.</h1>
-      <h2><a href="https://github.com/Tabule/Sherlock/">See GitHub</a> for documentation and source code.</h2>
+      <h2><a href="https://github.com/neilgupta/Sherlock/">See GitHub</a> for documentation and source code.</h2>
 
       <div id="input">
         <input type="text" placeholder="Create an event... e.g. My mom's birthday is on the 27th." id="quickadd" onkeypress="useSherlock(event,this.value)" />
-        <input type="submit" value="Create" onClick="useSherlock({keyCode: 13}, document.getElementById('quickadd').value)" />
+        <input type="submit" value="Parse" onClick="useSherlock({keyCode: 13}, document.getElementById('quickadd').value)" />
       </div>
 
       <div id="response"></div>
@@ -1770,7 +2011,7 @@
         <div class="clear"></div>
       </div>
 
-      <p id='footer'>Made by <a href='https://tabuleapp.com'>Tabule</a></p>
+      <p id='footer'>Made by <a href='http://metamorphium.com'>Neil Gupta</a> &#128040;</p>
     </div>
   </body>
 </html>

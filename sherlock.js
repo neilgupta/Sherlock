@@ -23,19 +23,19 @@ var Sherlock = (function() {
 
     // tue, tues, tuesday
     weekdays: /(?:(next|last) (?:week (?:on )?)?)?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thurs|fri|sat(?:ur)?)(?:day)?\b/,
-    relativeDateStr: "((?:next|last|this) (?:week|month|year)|tom(?:orrow)?|tod(?:ay)?|now|day after tom(?:orrow)?|yesterday|day before yesterday)",
+    relativeDateStr: "((?:next|last|this) (?:week|month|year)|tom(?:orrow)?|tmrw|tod(?:ay)?|(?:right )?now|tonight|day after (?:tom(?:orrow)?|tmrw)|yest(?:erday)?|day before yest(?:erday)?)",
     inRelativeDateStr: "(\\d{1,4}|a) (day|week|month|year)s? ?(ago|old)?",
 
     inRelativeTime: /\b(\d{1,2} ?|a |an )(h(?:our)?|m(?:in(?:ute)?)?)s? ?(ago|old)?\b/,
     inMilliTime: /\b(\d+) ?(s(?:ec(?:ond)?)?|ms|millisecond)s? ?(ago|old)?\b/,
-    midtime: /(?:@ ?)?\b(?:at )?(noon|midnight)\b/,
+    midtime: /(?:@ ?)?\b(?:at )?(dawn|morn(?:ing)?|noon|afternoon|evening|night|midnight)\b/,
     // 23:50, 0700, 1900
     internationalTime: /\b(?:(0[0-9]|1[3-9]|2[0-3]):?([0-5]\d))\b/,
     // 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
     explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-2]?[1-9])(?::?([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
 
-    more_than_comparator: /((?:more|greater|newer) than|after)/i,
-    less_than_comparator: /((?:less|fewer|older) than|before)/i,
+    more_than_comparator: /((?:more|greater|older|newer) than|after|before)/i,
+    less_than_comparator: /((?:less|fewer) than)/i,
 
     // filler words must be preceded with a space to count
     fillerWords: / (from|is|was|at|on|for|in|due(?! date)|(?:un)?till?)\b/,
@@ -75,7 +75,7 @@ var Sherlock = (function() {
     ret.eventTitle = str;
 
     // if time data not given, then this is an all day event
-    ret.isAllDay = !!(dateMatch && !timeMatch && dateMatch !== "now");
+    ret.isAllDay = !!(dateMatch && !timeMatch && !dateMatch.match(/^(?:right )?now$|^tonight$/));
 
     // check if date was parsed
     ret.isValidDate = !!(dateMatch || timeMatch);
@@ -116,7 +116,7 @@ var Sherlock = (function() {
           else if (meridian.indexOf('a') === 0 && hour == 12)
             hour = 0;
           matchConfidence += 20;
-        } else if (hour < 12 && (hour < 7 || hour < time.getHours()))
+        } else if (hour < 12 && (hour < 7 || hour <= time.getHours()))
           // meridian is not included, adjust any ambiguous times
           // if you type 3, it will default to 3pm
           // if you type 11 at 5am, it will default to am,
@@ -173,8 +173,29 @@ var Sherlock = (function() {
         }
       } else if (match = str.match(patterns.midtime)) {
         switch(match[1]) {
+          case "dawn":
+            time.setHours(5, 0, 0);
+            time.hasMeridian = true;
+            return match[0];
+          case "morn":
+          case "morning":
+            time.setHours(8, 0, 0);
+            time.hasMeridian = true;
+            return match[0];
           case "noon":
             time.setHours(12, 0, 0);
+            time.hasMeridian = true;
+            return match[0];
+          case "afternoon":
+            time.setHours(14, 0, 0);
+            time.hasMeridian = true;
+            return match[0];
+          case "evening":
+            time.setHours(19, 0, 0);
+            time.hasMeridian = true;
+            return match[0];
+          case "night":
+            time.setHours(21, 0, 0);
             time.hasMeridian = true;
             return match[0];
           case "midnight":
@@ -329,14 +350,29 @@ var Sherlock = (function() {
       }
 
     } else if (start) {
-      if (start < now && helpers.monthDiff(start, now) >= 3 && !start.hasYear && str.indexOf(" was ") === -1) {
-        start.setFullYear(start.getFullYear() + 1);
+      if (start <= now && !start.hasYear && !str.match(/was|ago|old\b/)) {
+        if (helpers.isSameDay(start, now) && !isAllDay) {
+          if (start.hasMeridian || start.getHours() < 19)
+            // either we explicitly set the meridian or the time
+            // is less than 7pm, so don't mess with the hours
+            start.setDate(start.getDate() + 1);
+          else {
+            start.setHours(start.getHours() + 12);
+            // if start is still older than now, roll forward a day instead
+            if (start <= now) {
+              start.setHours(start.getHours() - 12);
+              start.setDate(start.getDate() + 1);
+            }
+          }
+        } else if (helpers.monthDiff(start, now) >= 3)
+          start.setFullYear(start.getFullYear() + 1);
       }
 
       // check for open ranges (more than...)
-      else if (ret.eventTitle.match(patterns.more_than_comparator)) {
-        // if "ago" is used and matched (not showing in title), then we need to invert the more than comparator
-        if (str.match(/(ago|old)/i) && ret.eventTitle.match(/(ago|old)/i) === null) {
+      if (ret.eventTitle.match(patterns.more_than_comparator)) {
+        if ((start <= now && (!helpers.isSameDay(start, now) || str.match(/ago|old\b/)) &&
+            !ret.eventTitle.match(/after|newer/i)) ||
+            ret.eventTitle.match(/older|before/i)) {
           ret.endDate = new Date(start.getTime());
           ret.startDate = new Date(1900, 0, 1, 0, 0, 0, 0);
         } else {
@@ -344,15 +380,18 @@ var Sherlock = (function() {
         }
         ret.eventTitle = ret.eventTitle.replace(patterns.more_than_comparator, '');
       }
-
-      // check for open ranges (less than...)
+      // check for closed ranges (less than...)
       else if (ret.eventTitle.match(patterns.less_than_comparator)) {
-        // if "ago" is used and matched (not showing in title), then we need to invert the less than comparator
-        if (str.match(/(ago|old)/i) && ret.eventTitle.match(/(ago|old)/i) === null) {
-          ret.endDate = new Date(3000, 0, 1, 0, 0, 0, 0);
+        if (start <= now) {
+          if (helpers.isSameDay(start, now) && !str.match(/ago|old\b/)) {
+            // make an exception for "less than today" or "less than now"
+            ret.endDate = new Date(start.getTime());
+            ret.startDate = new Date(1900, 0, 1, 0, 0, 0, 0);
+          } else
+            ret.endDate = new Date(now.getTime());
         } else {
           ret.endDate = new Date(start.getTime());
-          ret.startDate = new Date(1900, 0, 1, 0, 0, 0, 0);
+          ret.startDate = new Date(now.getTime());
         }
         ret.eventTitle = ret.eventTitle.replace(patterns.less_than_comparator, '');
       }
@@ -387,52 +426,42 @@ var Sherlock = (function() {
           time.setFullYear(now.getFullYear() - 1, now.getMonth(), now.getDate());
           time.hasYear = true;
           return true;
-        case "this week": // this week|month|year is pretty meaningless, but let's include it so that it parses as today
-          time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
-          time.hasYear = true;
-          return true;
-        case "this month":
-          time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
-          time.hasYear = true;
-          return true;
-        case "this year":
-          time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
-          time.hasYear = true;
-          return true;
         case "tom":
-          time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-          time.hasYear = true;
-          return true;
+        case "tmrw":
         case "tomorrow":
           time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() + 1);
           time.hasYear = true;
           return true;
+        case "day after tom":
+        case "day after tmrw":
         case "day after tomorrow":
           time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() + 2);
           time.hasYear = true;
           return true;
-        case "day after tom":
-          time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() + 2);
-          time.hasYear = true;
-          return true;
+        case "this week":
+        case "this month":
+        case "this year": // this week|month|year is pretty meaningless, but let's include it so that it parses as today
+        case "tod":
         case "today":
           time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
           time.hasYear = true;
           return true;
-        case "tod":
-          time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
-          time.hasYear = true;
-          return true;
         case "now":
+        case "right now":
+        case "tonight":
           time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
           time.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), 0);
+          if (match === "tonight" && time.getHours() < 21)
+            time.setHours(21, 0, 0, 0); // Assume "tonight" starts at 9pm
           time.hasMeridian = true;
           time.hasYear = true;
           return true;
+        case "yest":
         case "yesterday":
           time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() - 1);
           time.hasYear = true;
           return true;
+        case "day before yest":
         case "day before yesterday":
           time.setFullYear(now.getFullYear(), now.getMonth(), now.getDate() - 2);
           time.hasYear = true;
