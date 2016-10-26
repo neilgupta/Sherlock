@@ -32,7 +32,7 @@ var Sherlock = (function() {
     // 23:50, 0700, 1900
     internationalTime: /\b(?:(0[0-9]|1[3-9]|2[0-3]):?([0-5]\d))\b/,
     // 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
-    explicitTime: /(?:@ ?)?\b(?:at |from )?([0-2]?[1-9])(?::?([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
+    explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-2]?[1-9])(?::?([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
 
     more_than_comparator: /((?:more|greater|newer) than|after)/i,
     less_than_comparator: /((?:less|fewer|older) than|before)/i,

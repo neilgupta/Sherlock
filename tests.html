@@ -1,4 +1,4 @@
-<!-- 
+<!--
   Sherlock Unit Test Page.
   Copyright (c) 2016 Neil Gupta
 -->
@@ -57,6 +57,15 @@
       // Run each test with each date from dates array
       function runTestCases() {
         return [
+
+          (function() {
+
+            var now = getNow(),
+              start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 15);
+
+            return test("Meeting today at 15", "Meeting", start, null, false);
+          })(),
+
           (function() {
             var now = getNow(),
               start = new Date(now.getFullYear(), 1, 24, 15, 0),
@@ -102,7 +111,7 @@
           (function() {
             var now = getNow(),
               start = new Date(getNow().getFullYear(), 11, 25);
-            
+
             if (start < now && monthDiff(start, now) >= 3)
               start.setFullYear(start.getFullYear() + 1);
 
@@ -849,7 +858,7 @@
             start.setHours(0, 0, 0, 0);
             end.setHours(0, 0, 0, 0);
 
-            return test((start.getMonth() + 1) + "/" + start.getDate() + " - " + (end.getMonth() + 1) + "/" + end.getDate(), 
+            return test((start.getMonth() + 1) + "/" + start.getDate() + " - " + (end.getMonth() + 1) + "/" + end.getDate(),
                   null, start, end, true);
           })(),
 
@@ -863,7 +872,7 @@
             start.setHours(0, 0, 0, 0);
             end.setHours(0, 0, 0, 0);
 
-            return test((start.getMonth() + 1) + "/" + start.getDate() + " - tomorrow", 
+            return test((start.getMonth() + 1) + "/" + start.getDate() + " - tomorrow",
                   null, start, end, true);
           })(),
 
@@ -877,7 +886,7 @@
             start.setHours(0, 0, 0, 0);
             end.setHours(0, 0, 0, 0);
 
-            return test((start.getMonth() + 1) + "/" + start.getDate() + " -tom", 
+            return test((start.getMonth() + 1) + "/" + start.getDate() + " -tom",
                   null, start, end, true);
           })(),
 
@@ -891,7 +900,7 @@
             start.setHours(0, 0, 0, 0);
             end.setHours(0, 0, 0, 0);
 
-            return test((start.getMonth() + 1) + "/" + start.getDate() + " - day after tom", 
+            return test((start.getMonth() + 1) + "/" + start.getDate() + " - day after tom",
                   null, start, end, true);
           })(),
 
@@ -905,7 +914,7 @@
             start.setHours(0, 0, 0, 0);
             end.setHours(0, 0, 0, 0);
 
-            return test((start.getMonth() + 1) + "/" + start.getDate() + " -day after tomorrow", 
+            return test((start.getMonth() + 1) + "/" + start.getDate() + " -day after tomorrow",
                   null, start, end, true);
           })(),
 
@@ -919,7 +928,7 @@
             start.setHours(0, 0, 0, 0);
             end.setHours(0, 0, 0, 0);
 
-            return test((start.getMonth() + 1) + "/" + start.getDate() + " -" + (end.getMonth() + 1) + "/" + end.getDate(), 
+            return test((start.getMonth() + 1) + "/" + start.getDate() + " -" + (end.getMonth() + 1) + "/" + end.getDate(),
                   null, start, end, true);
           })(),
 
@@ -932,7 +941,7 @@
             start.setHours(0, 0, 0, 0);
             end.setHours(0, 0, 0, 0);
 
-            return test((start.getMonth() + 1) + "/" + start.getDate() + " - " + (end.getMonth() + 1) + "/" + end.getDate(), 
+            return test((start.getMonth() + 1) + "/" + start.getDate() + " - " + (end.getMonth() + 1) + "/" + end.getDate(),
                   null, start, end, true);
           })(),
 
@@ -1624,9 +1633,9 @@
         }
 
         // compare properties
-        var result = (Sherlocked.eventTitle === title && 
-              Sherlocked.startDate === startDate && 
-              Sherlocked.endDate === endDate && 
+        var result = (Sherlocked.eventTitle === title &&
+              Sherlocked.startDate === startDate &&
+              Sherlocked.endDate === endDate &&
               Sherlocked.isAllDay == isAllDay);
 
         // Log any tests that fail in console
@@ -1644,7 +1653,7 @@
             isAllDay: isAllDay
           });
         }
-        
+
         return [str, result];
       }
     </script>
