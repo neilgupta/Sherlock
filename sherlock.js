@@ -32,7 +32,7 @@ var Sherlock = (function() {
     // 23:50, 0700, 1900
     internationalTime: /\b(?:(0[0-9]|1[3-9]|2[0-3]):?([0-5]\d))\b/,
     // 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
-    explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-9])(?::?([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
+    explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-2]?[1-9])(?::?([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
 
     more_than_comparator: /((?:more|greater|newer) than|after)/i,
     less_than_comparator: /((?:less|fewer|older) than|before)/i,
@@ -279,13 +279,13 @@ var Sherlock = (function() {
         str.indexOf(match, str.length - match.length - 1) === -1) ||
       // But if one of those is true, make sure it passes these other checks too...
         // if this is an end date and the start date isn't an all day value,
-        (!(startTime && startTime.isAllDay) && 
+        (!(startTime && startTime.isAllDay) &&
         // and if this match is too short to mean something,
         match.length <= 2))
         // then drop it.
         return false;
       match = match.match(patterns.daysOnly);
-      
+
       var month = time.getMonth(),
         day = match[1];
 
@@ -309,7 +309,7 @@ var Sherlock = (function() {
           // we explicitly set the meridian, so don't mess with the hours
           start.setDate(start.getDate() - 1);
         else {
-          // we are dealing with a time range that is today with start > end 
+          // we are dealing with a time range that is today with start > end
           // (ie. 9pm - 5pm when we want 9am - 5pm), roll back 12 hours.
           start.setHours(start.getHours() - 12);
           // if start is still higher than end, that means we probably have
@@ -586,14 +586,14 @@ var Sherlock = (function() {
   // 2 weeks from tomorrow
   patterns.inRelativeDateFromRelativeDate = new RegExp("\\b" + patterns.inRelativeDateStr + " from " + patterns.relativeDateStr + "\\b");
 
-  if(!String.prototype.trim) {  
-    String.prototype.trim = function () {  
-      return this.replace(/^\s+|\s+$/g,'');  
-    };  
+  if(!String.prototype.trim) {
+    String.prototype.trim = function () {
+      return this.replace(/^\s+|\s+$/g,'');
+    };
   }
 
   return {
-    // parses a string and returns an object defining the basic event 
+    // parses a string and returns an object defining the basic event
     // with properties: eventTitle, startDate, endDate, isAllDay
     // plus anything Watson adds on...
     parse: function(str) {
@@ -607,7 +607,7 @@ var Sherlock = (function() {
         ret = result[1],
         // token the string to start and stop times
         tokens = readConfig("disableRanges") ? [str.toLowerCase()] : str.toLowerCase().split(patterns.rangeSplitters);
-      
+
       patterns.rangeSplitters.lastIndex = 0;
 
       // normalize all dates to 0 milliseconds
