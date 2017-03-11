@@ -493,6 +493,36 @@
           })(),
 
           (function() {
+            var start = getNow(),
+              diff = 3 + 14 - start.getDay();
+
+            start.setDate(start.getDate() + diff);
+            start.setHours(0, 0, 0, 0);
+
+            return test("oxt wednesday", null, start, null, true);
+          })(),
+
+          (function() {
+            var start = getNow(),
+              diff = 4 + 14 - start.getDay();
+
+            start.setDate(start.getDate() + diff);
+            start.setHours(0, 0, 0, 0);
+
+            return test("thu week", null, start, null, true);
+          })(),
+
+          (function() {
+            var start = getNow(),
+              diff = 6 + 14 - start.getDay();
+
+            start.setDate(start.getDate() + diff);
+            start.setHours(0, 0, 0, 0);
+
+            return test("week next sat", null, start, null, true);
+          })(),
+
+          (function() {
             var now   = getNow(),
                 start = getNow(),
                 end   = getNow();

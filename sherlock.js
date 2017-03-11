@@ -22,7 +22,7 @@ var Sherlock = (function() {
     shortForm: /\b(0?[1-9]|1[0-2])\/([1-2]\d|3[0-1]|0?[1-9])\/?(\d{2,4})?\b/,
 
     // tue, tues, tuesday
-    weekdays: /(?:(next|last) (?:week (?:on )?)?)?\b(sun|mon|tue(?:s)?|wed(?:nes)?|thu(?:rs?)?|fri|sat(?:ur)?)(?:day)?\b/,
+    weekdaysStr: "\\b(sun|mon|tue(?:s)?|wed(?:nes)?|thu(?:rs?)?|fri|sat(?:ur)?)(?:day)?\\b",
     relativeDateStr: "((?:next|last|this) (?:week|month|year)|tom(?:orrow)?|tmrw|tod(?:ay)?|(?:right )?now|tonight|day after (?:tom(?:orrow)?|tmrw)|yest(?:erday)?|day before yest(?:erday)?)",
     inRelativeDateStr: "(\\d{1,4}|a) (day|week|month|year)s? ?(ago|old)?",
 
@@ -247,6 +247,32 @@ var Sherlock = (function() {
       else
         time.setMonth(match[1] - 1, match[2]);
       return match[0];
+    } else if (match = str.match(patterns.oxtDays) || str.match(patterns.oxtDaysUK)) {
+      switch (match[1].substr(0, 3)) {
+        case "sun":
+          helpers.changeDay(time, 0, "oxt");
+          return match[0];
+        case "mon":
+          helpers.changeDay(time, 1, "oxt");
+          return match[0];
+        case "tue":
+          helpers.changeDay(time, 2, "oxt");
+          return match[0];
+        case "wed":
+          helpers.changeDay(time, 3, "oxt");
+          return match[0];
+        case "thu":
+          helpers.changeDay(time, 4, "oxt");
+          return match[0];
+        case "fri":
+          helpers.changeDay(time, 5, "oxt");
+          return match[0];
+        case "sat":
+          helpers.changeDay(time, 6, "oxt");
+          return match[0];
+        default:
+          return false;
+      }
     } else if (match = str.match(patterns.weekdays)) {
       switch (match[2].substr(0, 3)) {
         case "sun":
@@ -517,6 +543,8 @@ var Sherlock = (function() {
         // If entering "last saturday" on a Saturday, for example,
         // diff will be 0 when it should be -7
         diff -= 7;
+      if (hasNext === "oxt")
+        diff += 7;
 
       time.setDate(time.getDate() + diff);
     },
@@ -614,6 +642,13 @@ var Sherlock = (function() {
   patterns.inRelativeDate = new RegExp("\\b" + patterns.inRelativeDateStr + "\\b");
   // 2 weeks from tomorrow
   patterns.inRelativeDateFromRelativeDate = new RegExp("\\b" + patterns.inRelativeDateStr + " from " + patterns.relativeDateStr + "\\b");
+
+  // next Friday, thu
+  patterns.weekdays = new RegExp("(?:(next|last) (?:week (?:on )?)?)?" + patterns.weekdaysStr);
+  // oxt monday
+  patterns.oxtDays = new RegExp("(?:\\boxt|\\bweek next) " + patterns.weekdaysStr);
+  // thursday week
+  patterns.oxtDaysUK = new RegExp(patterns.weekdaysStr + " week\\b");
 
   if(!String.prototype.trim) {
     String.prototype.trim = function () {
