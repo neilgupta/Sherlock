@@ -1,6 +1,6 @@
 <!--
   Sherlock Unit Test Page.
-  Copyright (c) 2016 Neil Gupta
+  Copyright (c) 2017 Neil Gupta
 -->
 <!DOCTYPE html>
 <html>
@@ -388,6 +388,34 @@
             end.setDate(end.getDate() + diff2);
 
             return test("thurs - next sat", null, start, end, true);
+          })(),
+
+          (function() {
+            var start = getNow(),
+                diff1 = 4 + 7 - start.getDay();
+            if (diff1 > 7) diff1 -= 7;
+            start.setDate(start.getDate() + diff1);
+            start.setHours(0, 0, 0, 0);
+
+            var end   = new Date(start),
+                diff2 = 6 + 7 - end.getDay();
+            end.setDate(end.getDate() + diff2);
+
+            return test("thu - next sat", null, start, end, true);
+          })(),
+
+          (function() {
+            var start = getNow(),
+                diff1 = 4 + 7 - start.getDay();
+            if (diff1 > 7) diff1 -= 7;
+            start.setDate(start.getDate() + diff1);
+            start.setHours(0, 0, 0, 0);
+
+            var end   = new Date(start),
+                diff2 = 6 + 7 - end.getDay();
+            end.setDate(end.getDate() + diff2);
+
+            return test("thur - next sat", null, start, end, true);
           })(),
 
           (function() {
