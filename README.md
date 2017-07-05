@@ -31,19 +31,20 @@ For example, Tabule used Watson's preprocessor for app-specific logic, such as d
 
 Basically, Watson helps Sherlock fit in and interact with the world.
 
+# Installation
+
+You can install most simply with
+
+    $ npm install sherlockjs
+
+If you want Watson helpers, just create a valid `Watson` object somewhere before you use Sherlock. See `watson.js` for a sample Watson object.
+
 # Usage
-
-Include sherlock.js and watson.js in your code.
-
-```html
-<script type="text/javascript" src="sherlock.js"></script>
-<!-- optional - include if you want Watson to help Sherlock -->
-<script type="text/javascript" src="watson.js"></script>
-```
 
 To parse a string, simply use
 
 ```javascript
+var Sherlock = require('sherlockjs');
 var sherlocked = Sherlock.parse('Homework 5 due next monday at 3pm');
 
 // Basic properties
