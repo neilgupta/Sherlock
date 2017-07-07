@@ -1,7 +1,6 @@
 /*!
  * Sherlock
  * Copyright (c) 2017 Neil Gupta
- * Version 1.3.6
  */
 
 var Sherlock = (function() {
