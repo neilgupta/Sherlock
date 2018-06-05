@@ -33,8 +33,9 @@ var Sherlock = (function() {
     // 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
     explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-2]?[1-9])(?::?([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
 
-    more_than_comparator: /((?:more|greater|older|newer) than|after|before)/i,
-    less_than_comparator: /((?:less|fewer) than)/i,
+    more_than_comparator: /((?:more|greater|older|newer) than|after|before)$/i,
+    less_than_comparator: /((?:less|fewer) than)$/i,
+    //atch.match(/^(?:right )?now$|^tonight$/));
 
     // filler words must be preceded with a space to count
     fillerWords: / (from|is|was|at|on|for|in|due(?! date)|(?:un)?till?)\b/,
