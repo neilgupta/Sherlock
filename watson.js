@@ -1,6 +1,9 @@
 /**
  * Watson - Collects data for Sherlock to analyze.
- * Copyright (c) 2016 Neil Gupta
+ * Copyright (c) 2018 Neil Gupta
+ *
+ * This is an example Watson file. You can use this as a
+ * starting point to make any changes for your use case.
  */
 
 var Watson = (function() {
@@ -8,6 +11,28 @@ var Watson = (function() {
 
     // Place your helper functions here...
 
+    // Validates the parsed times returned by Sherlock
+    validate: function(Sherlocked) {
+      if (!Sherlocked.startDate)
+        return 'Sorry, you\'ve entered an invalid date :(';
+
+      if (Sherlocked.endDate && Sherlocked.startDate > Sherlocked.endDate)
+        return 'Sorry, the end time can\'t be before the start time.';
+
+      return true;
+    },
+
+    // Parse the input string to try to figure out which calendar the user wants.
+    parseCalendar: function(str, Sherlocked) {
+
+      // Simple example of searching for CS 104 calendar and removing it from input string
+      if (str.indexOf('CS 104') !== -1) {
+        Sherlocked.calendar = 'CS 104';
+        str = str.replace('CS 104', '');
+      }
+
+      return [str, Sherlocked];
+    },
   };
 
   return {
@@ -20,7 +45,7 @@ var Watson = (function() {
 
       // Manipulate str and Sherlocked here...
 
-      return [str, Sherlocked];
+      return helpers.parseCalendar(str, {});
     },
 
     /* 
@@ -29,6 +54,8 @@ var Watson = (function() {
     postprocess: function(Sherlocked) {
 
       // Manipulate Sherlocked here...
+
+      Sherlocked.validated = helpers.validate(Sherlocked);
 
       return Sherlocked;
     },

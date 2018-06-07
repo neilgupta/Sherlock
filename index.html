@@ -1,0 +1,125 @@
+<!-- 
+  Sherlock Demo Page.
+  Copyright (c) 2018 Neil Gupta
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sherlock.js - Demo</title>
+    <script type="text/javascript" src="watson.js"></script>
+    <script type="text/javascript" src="sherlock.js"></script>
+
+    <script type="text/javascript">
+      function useSherlock(e, str) {
+        var key = e.keyCode || e.which;
+        if (key == 13) {
+          var sherlocked = Sherlock.parse(str);
+          document.getElementById('response').innerHTML = objToString(sherlocked);
+        }
+      }
+
+      function objToString(Sherlocked) {
+        var out = "<ul>";
+        out += "<li><b>Title:</b> " + Sherlocked.eventTitle + "</li>";
+        out += "<li><b>Starts:</b> " + Sherlocked.startDate + "</li>";
+        out += "<li><b>Ends:</b> " + Sherlocked.endDate + "</li>";
+        out += "<li><b>All day:</b> " + Sherlocked.isAllDay + "</li>";
+        out += "<li><b>Validated:</b> " + Sherlocked.validated + "</li>";
+        out += "</ul>";
+        return out;
+      }
+    </script>
+
+    <style type="text/css">
+      body {
+        font-family: 'Helvetica', sans-serif;
+      }
+      #container, noscript {
+        width: 600px;
+        margin: 0 auto;
+      }
+      noscript {
+        display: block;
+        text-align: center;
+        color: #ff0000;
+        margin: 20px 0 40px 0;
+      }
+      h1 {
+        color: #454545;
+        font-weight: bold;
+        padding: 20px 0 0 0;
+        font-size: 18px;
+        text-align: center;
+      }
+      h2 {
+        padding-bottom: 10px;
+        font-size: 14px;
+        color: #878787;
+        font-weight: normal;
+        text-align: center;
+      }
+      input#quickadd {
+        width: 420px;
+        margin-left: 5px;
+        margin-bottom: 10px;
+        padding: 5px;
+      }
+      #input {
+        margin: 0 auto;
+        width: 500px;
+      }
+      ul {
+        text-align: left;
+      }
+      li {
+        list-style-type: none;
+        padding-bottom: 5px;
+      }
+      #response {
+        padding: 10px;
+      }
+      #tests {
+        width: 500px;
+        display: block;
+        margin: 0 auto;
+      }
+      #footer {
+        color: #878787;
+        font-size:12px;
+        padding: 50px 0;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="container">
+      <h1>It's quite elementary, my dear Watson.</h1>
+      <h2><a href="https://github.com/neilgupta/Sherlock/">See GitHub</a> for documentation and source code.</h2>
+
+      <div id="input">
+        <input type="text" placeholder="Create an event... e.g. My mom's birthday is on the 27th." id="quickadd" onkeypress="useSherlock(event,this.value)" />
+        <input type="submit" value="Parse" onClick="useSherlock({keyCode: 13}, document.getElementById('quickadd').value)" />
+      </div>
+
+      <div id="response"></div>
+
+      <noscript>Ahem, it might help if you enable Javascript to test a Javascript library...</noscript>
+
+      <div id="tests">
+        <p><strong>Some ideas of events to try...</strong></p>
+
+        <p>February 24 at 3pm - 2pm March 3</p>
+        <p>Vacation is in 4 weeks...</p>
+        <p>Christmas is on December 25th.</p>
+        <p>Homework 5 due next monday at 3pm</p>
+        <p>Let's have lunch on the 3rd.</p>
+        <p>The retreat is from Jan 12 - 29.</p>
+        <p>Bake a cake tomorrow.</p>
+        <p>Use Tabule today!</p>
+      </div>
+
+      <p id='footer'>Made by <a href='http://metamorphium.com'>Neil Gupta</a> &#128040;</p>
+    </div>
+  </body>
+</html>
