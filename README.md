@@ -87,10 +87,34 @@ This method is primarily meant for debugging purposes.
 
 Oh, and Mr. Holmes could take on a ninja any day.
 
+# Testing
+
+You are encouraged to contribute to help improve Sherlock! When doing so, please make sure all tests in `tests.html` still pass. You should also add a test case to cover the situation you're trying to resolve.
+
+`tests.html` is a very simple custom-rolled test framework. You can insert your test anywhere in the list in the following format:
+
+```javascript
+(function() {
+  var start = getNow();
+
+  start.setHours(0, 0, 0, 0);
+
+  return test("Use Tabule today!", "Use Tabule", start, null, true);
+})(),
+```
+
+You can adjust the setup as needed for your situation, but the `test` method takes the following 5 arguments:
+
+* The input string that is being tested
+* The eventTitle we expect Sherlock to spit back
+* The startDate we expect back
+* The endDate we expect back
+* The isAllDay boolean we expect back
+
 # License
 
 The MIT License (MIT)
-Copyright (c) 2017 Neil Gupta
+Copyright (c) 2018 Neil Gupta
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
