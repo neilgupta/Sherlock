@@ -3,6 +3,8 @@ Sherlock
 
 https://github.com/neilgupta/Sherlock/
 
+[![npm version](https://badge.fury.io/js/sherlockjs.svg)](https://badge.fury.io/js/sherlockjs)
+
 **Sherlock parses events written in plain English, and returns an object defining a basic event.
 [Try demo](http://neilgupta.github.com/Sherlock/).**
 
