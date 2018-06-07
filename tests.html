@@ -532,7 +532,7 @@
             start.setHours(0, 0, 0, 0);
             end.setHours(0, 0, 0, 0);
             now.setHours(0, 0, 0, 0);
-            if (end < now) {
+            if (start < now) {
               end.setMonth(end.getMonth() + 1);
               start.setMonth(start.getMonth() + 1);
             }
@@ -1640,6 +1640,13 @@
             start.setHours(0, 0, 0, 0);
 
             return test("after yesterday", null, start, end, true);
+          })(),
+
+          (function() {
+            var start = getNow();
+            start.setHours(18, 0, 0, 0);
+
+            return test("Send those four emails before leaving work today by 1800", "Send those four emails before leaving work", start, null, false);
           })(),
 
           (function() {

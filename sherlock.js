@@ -33,8 +33,8 @@ var Sherlock = (function() {
     // 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
     explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-2]?[1-9])(?::?([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
 
-    more_than_comparator: /((?:more|greater|older|newer) than|after|before)/i,
-    less_than_comparator: /((?:less|fewer) than)/i,
+    more_than_comparator: /((?:more|greater|older|newer) than|after|before) \$(?:DATE|TIME)\$/i,
+    less_than_comparator: /((?:less|fewer) than) \$(?:DATE|TIME)\$/i,
 
     // filler words must be preceded with a space to count
     fillerWords: / (from|is|was|at|on|for|in|due(?! date)|(?:un)?till?)\b/,
@@ -64,12 +64,12 @@ var Sherlock = (function() {
     // parse date
     if (dateMatch = matchDate(strNummed, time, startTime)) {
       strNummed = strNummed.replace(new RegExp(dateMatch), '');
-      str = str.replace(new RegExp(helpers.numToStr(dateMatch)), '');
+      str = str.replace(new RegExp(helpers.numToStr(dateMatch)), '$DATE$');
     }
 
     // parse time
     if (timeMatch = matchTime(strNummed, time, startTime))
-      str = str.replace(new RegExp(helpers.numToStr(timeMatch)), '');
+      str = str.replace(new RegExp(helpers.numToStr(timeMatch)), '$TIME$');
 
     ret.eventTitle = str;
 
@@ -710,7 +710,7 @@ var Sherlock = (function() {
               // set to midnight
               date.setHours(0, 0, 0);
 
-            if (result.eventTitle.length > ret.eventTitle.length)
+            if (result.eventTitle.replace(/\$(?:DATE|TIME)\$/g, '').length > ret.eventTitle.replace(/\$(?:DATE|TIME)\$/g, '').length)
               ret.eventTitle = result.eventTitle;
 
             ret.endDate = result.isValidDate ? date : null;
@@ -736,6 +736,7 @@ var Sherlock = (function() {
 
       // get capitalized version of title
       if (ret.eventTitle) {
+        ret.eventTitle = ret.eventTitle.replace(/\$(?:DATE|TIME)\$/g, '');
         var fillerWords = readConfig("disableRanges") ? patterns.fillerWords2 : patterns.fillerWords;
         ret.eventTitle = ret.eventTitle.split(fillerWords)[0].trim();
         ret.eventTitle = ret.eventTitle.replace(/(?:^| )(?:\.|-$|by$|in$|at$|from$|on$|starts?$|for$|(?:un)?till?$|!|,|;)+/g, '').replace(/ +/g, ' ').trim();
