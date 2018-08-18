@@ -1,3 +1,9 @@
+<div align="center">
+  <a href="https://github.com/neilgupta/Sherlock/">
+    <img width="419px" height="181px" src="http://neilgupta.github.com/Sherlock/logotype.svg" alt="Sherlock" />
+  </a>
+</div>
+
 Sherlock
 ========
 
@@ -29,7 +35,7 @@ Sherlock is great for parsing sentences into basic events, but what if you need 
 
 Watson provides a preprocessor and postprocessor layer on Sherlock that allows you to customize Sherlock's input and output. With the preprocessor, you can manipulate the input string before it is parsed by Sherlock. The postprocessor allows you to modify the data returned by Sherlock, or add any additional properties.
 
-For example, Tabule used Watson's preprocessor for app-specific logic, such as determining which course the user wants to add their assignment to. We used the postprocessor to validate the data, such as making sure the user provided a due date. [View an example watson.js processor](https://github.com/neilgupta/Sherlock/blob/gh-pages/watson.js).
+For example, Tabule used Watson's preprocessor for app-specific logic, such as determining which course the user wants to add their assignment to. We used the postprocessor to validate the data, such as making sure the user provided a due date. [View an example watson.js processor](https://github.com/neilgupta/Sherlock/blob/master/watson.js).
 
 Basically, Watson helps Sherlock fit in and interact with the world.
 
@@ -112,6 +118,10 @@ You can adjust the setup as needed for your situation, but the `test` method tak
 * The startDate we expect back
 * The endDate we expect back
 * The isAllDay boolean we expect back
+
+# Logo Credit
+
+Special thanks to [@arasatasaygin](https://github.com/arasatasaygin) of [openlogos.org](http://openlogos.org/) for designing the logo.
 
 # License
 
