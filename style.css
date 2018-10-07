@@ -1,0 +1,59 @@
+body {
+    background-color: #ede3ff;
+}
+#container, noscript {
+    width: 800px;
+    margin: 0 auto;
+}
+noscript {
+    display: block;
+    text-align: center;
+    color: #ff0000;
+    margin: 20px 0 40px 0;
+}
+#container img {
+    padding-top: 20px;
+}
+input#quickadd {
+    width: 100%;
+    margin-left: 5px;
+    margin-bottom: 10px;
+    padding: 5px;
+}
+#ParseButton {
+    margin: 20px auto;
+    display: inherit;
+}
+h1 {
+    text-align: center;
+}
+#input {
+    margin: 0 auto;
+    width: 500px;
+}
+#response {
+    width: 500px;
+    display: block;
+    margin: 0 auto;
+}
+#tests {
+    width: 500px;
+    display: block;
+    margin: 0 auto;
+    margin-top: 40px;
+}
+#footer {
+    color: #878787;
+    font-size: 12px;
+    padding: 50px 0;
+    text-align: center;
+}
+.logo img {
+    height: 300px;
+}
+.heading {
+    font-size: 50px;
+}
+.alt-text {
+    text-align: center;
+}
