@@ -18,7 +18,11 @@ var Sherlock = (function() {
     years: "\\b(20\\d{2}|\\d{2}[6-9]\\d)\\b",
 
     // 5/12/2014
-    shortForm: /\b(0?[1-9]|1[0-2])\/([1-2]\d|3[0-1]|0?[1-9])\/?(\d{2,4})?\b/,
+    shortForm: /\b(0?[1-9]|1[0-2])\/([1-2]\d|3[0-1]|0?[1-9])(?:\/(\d{2,4}))?\b/,
+    // 5-12-2014 (cannot be combined with above because we require year to use dashes)
+    shortFormD: /\b(0?[1-9]|1[0-2])\-([1-2]\d|3[0-1]|0?[1-9])\-(\d{2,4})\b/g,
+    // 2019/5/27, 2019-5-27
+    shortFormY: /\b(\d{4})[\/\-](0?[1-9]|1[0-2])[\/\-]([1-2]\d|3[0-1]|0?[1-9])\b/g,
 
     // tue, tues, tuesday
     weekdaysStr: "\\b(sun|mon|tue(?:s)?|wed(?:nes)?|thu(?:rs?)?|fri|sat(?:ur)?)(?:day)?\\b",
@@ -667,9 +671,12 @@ var Sherlock = (function() {
         // Check if Watson is around. If not, pretend like he is to keep Sherlock company.
         result = (typeof Watson !== 'undefined') ? Watson.preprocess(str) : [str, {}],
         str = result[0],
-        ret = result[1],
-        // token the string to start and stop times
-        tokens = readConfig("disableRanges") ? [str.toLowerCase()] : str.toLowerCase().split(patterns.rangeSplitters);
+        ret = result[1];
+
+      str = str.replace(patterns.shortFormD, '$1/$2/$3');
+      str = str.replace(patterns.shortFormY, '$2/$3/$1');
+      // token the string to start and stop times
+      var tokens = readConfig("disableRanges") ? [str.toLowerCase()] : str.toLowerCase().split(patterns.rangeSplitters);
 
       patterns.rangeSplitters.lastIndex = 0;
 

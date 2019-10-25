@@ -821,7 +821,7 @@
             if (start < now && monthDiff(start, now) >= 3)
               start.setFullYear(start.getFullYear() + 1);
 
-            return test("10/9/0", "0", start, null, true);
+            return test("10/9/0", "/0", start, null, true);
           })(),
 
           (function() {
@@ -842,6 +842,26 @@
               start.setFullYear(start.getFullYear() + 1);
 
             return test("10/01", null, start, null, true);
+          })(),
+
+          (function() {
+            return test("10-27-1990", null, new Date(1990, 9, 27), null, true);
+          })(),
+
+          (function() {
+            return test("10-27-90", null, new Date(1990, 9, 27), null, true);
+          })(),
+
+          (function() {
+            return test("My favorite year was 1-1-04 - 01-2-05", "My favorite year", new Date(2004, 0, 1), new Date(2005, 0, 2), true);
+          })(),
+
+          (function() {
+            return test("1990-10-27", null, new Date(1990, 9, 27), null, true);
+          })(),
+
+          (function() {
+            return test("1990/10/27", null, new Date(1990, 9, 27), null, true);
           })(),
 
           (function() {
