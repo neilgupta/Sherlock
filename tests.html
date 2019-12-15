@@ -25,6 +25,7 @@
         new Date("March 3, 2013 12:01:00"),
         new Date("March 3, 2013 14:01:00"),
         new Date("October 27, 2018 22:34:40"),
+        new Date("April 27, 2026 22:34:40"),
         (function() { var d = new Date(); d.setHours(0, 0, 0); return d; })(),
         (function() { var d = new Date(); d.setHours(0, 1, 0); return d; })(),
         (function() { var d = new Date(); d.setHours(2, 0, 0); return d; })(),
@@ -643,6 +644,30 @@
             end.setDate(end.getDate() + 1);
 
             return test("I work from 6pm - 6am tomorrow.", "I work", start, end, false);
+          })(),
+
+          (function() {
+            var now = getNow(),
+                start = new Date(now.getFullYear(), 11, 10);
+                end   = new Date(now.getFullYear() + 1, 0, 20);
+
+            return test("12/10 through 1/20.", null, start, end, true);
+          })(),
+
+          (function() {
+            var now = getNow(),
+                start = new Date(now.getFullYear(), 11, 10);
+                end   = new Date(now.getFullYear(), 11, 15);
+
+            return test("12/10 through 12/15.", null, start, end, true);
+          })(),
+
+          (function() {
+            var now = getNow(),
+                start = new Date(now.getFullYear(), 11, 10);
+                end   = new Date(2019, 0, 15);
+
+            return test("12/10 through 1/15/2019.", null, start, end, true);
           })(),
 
           (function() {

@@ -369,7 +369,11 @@ var Sherlock = (function() {
         }
       }
 
-      else if (start > end) {
+      else if (start > end && end < now && helpers.monthDiff(end, start) >= 3 && !end.hasYear) {
+        end.setFullYear(end.getFullYear() + 1);
+      }
+
+      else if (start > end && helpers.isSameDay(start, end)) {
         end.setDate(start.getDate() + 1);
       }
 
