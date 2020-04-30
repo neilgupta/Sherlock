@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/neilgupta/Sherlock/">
-    <img width="419px" height="181px" src="http://neilgupta.github.com/Sherlock/logotype.svg" alt="Sherlock" />
+    <img width="419px" height="181px" src="https://neilgupta.github.io/Sherlock/logotype.svg" alt="Sherlock" />
   </a>
 </div>
 
