@@ -12,7 +12,7 @@ https://github.com/neilgupta/Sherlock/
 [![npm version](https://badge.fury.io/js/sherlockjs.svg)](https://badge.fury.io/js/sherlockjs)
 
 **Sherlock parses events written in plain English, and returns an object defining a basic event.
-[Try demo](http://neilgupta.github.com/Sherlock/).**
+[Try demo](https://sherlock.neil.gg/).**
 
 It was designed to allow event creation using natural language. For example, *"The party is tomorrow from 3pm to 5pm."* will return:
 
@@ -25,7 +25,7 @@ It was designed to allow event creation using natural language. For example, *"T
 }
 ```
 
-Sherlock can handle times, days, date ranges, event titles, and more. It supports a wide variety of input formats that are common in US English. [Try the demo!](http://neilgupta.github.com/Sherlock/)
+Sherlock can handle times, days, date ranges, event titles, and more. It supports a wide variety of input formats that are common in US English. [Try the demo!](https://sherlock.neil.gg/)
 
 Just like Sherlock the detective finds the clues needed to solve a mystery by looking at a crime scene, Sherlock.js finds the components needed to define an event by looking at a sentence. But Sherlock doesn't work alone...
 
