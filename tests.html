@@ -1317,6 +1317,20 @@
 
           (function() {
             var start = getNow();
+            start.setHours(start.getHours() + 3, start.getMinutes(), 0, 0);
+
+            return test("3 hrs from now", null, start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            start.setHours(start.getHours() + 3, start.getMinutes(), 0, 0);
+
+            return test("3 hr from now", null, start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
             start.setHours(0, 0, 0, 0);
             start.setDate(start.getDate() + 1);
 
