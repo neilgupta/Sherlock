@@ -35,7 +35,7 @@ var Sherlock = (function() {
     // 23:50, 0700, 1900
     internationalTime: /\b(?:(0[0-9]|1[3-9]|2[0-3]):?([0-5]\d))\b/,
     // 5, 12pm, 5:00, 5:00pm, at 5pm, @3a
-    explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[1-2]?[1-9])(?::?([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
+    explicitTime: /(?:@ ?)?\b(?:at |from )?(1[0-2]|[0-2]?[1-9])(?::?([0-5]\d))? ?([ap]\.?m?\.?)?(?:o'clock)?\b/,
 
     more_than_comparator: /((?:more|greater|older|newer) than|after|before) \$(?:DATE|TIME)\$/i,
     less_than_comparator: /((?:less|fewer) than) \$(?:DATE|TIME)\$/i,
@@ -112,7 +112,10 @@ var Sherlock = (function() {
         , min = match[2] || 0
         , meridian = match[3];
 
-        if (meridian) {
+        if (!meridian && match[1].startsWith('0') && str.match(patterns.internationalTime)) {
+          // match `02:00pm` with this matcher, but fallback to international time if just `02:00`
+          matchConfidence = 0;
+        } else if (meridian) {
           // meridian is included, adjust hours accordingly
           if (meridian.indexOf('p') === 0 && hour != 12)
             hour += 12;

@@ -890,17 +890,17 @@
           })(),
 
           (function() {
-            var start = getNow();
-            start.setHours(10, 0, 0, 0);
+            var start = getNow(),
+                end   = getNow();
 
-            if (start.getHours() <= getNow().getHours()) {
-              if (getNow().getHours() < 22)
-                start.setHours(22);
-              else
-                start.setDate(start.getDate() + 1);
-            }
+            end.setHours(13, 0, 0, 0);
+            if (end < getNow()) {
+              start.setHours(22, 0, 0, 0);
+              end.setDate(end.getDate() + 1);
+            } else
+              start.setHours(10, 0, 0, 0);
 
-            return test("10-01", "01", start, null, false);
+            return test("10-01", null, start, end, false);
           })(),
 
           (function() {
@@ -1179,6 +1179,15 @@
             start.setHours(2, 0, 0, 0);
 
             return test("02:00", null, start, null, false);
+          })(),
+
+          (function() {
+            var start = getNow();
+            if (start.getHours() >= 14)
+              start.setDate(start.getDate() + 1);
+            start.setHours(14, 0, 0, 0);
+
+            return test("02:00 pm", null, start, null, false);
           })(),
 
           (function() {
