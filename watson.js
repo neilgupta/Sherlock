@@ -1,6 +1,6 @@
 /**
  * Watson - Collects data for Sherlock to analyze.
- * Copyright (c) 2018 Neil Gupta
+ * Copyright (c) 2021 Neil Gupta
  *
  * This is an example Watson file. You can use this as a
  * starting point to make any changes for your use case.
@@ -37,7 +37,7 @@ var Watson = (function() {
 
   return {
     /*
-     * Takes the untouched input string, returns 
+     * Takes the untouched input string, returns
      * an array with the modified input string at position 0 and a new Sherlocked object at position 1
     */
     preprocess: function(str) {
@@ -48,7 +48,7 @@ var Watson = (function() {
       return helpers.parseCalendar(str, {});
     },
 
-    /* 
+    /*
      * Takes a Sherlocked object, and returns that Sherlocked object with any desired modifications.
     */
     postprocess: function(Sherlocked) {
