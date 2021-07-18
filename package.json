@@ -1,6 +1,6 @@
 {
   "name": "sherlockjs",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "author": "Neil Gupta",
   "description": "Natural-language event parser for Javascript.",
   "main": "sherlock.js",
