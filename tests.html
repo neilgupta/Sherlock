@@ -345,6 +345,16 @@
           })(),
 
           (function() {
+            var start = getNow();
+
+            if (start.getHours() >= 19)
+              start.setDate(start.getDate() + 1);
+            start.setHours(19, 15, 0, 0);
+
+            return test("Let's do the consult at 7:15pm this evening then.", "let's do the consult this evening then.", start, null, false);
+          })(),
+
+          (function() {
             var start = getNow(),
               diff = 0 + 7 - start.getDay();
 
