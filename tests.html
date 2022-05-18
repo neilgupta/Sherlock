@@ -976,6 +976,32 @@
           (function() {
             var now = getNow(),
               start = new Date(now.getFullYear(), 11, 1, 15),
+              end = new Date(now.getFullYear(), 11, 1, 23);
+
+            if (end < now && monthDiff(end, now) >= 3) {
+              end.setFullYear(end.getFullYear() + 1);
+              start.setFullYear(start.getFullYear() + 1);
+            }
+
+            return test("dec 1 at 3pm – 11", null, start, end, false);
+          })(),
+
+          (function() {
+            var now = getNow(),
+              start = new Date(now.getFullYear(), 11, 1, 15),
+              end = new Date(now.getFullYear(), 11, 1, 23);
+
+            if (end < now && monthDiff(end, now) >= 3) {
+              end.setFullYear(end.getFullYear() + 1);
+              start.setFullYear(start.getFullYear() + 1);
+            }
+
+            return test("dec 1 at 3pm — 11", null, start, end, false);
+          })(),
+
+          (function() {
+            var now = getNow(),
+              start = new Date(now.getFullYear(), 11, 1, 15),
               end = new Date(now.getFullYear(), 11, 11, 15);
 
             if (end < now && monthDiff(end, now) >= 3) {
